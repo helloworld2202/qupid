@@ -1,21 +1,23 @@
 import { create } from 'zustand';
 import { Screen } from '@qupid/core';
 
+type NavigationScreen = Screen | 'HOME' | 'CHAT_TAB' | 'COACHING_TAB' | 'MY_TAB' | 'SETTINGS' | 'PERSONA_SELECTION' | 'PERSONA_RECOMMENDATION_INTRO';
+
 interface NavigationState {
-  currentScreen: Screen;
-  previousScreen: Screen | null;
-  navigationHistory: Screen[];
+  currentScreen: NavigationScreen;
+  previousScreen: NavigationScreen | null;
+  navigationHistory: NavigationScreen[];
   
   // Actions
-  navigateTo: (screen: Screen) => void;
+  navigateTo: (screen: NavigationScreen) => void;
   goBack: () => void;
   resetNavigation: () => void;
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({
-  currentScreen: Screen.HOME,
+  currentScreen: 'HOME',
   previousScreen: null,
-  navigationHistory: [Screen.HOME],
+  navigationHistory: ['HOME'],
 
   navigateTo: (screen) =>
     set((state) => ({
@@ -41,8 +43,8 @@ export const useNavigationStore = create<NavigationState>((set) => ({
 
   resetNavigation: () =>
     set({
-      currentScreen: Screen.HOME,
+      currentScreen: 'HOME',
       previousScreen: null,
-      navigationHistory: [Screen.HOME],
+      navigationHistory: ['HOME'],
     }),
 }));

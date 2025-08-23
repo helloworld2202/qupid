@@ -4,7 +4,6 @@ import { UserProfile, Screen } from '@qupid/core';
 import { ChevronRightIcon } from '@qupid/ui';
 
 interface MyTabScreenProps {
-  userProfile: UserProfile;
   onNavigate: (screen: Screen) => void;
 }
 
@@ -53,7 +52,10 @@ const SectionContainer: React.FC<{ title?: string, children: React.ReactNode, cl
     </div>
 );
 
-const MyTabScreen: React.FC<MyTabScreenProps> = ({ userProfile, onNavigate }) => {
+const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate }) => {
+    // localStorage에서 사용자 정보 가져오기
+    const storedProfile = localStorage.getItem('userProfile');
+    const userProfile = storedProfile ? JSON.parse(storedProfile) : { name: '사용자', user_gender: 'male' } as UserProfile;
     const [practiceNotification, setPracticeNotification] = useState(true);
     const [analysisDisplay, setAnalysisDisplay] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
@@ -117,6 +119,11 @@ const MyTabScreen: React.FC<MyTabScreenProps> = ({ userProfile, onNavigate }) =>
                 <SectionContainer>
                     <SettingItem icon="🚪" title="로그아웃" onClick={() => {}} dangerous rightComponent={<></>} />
                     <SettingItem icon="❌" title="회원 탈퇴" subtitle="모든 데이터가 삭제됩니다" onClick={() => onNavigate(Screen.DeleteAccount)} dangerous rightComponent={<></>} />
+                </SectionContainer>
+
+                {/* Dev Only Section */}
+                <SectionContainer title="개발자용" className="pb-4">
+                    <SettingItem icon="🎨" title="디자인 가이드" onClick={() => onNavigate(Screen.DesignGuide)} rightComponent={<ChevronRightIcon className="w-4 h-4" />} />
                 </SectionContainer>
             </main>
         </div>

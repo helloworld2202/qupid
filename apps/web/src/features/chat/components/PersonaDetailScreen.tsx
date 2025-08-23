@@ -1,13 +1,11 @@
 
 import React from 'react';
 import { Persona } from '@qupid/core';
-import { ArrowLeftIcon, HeartIcon } from '@qupid/ui';
+import { ArrowLeftIcon } from '@qupid/ui';
 
 interface PersonaDetailScreenProps {
-  persona: Persona;
-  isFavorite: boolean;
+  persona?: Persona;
   onStartChat: (persona: Persona) => void;
-  onToggleFavorite: (personaId: string) => void;
   onBack: () => void;
 }
 
@@ -20,7 +18,17 @@ const InfoCard: React.FC<{title: string; children: React.ReactNode}> = ({title, 
     </div>
 );
 
-const PersonaDetailScreen: React.FC<PersonaDetailScreenProps> = ({ persona, isFavorite, onStartChat, onToggleFavorite, onBack }) => {
+const PersonaDetailScreen: React.FC<PersonaDetailScreenProps> = ({ persona, onStartChat, onBack }) => {
+  if (!persona) {
+    return (
+      <div className="flex flex-col h-full w-full bg-white items-center justify-center">
+        <p className="text-[#8B95A1]">페르소나 정보가 없습니다.</p>
+        <button onClick={onBack} className="mt-4 px-6 py-3 bg-[#0AC5A8] text-white rounded-full">
+          돌아가기
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col h-full w-full bg-white">
       {/* Header */}
@@ -29,11 +37,7 @@ const PersonaDetailScreen: React.FC<PersonaDetailScreenProps> = ({ persona, isFa
           <ArrowLeftIcon className="w-6 h-6 text-[#8B95A1]" />
         </button>
         <h2 className="text-lg font-bold text-[#191F28]">{persona.name}</h2>
-        <button onClick={() => onToggleFavorite(persona.id)} className="p-2 rounded-full hover:bg-red-50">
-          <HeartIcon 
-            className={`w-6 h-6 transition-colors ${isFavorite ? 'text-[#F093B0] fill-[#F093B0]' : 'text-[#8B95A1]'}`} 
-          />
-        </button>
+        <div className="w-10 h-10" />{/* placeholder for alignment */}
       </header>
 
       {/* Main Content */}

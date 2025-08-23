@@ -1,12 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { Persona, ConversationAnalysis, AICoach } from '@qupid/core';
-import { TargetIcon, TrendingUpIcon, ArrowLeftIcon } from '@qupid/ui';
+import { ConversationAnalysis } from '@qupid/core';
+import {} from '@qupid/ui';
 
 interface ConversationAnalysisScreenProps {
-  analysis: ConversationAnalysis;
-  persona: Persona | AICoach;
-  onNext: () => void;
+  analysis?: ConversationAnalysis;
+  tutorialJustCompleted?: boolean;
+  onHome: () => void;
+  onBack: () => void;
 }
 
 const ScoreDonut: React.FC<{ score: number }> = ({ score }) => {
@@ -85,12 +86,24 @@ const AnalysisCategory: React.FC<{ emoji: string, title: string, score: number, 
     )
 }
 
-const ConversationAnalysisScreen: React.FC<ConversationAnalysisScreenProps> = ({ analysis, persona, onNext }) => {
+const ConversationAnalysisScreen: React.FC<ConversationAnalysisScreenProps> = ({ analysis, tutorialJustCompleted, onHome, onBack }) => {
+  // analysis가 없으면 기본 화면 표시
+  if (!analysis) {
+    return (
+      <div className="flex flex-col h-full w-full bg-white items-center justify-center">
+        <p className="text-[#8B95A1]">분석 결과가 없습니다.</p>
+        <button onClick={onBack} className="mt-4 px-6 py-3 bg-[#0AC5A8] text-white rounded-full">
+          돌아가기
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full w-full bg-gradient-to-b from-[#FDF2F8] to-white">
         <header className="flex-shrink-0 pt-12 pb-6 text-center relative">
             <h1 className="text-2xl font-bold text-[#191F28]">대화 완료!</h1>
-            <p className="text-base text-gray-500 mt-1">{persona.name}님과 15분 동안 대화했어요.</p>
+            <p className="text-base text-gray-500 mt-1">15분 동안 대화했어요.</p>
         </header>
         
         <main className="flex-1 overflow-y-auto px-5 pb-28">
@@ -130,10 +143,10 @@ const ConversationAnalysisScreen: React.FC<ConversationAnalysisScreenProps> = ({
         
         <footer className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-sm border-t border-[#F2F4F6]">
              <button
-                onClick={onNext}
+                onClick={tutorialJustCompleted ? onHome : onBack}
                 className="w-full h-14 bg-[#F093B0] text-white text-lg font-bold rounded-xl"
             >
-                다른 AI와 대화해보기
+                {tutorialJustCompleted ? '홈으로' : '다른 AI와 대화해보기'}
             </button>
         </footer>
     </div>

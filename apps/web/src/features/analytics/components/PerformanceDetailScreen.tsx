@@ -7,11 +7,39 @@ import { Chart, registerables } from 'chart.js/auto';
 Chart.register(...registerables);
 
 interface PerformanceDetailScreenProps {
-  data: PerformanceData;
   onBack: () => void;
 }
 
-const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ data, onBack }) => {
+const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBack }) => {
+  // 임시 데이터 - MOCK_PERFORMANCE_DATA 구조와 동일하게
+  const data: PerformanceData = {
+    weeklyScore: 78,
+    scoreChange: 12,
+    scoreChangePercentage: 18,
+    dailyScores: [60, 65, 70, 68, 75, 72, 78],
+    radarData: {
+      labels: ['친근함', '호기심', '공감력', '유머', '배려', '적극성'],
+      datasets: [{
+        label: '이번 주',
+        data: [85, 92, 58, 60, 75, 70],
+        backgroundColor: 'rgba(240, 147, 176, 0.2)',
+        borderColor: 'rgba(240, 147, 176, 1)',
+        borderWidth: 2,
+      }]
+    },
+    stats: {
+      totalTime: '2시간 15분',
+      sessionCount: 8,
+      avgTime: '17분',
+      longestSession: { time: '32분', persona: '소연님과' },
+      preferredType: '활발한 성격 (60%)'
+    },
+    categoryScores: [
+      { title: '친근함', emoji: '😊', score: 85, change: 8, goal: 90 },
+      { title: '호기심', emoji: '🤔', score: 92, change: 15, goal: 90 },
+      { title: '공감력', emoji: '💬', score: 58, change: 3, goal: 70 },
+    ]
+  };
   const lineChartRef = useRef<HTMLCanvasElement>(null);
   const radarChartRef = useRef<HTMLCanvasElement>(null);
 

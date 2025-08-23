@@ -4,7 +4,6 @@ import { UserProfile, Screen } from '@qupid/core';
 import { ArrowLeftIcon, ChevronRightIcon } from '@qupid/ui';
 
 interface SettingsScreenProps {
-  userProfile: UserProfile;
   onNavigate: (screen: Screen) => void;
   onBack: () => void;
 }
@@ -55,7 +54,10 @@ const SectionContainer: React.FC<{ title?: string, children: React.ReactNode, cl
     </div>
 );
 
-const SettingsScreen: React.FC<SettingsScreenProps> = ({ userProfile, onNavigate, onBack }) => {
+const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack }) => {
+    // localStorage에서 사용자 정보 가져오기
+    const storedProfile = localStorage.getItem('userProfile');
+    const userProfile = storedProfile ? JSON.parse(storedProfile) : { name: '사용자', user_gender: 'female' } as UserProfile;
     const [practiceNotification, setPracticeNotification] = useState(true);
     const [analysisDisplay, setAnalysisDisplay] = useState(true);
     const [darkMode, setDarkMode] = useState(false);

@@ -4,12 +4,25 @@ import { Persona } from '@qupid/core';
 import { ArrowLeftIcon } from '@qupid/ui';
 
 interface ConversationPrepScreenProps {
-  persona: Persona;
+  partner?: Persona;
   onStart: () => void;
   onBack: () => void;
 }
 
-const ConversationPrepScreen: React.FC<ConversationPrepScreenProps> = ({ persona, onStart, onBack }) => {
+const ConversationPrepScreen: React.FC<ConversationPrepScreenProps> = ({ partner, onStart, onBack }) => {
+  // partner가 없으면 기본 persona 사용
+  if (!partner) {
+    return (
+      <div className="flex flex-col h-full w-full bg-white items-center justify-center">
+        <p className="text-[#8B95A1]">파트너를 선택해주세요.</p>
+        <button onClick={onBack} className="mt-4 px-6 py-3 bg-[#0AC5A8] text-white rounded-full">
+          돌아가기
+        </button>
+      </div>
+    );
+  }
+
+  const persona = partner;
   const checklist = [
     "편안한 마음가짐 준비",
     "15-20분 정도 시간 확보",

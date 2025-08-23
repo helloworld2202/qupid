@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Providers } from './app/providers';
 import { useUserStore } from './shared/stores/userStore';
 import { useNavigationStore } from './shared/stores/navigationStore';
-import { Screen } from '@qupid/core';
+import { Screen, PREDEFINED_PERSONAS, Badge } from '@qupid/core';
 
 // Shared Components
 import { BottomNavBar } from './shared/components/BottomNavBar';
@@ -29,14 +29,23 @@ import { BadgesScreen } from './features/profile/components/BadgesScreen';
 import { FavoritesScreen } from './features/profile/components/FavoritesScreen';
 import { NotificationSettingsScreen } from './features/profile/components/NotificationSettingsScreen';
 import { DeleteAccountScreen } from './features/profile/components/DeleteAccountScreen';
+import { DesignGuideScreen } from './features/profile/components/DesignGuideScreen';
 import { PerformanceDetailScreen } from './features/analytics/components/PerformanceDetailScreen';
 import { DataExportScreen } from './features/analytics/components/DataExportScreen';
 
 const AppContent: React.FC = () => {
-  const { user, isOnboardingComplete, setUser } = useUserStore();
-  const { currentScreen, navigateTo } = useNavigationStore();
+  const { user, setUser } = useUserStore();
+  const { currentScreen, navigateTo: originalNavigateTo } = useNavigationStore();
   const [appState, setAppState] = React.useState<'loading' | 'onboarding' | 'main'>('loading');
   const [sessionData, setSessionData] = React.useState<any>(null);
+  const [favoriteIds, setFavoriteIds] = React.useState<string[]>(['persona-1', 'persona-3']);
+  const [previousScreen, setPreviousScreen] = React.useState<Screen | string>('HOME');
+
+  // 네비게이션 래퍼 - 이전 화면 추적
+  const navigateTo = React.useCallback((screen: Screen | string) => {
+    setPreviousScreen(currentScreen);
+    originalNavigateTo(screen);
+  }, [currentScreen, originalNavigateTo]);
 
   useEffect(() => {
     // Check local storage for existing user profile
@@ -52,167 +61,218 @@ const AppContent: React.FC = () => {
   }, [setUser]);
 
   const handleOnboardingComplete = (profile: any) => {
-    setUser(profile);
-    localStorage.setItem('userProfile', JSON.stringify(profile));
+    const newProfile = {
+      ...profile,
+      id: `user_${new Date().getTime()}`,
+      created_at: new Date().toISOString(),
+      isTutorialCompleted: false,
+    };
+    setUser(newProfile);
+    localStorage.setItem('userProfile', JSON.stringify(newProfile));
     setAppState('main');
-    navigateTo(Screen.HOME);
+    navigateTo(Screen.TutorialIntro); // 튜토리얼 소개 화면으로 이동
   };
 
   const renderScreen = () => {
     switch (currentScreen) {
-      case Screen.HOME:
+      case 'HOME':
         return <HomeScreen onNavigate={navigateTo} />;
       
-      case Screen.CHAT_TAB:
-        return <ChatTabScreen onNavigate={navigateTo} />;
-      
-      case Screen.CONVERSATION_PREP:
+      case 'CHAT_TAB':
         return (
-          <ConversationPrepScreen
-            partner={sessionData?.partner}
-            onStart={() => navigateTo(Screen.CHAT)}
-            onBack={() => navigateTo(Screen.CHAT_TAB)}
+          <ChatTabScreen 
+            onNavigate={navigateTo}
+            onSelectPersona={(persona) => {
+              setSessionData({ persona });
+              navigateTo(Screen.PersonaDetail);
+            }}
           />
         );
       
-      case Screen.CHAT:
+      case Screen.ConversationPrep:
+        return (
+          <ConversationPrepScreen
+            partner={sessionData?.partner}
+            onStart={() => navigateTo(Screen.Chat)}
+            onBack={() => navigateTo('CHAT_TAB')}
+          />
+        );
+      
+      case Screen.Chat:
         return (
           <ChatScreen
             partner={sessionData?.partner}
             isTutorial={sessionData?.isTutorial || false}
             onComplete={(analysis, tutorialCompleted) => {
-              setSessionData({ ...sessionData, analysis, tutorialCompleted });
-              navigateTo(Screen.CONVERSATION_ANALYSIS);
+              if (tutorialCompleted && user) {
+                // 튜토리얼 완료 시 처리
+                const updatedProfile = { ...user, isTutorialCompleted: true };
+                setUser(updatedProfile);
+                localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+                
+                // 홈으로 이동
+                setSessionData(null);
+                navigateTo('HOME');
+              } else {
+                // 일반 대화 완료 시 분석 화면으로
+                setSessionData({ ...sessionData, analysis, tutorialCompleted });
+                navigateTo(Screen.ConversationAnalysis);
+              }
             }}
           />
         );
       
-      case Screen.CONVERSATION_ANALYSIS:
+      case Screen.ConversationAnalysis:
+        // partner가 AICoach인지 확인 (specialty 속성 유무로 판단)
+        const isCoachChat = sessionData?.partner && 'specialty' in sessionData.partner;
         return (
           <ConversationAnalysisScreen
             analysis={sessionData?.analysis}
             tutorialJustCompleted={sessionData?.tutorialCompleted}
-            onHome={() => navigateTo(Screen.HOME)}
-            onBack={() => navigateTo(Screen.CHAT_TAB)}
+            onHome={() => navigateTo('HOME')}
+            onBack={() => navigateTo(isCoachChat ? 'COACHING_TAB' : 'CHAT_TAB')}
           />
         );
       
-      case Screen.PERSONA_DETAIL:
+      case Screen.PersonaDetail:
         return (
           <PersonaDetailScreen
             persona={sessionData?.persona}
-            onBack={() => navigateTo(Screen.CHAT_TAB)}
+            onBack={() => navigateTo('CHAT_TAB')}
             onStartChat={(persona) => {
               setSessionData({ partner: persona, isTutorial: false });
-              navigateTo(Screen.CONVERSATION_PREP);
+              navigateTo(Screen.ConversationPrep);
             }}
           />
         );
       
-      case Screen.CUSTOM_PERSONA_FORM:
+      case Screen.CustomPersona:
         return (
           <CustomPersonaForm
             onSave={(persona) => {
               // Handle custom persona save
-              navigateTo(Screen.CHAT_TAB);
+              navigateTo('CHAT_TAB');
             }}
-            onCancel={() => navigateTo(Screen.CHAT_TAB)}
+            onCancel={() => navigateTo('CHAT_TAB')}
           />
         );
       
-      case Screen.TUTORIAL_INTRO:
+      case Screen.TutorialIntro:
+        const tutorialPersona = PREDEFINED_PERSONAS.find(p => p.id === 'persona-1');
+        if (!tutorialPersona) {
+          return <div>Loading...</div>;
+        }
         return (
           <TutorialIntroScreen
+            persona={tutorialPersona}
             onStart={() => {
-              // Start tutorial
-              navigateTo(Screen.CHAT);
+              setSessionData({ 
+                partner: tutorialPersona, 
+                isTutorial: true 
+              });
+              navigateTo(Screen.ConversationPrep);
             }}
-            onSkip={() => navigateTo(Screen.HOME)}
+            onBack={() => navigateTo('HOME')}
           />
         );
       
-      case Screen.PERSONA_SELECTION:
+      case 'PERSONA_SELECTION':
         return (
           <PersonaSelection
             onSelect={(type) => {
               // Handle persona selection
-              navigateTo(Screen.CHAT_TAB);
+              navigateTo('CHAT_TAB');
             }}
-            onBack={() => navigateTo(Screen.HOME)}
+            onBack={() => navigateTo('HOME')}
           />
         );
       
-      case Screen.PERSONA_RECOMMENDATION_INTRO:
+      case 'PERSONA_RECOMMENDATION_INTRO':
         return (
           <PersonaRecommendationIntro
-            onContinue={() => navigateTo(Screen.PERSONA_SELECTION)}
+            onContinue={() => navigateTo('PERSONA_SELECTION')}
           />
         );
       
-      case Screen.COACHING_TAB:
-        return <CoachingTabScreen onNavigate={navigateTo} />;
+      case 'COACHING_TAB':
+        return (
+          <CoachingTabScreen 
+            onNavigate={navigateTo}
+            onStartCoachChat={(coach) => {
+              setSessionData({ partner: coach, isTutorial: false });
+              navigateTo(Screen.Chat);
+            }}
+          />
+        );
       
-      case Screen.STYLING_COACH:
-        return <StylingCoach onBack={() => navigateTo(Screen.COACHING_TAB)} />;
+      case Screen.StylingCoach:
+        return <StylingCoach onBack={() => navigateTo('COACHING_TAB')} />;
       
-      case Screen.LEARNING_GOALS:
+      case Screen.LearningGoals:
         return (
           <LearningGoalsScreen
-            onBack={() => navigateTo(Screen.MY_TAB)}
+            onBack={() => navigateTo('MY_TAB')}
             onSave={(goals) => {
               // Handle goals save
-              navigateTo(Screen.MY_TAB);
+              navigateTo('MY_TAB');
             }}
           />
         );
       
-      case Screen.MY_TAB:
+      case 'MY_TAB':
         return <MyTabScreen onNavigate={navigateTo} />;
       
-      case Screen.PROFILE_EDIT:
+      case Screen.ProfileEdit:
         return (
           <ProfileEditScreen
-            onBack={() => navigateTo(Screen.MY_TAB)}
+            onBack={() => navigateTo('MY_TAB')}
             onSave={(profile) => {
               setUser(profile);
-              navigateTo(Screen.MY_TAB);
+              navigateTo('MY_TAB');
             }}
           />
         );
       
-      case Screen.SETTINGS:
+      case 'SETTINGS':
         return (
           <SettingsScreen
-            onBack={() => navigateTo(Screen.MY_TAB)}
+            onBack={() => navigateTo('MY_TAB')}
             onNavigate={navigateTo}
           />
         );
       
-      case Screen.BADGES:
-        return <BadgesScreen onBack={() => navigateTo(Screen.MY_TAB)} />;
+      case Screen.Badges:
+        const badges: Badge[] = [
+          { id: '1', name: '대화 초보자', icon: '🌱', description: '첫 대화 완료', category: '대화', rarity: 'Common', acquired: true, featured: true },
+          { id: '2', name: '호감도 마스터', icon: '💖', description: '호감도 80% 달성', category: '대화', rarity: 'Rare', acquired: false, progress: { current: 65, total: 80 } },
+          { id: '3', name: '연속 대화왕', icon: '🔥', description: '7일 연속 대화', category: '성장', rarity: 'Epic', acquired: false, progress: { current: 3, total: 7 } },
+        ];
+        return <BadgesScreen badges={badges} onBack={() => navigateTo(previousScreen)} />;
       
-      case Screen.FAVORITES:
+      case Screen.Favorites:
+        const favoritePersonas = PREDEFINED_PERSONAS.filter(p => favoriteIds.includes(p.id));
         return (
           <FavoritesScreen
-            onBack={() => navigateTo(Screen.MY_TAB)}
+            personas={favoritePersonas}
+            onBack={() => navigateTo('MY_TAB')}
             onSelectPersona={(persona) => {
               setSessionData({ persona });
-              navigateTo(Screen.PERSONA_DETAIL);
+              navigateTo(Screen.PersonaDetail);
             }}
           />
         );
       
-      case Screen.NOTIFICATION_SETTINGS:
+      case Screen.NotificationSettings:
         return (
           <NotificationSettingsScreen
-            onBack={() => navigateTo(Screen.SETTINGS)}
+            onBack={() => navigateTo('SETTINGS')}
           />
         );
       
-      case Screen.DELETE_ACCOUNT:
+      case Screen.DeleteAccount:
         return (
           <DeleteAccountScreen
-            onBack={() => navigateTo(Screen.SETTINGS)}
+            onBack={() => navigateTo('SETTINGS')}
             onConfirm={() => {
               localStorage.clear();
               setUser(null);
@@ -221,16 +281,46 @@ const AppContent: React.FC = () => {
           />
         );
       
-      case Screen.PERFORMANCE_DETAIL:
+      case Screen.PerformanceDetail:
+        const performanceData = {
+          weeklyScore: 78,
+          scoreChange: 5,
+          scoreChangePercentage: 6.8,
+          dailyScores: [65, 70, 72, 68, 75, 78, 78],
+          radarData: {
+            labels: ['친근함', '호기심', '공감', '유머', '표현력'],
+            datasets: [{
+              label: '내 점수',
+              data: [80, 65, 75, 70, 85],
+              backgroundColor: 'rgba(240, 147, 176, 0.2)',
+              borderColor: '#F093B0',
+              borderWidth: 2,
+            }]
+          },
+          stats: {
+            totalTime: '12시간 30분',
+            sessionCount: 42,
+            avgTime: '18분',
+            longestSession: { time: '45분', persona: '김소연' },
+            preferredType: '친근한 대화',
+          },
+          categoryScores: [
+            { title: '친근함', emoji: '😊', score: 80, change: 5, goal: 85 },
+            { title: '호기심', emoji: '🤔', score: 65, change: -2, goal: 70 },
+            { title: '공감', emoji: '💝', score: 75, change: 8, goal: 80 },
+          ]
+        };
         return (
           <PerformanceDetailScreen
-            performanceData={sessionData?.performanceData}
-            onBack={() => navigateTo(Screen.MY_TAB)}
+            onBack={() => navigateTo('HOME')}
           />
         );
       
-      case Screen.DATA_EXPORT:
-        return <DataExportScreen onBack={() => navigateTo(Screen.SETTINGS)} />;
+      case Screen.DataExport:
+        return <DataExportScreen onBack={() => navigateTo('SETTINGS')} />;
+      
+      case Screen.DesignGuide:
+        return <DesignGuideScreen onBack={() => navigateTo('MY_TAB')} />;
       
       default:
         return <HomeScreen onNavigate={navigateTo} />;
@@ -253,11 +343,11 @@ const AppContent: React.FC = () => {
   }
 
   const showBottomNav = [
-    Screen.HOME,
-    Screen.CHAT_TAB,
-    Screen.COACHING_TAB,
-    Screen.MY_TAB
-  ].includes(currentScreen);
+    'HOME',
+    'CHAT_TAB',
+    'COACHING_TAB',
+    'MY_TAB'
+  ].includes(currentScreen as string);
 
   return (
     <div className="flex flex-col h-screen w-full max-w-md mx-auto bg-white">

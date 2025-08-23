@@ -1,16 +1,16 @@
 
 
 import React, { useEffect, useRef } from 'react';
-import { PerformanceData, AICoach } from '@qupid/core';
+import { PerformanceData, AICoach, Screen } from '@qupid/core';
 import { Chart, registerables } from 'chart.js/auto';
 import { AI_COACHES } from '@qupid/core';
-import { ChevronRightIcon } from '@qupid/ui';
+import {} from '@qupid/ui';
 
 Chart.register(...registerables);
 
 interface CoachingTabScreenProps {
-  data: PerformanceData;
-  onStartCoachChat: (coach: AICoach) => void;
+  onNavigate: (screen: Screen) => void;
+  onStartCoachChat?: (coach: AICoach) => void;
 }
 
 const CoachCard: React.FC<{ coach: AICoach; onStart: () => void; }> = ({ coach, onStart }) => (
@@ -27,7 +27,36 @@ const CoachCard: React.FC<{ coach: AICoach; onStart: () => void; }> = ({ coach, 
   </div>
 );
 
-const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ data, onStartCoachChat }) => {
+const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onStartCoachChat }) => {
+  // 임시 데이터 - MOCK_PERFORMANCE_DATA 구조와 동일하게
+  const data: PerformanceData = {
+    weeklyScore: 78,
+    scoreChange: 12,
+    scoreChangePercentage: 18,
+    dailyScores: [60, 65, 70, 68, 75, 72, 78],
+    radarData: {
+      labels: ['친근함', '호기심', '공감력', '유머', '배려', '적극성'],
+      datasets: [{
+        label: '이번 주',
+        data: [85, 92, 58, 60, 75, 70],
+        backgroundColor: 'rgba(240, 147, 176, 0.2)',
+        borderColor: 'rgba(240, 147, 176, 1)',
+        borderWidth: 2,
+      }]
+    },
+    stats: {
+      totalTime: '2시간 15분',
+      sessionCount: 8,
+      avgTime: '17분',
+      longestSession: { time: '32분', persona: '소연님과' },
+      preferredType: '활발한 성격 (60%)'
+    },
+    categoryScores: [
+      { title: '친근함', emoji: '😊', score: 85, change: 8, goal: 90 },
+      { title: '호기심', emoji: '🤔', score: 92, change: 15, goal: 90 },
+      { title: '공감력', emoji: '💬', score: 58, change: 3, goal: 70 },
+    ]
+  };
   const radarChartRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -99,7 +128,18 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ data, onStartCoac
           <p className="text-sm text-[#8B95A1] px-1 mb-3">부족한 부분을 전문 코치와 함께 집중적으로 연습해보세요.</p>
           <div className="space-y-3">
             {AI_COACHES.map(coach => (
-              <CoachCard key={coach.id} coach={coach} onStart={() => onStartCoachChat(coach)} />
+              <CoachCard 
+                key={coach.id} 
+                coach={coach} 
+                onStart={() => {
+                  if (onStartCoachChat) {
+                    onStartCoachChat(coach);
+                  } else {
+                    // Fallback to navigate to Chat screen
+                    onNavigate(Screen.Chat);
+                  }
+                }} 
+              />
             ))}
           </div>
         </section>

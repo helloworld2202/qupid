@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qupid - LocalStorage 초기화</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #FDF2F8, #EBF2FF);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #191F28;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #8B95A1;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        button {
+            background: #F093B0;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 176, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .secondary {
+            background: #4F7ABA;
+        }
+        .secondary:hover {
+            box-shadow: 0 5px 15px rgba(79, 122, 186, 0.3);
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #E6F7F5;
+            color: #0AC5A8;
+            font-weight: 500;
+            display: none;
+        }
+        .status.show {
+            display: block;
+        }
+        .actions {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #F2F4F6;
+        }
+        .info {
+            background: #FDF2F8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #191F28;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩷 Qupid 초기화 도구</h1>
+        <p class="subtitle">개발 테스트를 위한 유틸리티</p>
+        
+        <div class="info">
+            💡 이 도구를 사용하면 저장된 사용자 데이터를 초기화하고 온보딩부터 다시 시작할 수 있습니다.
+        </div>
+        
+        <button onclick="clearStorage()">🗑️ LocalStorage 초기화</button>
+        <button class="secondary" onclick="viewStorage()">👀 저장된 데이터 보기</button>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="actions">
+            <button class="secondary" onclick="goToApp()">🚀 앱으로 돌아가기</button>
+        </div>
+    </div>
+    
+    <script>
+        function clearStorage() {
+            const keys = Object.keys(localStorage);
+            const count = keys.length;
+            
+            if (count === 0) {
+                showStatus('이미 LocalStorage가 비어있습니다.', false);
+                return;
+            }
+            
+            if (confirm(`정말로 ${count}개의 항목을 삭제하시겠습니까?`)) {
+                localStorage.clear();
+                showStatus(`✅ ${count}개 항목이 초기화되었습니다. 앱을 새로고침하면 온보딩부터 시작됩니다.`, true);
+            }
+        }
+        
+        function viewStorage() {
+            const keys = Object.keys(localStorage);
+            if (keys.length === 0) {
+                showStatus('📭 저장된 데이터가 없습니다.', false);
+                return;
+            }
+            
+            let data = '📦 저장된 데이터:\n\n';
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                const preview = value.length > 100 ? value.substring(0, 100) + '...' : value;
+                data += `• ${key}: ${preview}\n`;
+            });
+            
+            showStatus(data, false);
+        }
+        
+        function showStatus(message, success) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.background = success ? '#E6F7F5' : '#FDF2F8';
+            status.style.color = success ? '#0AC5A8' : '#F093B0';
+            status.classList.add('show');
+            
+            if (success) {
+                setTimeout(() => {
+                    status.classList.remove('show');
+                }, 5000);
+            }
+        }
+        
+        function goToApp() {
+            window.location.href = '/';
+        }
+        
+        // 페이지 로드 시 현재 상태 표시
+        window.onload = function() {
+            const count = Object.keys(localStorage).length;
+            if (count > 0) {
+                console.log(`현재 ${count}개의 항목이 LocalStorage에 저장되어 있습니다.`);
+            }
+        };
+    </script>
+</body>
+</html>

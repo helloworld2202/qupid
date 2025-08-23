@@ -1,14 +1,11 @@
 
 import React from 'react';
-import { Persona, Screen, UserProfile } from '@qupid/core';
-import { SearchIcon, SettingsIcon, PlusCircleIcon, ChevronRightIcon } from '@qupid/ui';
+import { Persona, Screen, UserProfile, PREDEFINED_PERSONAS } from '@qupid/core';
+import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
 
 interface ChatTabScreenProps {
-  userProfile: UserProfile;
-  personas: Persona[];
-  favoritePersonas: Persona[];
-  onSelectPersona: (persona: Persona) => void;
   onNavigate: (screen: Screen) => void;
+  onSelectPersona?: (persona: Persona) => void;
 }
 
 const PersonaCard: React.FC<{ persona: Persona; onSelect: () => void; }> = ({ persona, onSelect }) => {
@@ -39,7 +36,25 @@ const PersonaCard: React.FC<{ persona: Persona; onSelect: () => void; }> = ({ pe
 };
 
 
-const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ userProfile, personas, favoritePersonas, onSelectPersona, onNavigate }) => {
+const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => {
+  // 임시 데이터 - 실제 PERSONAS 사용
+  const userProfile = { 
+    name: '사용자',
+    user_gender: 'male',
+    interests: ['게임', '영화'],
+    experience: '없음',
+    confidence: 3,
+    difficulty: 2
+  } as UserProfile;
+  const personas: Persona[] = PREDEFINED_PERSONAS.filter(p => p.gender === 'female'); // 이성 페르소나만 표시
+  const favoritePersonas: Persona[] = personas.slice(0, 2); // 처음 2개를 즐겨찾기로
+  const onSelectPersona = (persona: Persona) => {
+    if (onSelectPersonaProp) {
+      onSelectPersonaProp(persona);
+    } else {
+      onNavigate(Screen.ConversationPrep);
+    }
+  };
 
   const getConsiderations = () => {
     if (!userProfile) return [];

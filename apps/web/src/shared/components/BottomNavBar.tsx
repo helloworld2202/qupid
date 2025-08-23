@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Tab } from '@qupid/core';
+import { Tab, Screen } from '@qupid/core';
 
 interface BottomNavBarProps {
-  activeTab: Tab;
-  onTabChange: (tab: Tab) => void;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
   notifications?: {
     chat?: boolean;
     coaching?: boolean;
@@ -41,10 +41,10 @@ const NavItem: React.FC<{
 
 const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, onTabChange, notifications = {} }) => {
   const tabs = [
-    { id: Tab.Home, label: '홈', icon: '🏠' },
-    { id: Tab.Chat, label: '대화', icon: '💬', notification: notifications.chat },
-    { id: Tab.Coaching, label: '코칭', icon: '📚', notification: notifications.coaching },
-    { id: Tab.My, label: 'MY', icon: '👤', notification: notifications.my },
+    { id: 'HOME', label: '홈', icon: '🏠' },
+    { id: 'CHAT_TAB', label: '대화', icon: '💬', notification: notifications.chat },
+    { id: 'COACHING_TAB', label: '코칭', icon: '📚', notification: notifications.coaching },
+    { id: 'MY_TAB', label: 'MY', icon: '👤', notification: notifications.my },
   ];
 
   return (

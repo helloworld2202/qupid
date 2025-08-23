@@ -63,6 +63,7 @@ export enum Screen {
   PerformanceDetail,
   Favorites,
   TutorialIntro,
+  DesignGuide,
 }
 
 export interface UserProfile {

@@ -9,7 +9,7 @@ const router = Router();
 // Create a new chat session (requires authentication)
 router.post(
   '/sessions',
-  authenticate,
+  // authenticate, // 임시로 인증 비활성화
   controller.createSession
 );
 
