@@ -1,0 +1,17 @@
+{
+  "extends": "../../packages/config/tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@qupid/core": ["../../packages/core/src"],
+      "@qupid/ui": ["../../packages/ui/src"],
+      "@qupid/config": ["../../packages/config"]
+    }
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/ui" }
+  ]
+}

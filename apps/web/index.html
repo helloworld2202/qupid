@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>연애 박사 (Dating Master)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        /* Primary Colors */
+        --primary-pink-main: #F093B0;
+        --primary-pink-light: #FDF2F8;
+        --primary-pink-dark: #DB7093;
+        --secondary-blue-main: #4F7ABA;
+        --secondary-blue-light: #EBF2FF;
+        --secondary-blue-dark: #3A5A8A;
+        --accent-lavender: #B794F6;
+
+        /* Functional Colors */
+        --success-green: #0AC5A8;
+        --warning-orange: #FF8A00;
+        --error-red: #FF4757;
+        --error-red-light: #FFE8EA;
+        
+        /* Neutral Colors (Light Mode) */
+        --surface: #FFFFFF;
+        --background: #F9FAFB;
+        --card: #FFFFFF;
+        --border: #E5E8EB;
+        --divider: #F2F4F6;
+        --text-primary: #191F28;
+        --text-secondary: #8B95A1;
+        --text-tertiary: #B0B8C1;
+        --text-disabled: #D1D6DB;
+      }
+
+      html, body, #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overscroll-behavior: none;
+      }
+
+      body {
+        font-family: 'Pretendard', 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #0E0E12; /* Dark background for desktop frame */
+        color: var(--text-primary);
+      }
+      
+      /* Animations */
+      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+      @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes scale-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+      @keyframes shake {
+        10%, 90% { transform: translate3d(-1px, 0, 0); }
+        20%, 80% { transform: translate3d(2px, 0, 0); }
+        30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+        40%, 60% { transform: translate3d(3px, 0, 0); }
+      }
+
+      .animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
+      .animate-fade-out { animation: fade-out 0.3s ease-in forwards; }
+      .animate-fade-in-up { animation: fade-in-up 0.5s ease-out forwards; opacity: 0; }
+      .animate-scale-in { animation: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0; }
+      .animate-shake { animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
+
+      .delay-100 { animation-delay: 0.1s; }
+      .delay-200 { animation-delay: 0.2s; }
+      .delay-300 { animation-delay: 0.3s; }
+      .delay-400 { animation-delay: 0.4s; }
+      .delay-500 { animation-delay: 0.5s; }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.11.0",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "chart.js/": "https://esm.sh/chart.js@^4.5.0/",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.52.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>

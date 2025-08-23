@@ -1,0 +1,8 @@
+{
+  "name": "Copy of 연애 박사 (Dating Master)",
+  "description": "An AI-powered dating conversation simulation platform. Practice talking with various AI personas, get real-time feedback, and receive personalized styling advice to build confidence in your communication skills.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "prompt": ""
+}

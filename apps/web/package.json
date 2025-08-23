@@ -1,0 +1,40 @@
+{
+  "name": "@qupid/web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "clean": "rm -rf dist node_modules .turbo"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
+    "@qupid/core": "workspace:*",
+    "@qupid/ui": "workspace:*",
+    "@supabase/supabase-js": "^2.52.1",
+    "@tanstack/react-query": "^5.85.5",
+    "chart.js": "^4.5.0",
+    "openai": "^5.15.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.62.0",
+    "zod": "^3.25.76",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@qupid/config": "workspace:*",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.0.3",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

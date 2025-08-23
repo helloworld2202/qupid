@@ -1,0 +1,13 @@
+{
+  "name": "@qupid/config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "files": [
+    "tsconfig.base.json",
+    "eslint-preset.js",
+    "prettier.config.js",
+    "tailwind.config.js",
+    "vite.config.base.js"
+  ]
+}

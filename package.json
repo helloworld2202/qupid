@@ -1,0 +1,25 @@
+{
+  "name": "qupid-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "dev": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
+    "dev:web": "pnpm --filter @qupid/web dev",
+    "dev:api": "pnpm --filter @qupid/api dev",
+    "build": "pnpm -r build",
+    "build:web": "pnpm --filter @qupid/web build",
+    "build:api": "pnpm --filter @qupid/api build",
+    "preview": "pnpm --filter @qupid/web preview",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "install:all": "pnpm install"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "concurrently": "^9.2.0",
+    "typescript": "~5.8.2"
+  }
+}

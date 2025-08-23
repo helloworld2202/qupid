@@ -1,0 +1,81 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import pino from 'pino';
+import pinoHttp from 'pino-http';
+import { env } from './shared/config/env.js';
+import { errorHandler } from './shared/middleware/errorHandler.js';
+
+// Import routes
+import chatRoutes from './modules/chat/routes.js';
+import stylingRoutes from './modules/styling/routes.js';
+
+const logger = pino({
+  level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true
+    }
+  }
+});
+
+const app = express();
+
+// Security middleware
+app.use(helmet());
+
+// CORS configuration
+app.use(cors({
+  origin: env.ALLOWED_ORIGINS,
+  credentials: true
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: env.RATE_LIMIT_WINDOW_MS,
+  max: env.RATE_LIMIT_MAX_REQUESTS,
+  message: 'Too many requests from this IP, please try again later.'
+});
+
+app.use('/api/', limiter);
+
+// Logging
+app.use(pinoHttp({ logger }));
+
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Health check
+app.get('/healthz', (_req, res) => {
+  res.json({ ok: true, status: 'healthy' });
+});
+
+// API routes
+app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/styling', stylingRoutes);
+
+// 404 handler
+app.use((_req, res) => {
+  res.status(404).json({
+    ok: false,
+    error: {
+      code: 'NOT_FOUND',
+      message: 'Endpoint not found'
+    }
+  });
+});
+
+// Error handler (must be last)
+app.use(errorHandler);
+
+// Start server
+const PORT = env.PORT || 4000;
+
+app.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT}`);
+  logger.info(`Environment: ${env.NODE_ENV}`);
+  logger.info(`Allowed origins: ${env.ALLOWED_ORIGINS.join(', ')}`);
+});
