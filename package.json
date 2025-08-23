@@ -18,8 +18,11 @@
     "install:all": "pnpm install"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2.56.0",
     "@types/node": "^22.14.0",
     "concurrently": "^9.2.0",
+    "dotenv": "^16.6.1",
+    "tsx": "^4.20.4",
     "typescript": "~5.8.2"
   }
 }
