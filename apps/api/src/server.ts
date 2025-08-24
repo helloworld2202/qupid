@@ -57,7 +57,11 @@ app.use(pinoHttp({ logger }))
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
-// Health check
+// Health check endpoints
+app.get("/health", (_req, res) => {
+  res.json({ ok: true, status: "healthy" })
+})
+
 app.get("/healthz", (_req, res) => {
   res.json({ ok: true, status: "healthy" })
 })
