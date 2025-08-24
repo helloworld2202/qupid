@@ -1,5 +1,6 @@
--- Qupid Seed Data
--- 초기 데이터 시딩 스크립트
+-- Qupid Seed Data (중복 안전 버전)
+-- 이 스크립트는 여러 번 실행해도 안전합니다
+-- ON CONFLICT 구문으로 중복 데이터를 처리합니다
 
 -- =====================================================
 -- 1. AI PERSONAS (페르소나 데이터)
@@ -36,7 +37,6 @@ INSERT INTO public.personas (id, name, gender, age, mbti, personality, occupatio
  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
  70, 'Hard', ARRAY['리더십', '목표지향', '직설적']),
 
--- 남성 페르소나 추가
 ('persona-6', '강준호', 'male', 29, 'INTJ', '분석적이고 전략적인', '소프트웨어 엔지니어',
  '기술과 혁신을 좋아하는 개발자입니다. 복잡한 문제를 해결하는 것을 즐깁니다.',
  ARRAY['프로그래밍', '체스', 'SF소설', '하이킹'],
@@ -53,7 +53,20 @@ INSERT INTO public.personas (id, name, gender, age, mbti, personality, occupatio
  '감성적인 글을 쓰는 작가입니다. 깊은 대화와 의미 있는 관계를 추구합니다.',
  ARRAY['문학', '영화', '커피', '여행'],
  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400',
- 68, 'Medium', ARRAY['로맨틱', '창의적', '공감능력']);
+ 68, 'Medium', ARRAY['로맨틱', '창의적', '공감능력'])
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  gender = EXCLUDED.gender,
+  age = EXCLUDED.age,
+  mbti = EXCLUDED.mbti,
+  personality = EXCLUDED.personality,
+  occupation = EXCLUDED.occupation,
+  bio = EXCLUDED.bio,
+  interests = EXCLUDED.interests,
+  avatar = EXCLUDED.avatar,
+  match_rate = EXCLUDED.match_rate,
+  difficulty = EXCLUDED.difficulty,
+  tags = EXCLUDED.tags;
 
 -- =====================================================
 -- 2. AI COACHES (코치 데이터)
@@ -76,7 +89,15 @@ INSERT INTO public.coaches (id, name, specialty, tagline, bio, avatar, expertise
  '이미지 컨설턴트로 활동하며 많은 사람들의 숨겨진 매력을 찾아드렸어요. 당신만의 특별한 매력 포인트를 발견하고 어필하는 방법을 코칭해드려요.',
  'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400',
  ARRAY['첫인상 관리', '매력 포인트 발굴', '자신감 향상'],
- '긍정적이고 동기부여가 되는 코칭');
+ '긍정적이고 동기부여가 되는 코칭')
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  specialty = EXCLUDED.specialty,
+  tagline = EXCLUDED.tagline,
+  bio = EXCLUDED.bio,
+  avatar = EXCLUDED.avatar,
+  expertise_areas = EXCLUDED.expertise_areas,
+  coaching_style = EXCLUDED.coaching_style;
 
 -- =====================================================
 -- 3. BADGES (뱃지 정의)
@@ -92,14 +113,20 @@ INSERT INTO public.badges (id, name, icon, description, category, rarity, requir
 ('badge-7', '탐험가', '🗺️', '모든 페르소나와 대화', '탐험', 'Legendary', 'all_personas', 1),
 ('badge-8', '성장왕', '📈', '주간 성장률 50% 이상', '성장', 'Rare', 'weekly_growth', 50),
 ('badge-9', '인기스타', '⭐', '5명 이상 즐겨찾기', '소셜', 'Common', 'favorites', 5),
-('badge-10', '학습왕', '🎓', '모든 코치와 상담 완료', '학습', 'Epic', 'all_coaches', 1);
+('badge-10', '학습왕', '🎓', '모든 코치와 상담 완료', '학습', 'Epic', 'all_coaches', 1)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  icon = EXCLUDED.icon,
+  description = EXCLUDED.description,
+  category = EXCLUDED.category,
+  rarity = EXCLUDED.rarity,
+  requirement_type = EXCLUDED.requirement_type,
+  requirement_value = EXCLUDED.requirement_value;
 
 -- =====================================================
 -- 4. 테스트 사용자 (개발용)
 -- =====================================================
 
--- 테스트용 기본 사용자 데이터
--- UUID는 Supabase가 자동 생성하도록 gen_random_uuid() 사용
 INSERT INTO public.users (id, name, user_gender, partner_gender, experience, confidence, difficulty, interests, is_tutorial_completed)
 VALUES 
 -- 남성 테스트 사용자 (여성 AI와 대화)
@@ -112,13 +139,21 @@ VALUES
 
 -- 튜토리얼 미완료 사용자
 ('test-user-3', '박준영', 'male', 'female', '전혀 없어요', 2, 1,
- ARRAY['게임', '애니메이션'], false);
+ ARRAY['게임', '애니메이션'], false)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  user_gender = EXCLUDED.user_gender,
+  partner_gender = EXCLUDED.partner_gender,
+  experience = EXCLUDED.experience,
+  confidence = EXCLUDED.confidence,
+  difficulty = EXCLUDED.difficulty,
+  interests = EXCLUDED.interests,
+  is_tutorial_completed = EXCLUDED.is_tutorial_completed;
 
 -- =====================================================
 -- 5. 샘플 성과 데이터 (테스트용)
 -- =====================================================
 
--- 테스트 사용자의 성과 데이터
 INSERT INTO public.performance_metrics (user_id, week_start, weekly_score, daily_scores, category_scores, total_time_minutes, session_count)
 VALUES 
 -- 김민수의 이번 주 성과
@@ -134,7 +169,13 @@ VALUES
 -- 이수진의 이번 주 성과
 ('test-user-2', date_trunc('week', CURRENT_DATE)::date, 85, ARRAY[75, 78, 80, 82, 85, 83, 85],
  '{"친근함": 90, "호기심": 88, "공감력": 82, "유머": 75, "배려": 88, "적극성": 80}'::jsonb,
- 180, 10);
+ 180, 10)
+ON CONFLICT (user_id, week_start) DO UPDATE SET
+  weekly_score = EXCLUDED.weekly_score,
+  daily_scores = EXCLUDED.daily_scores,
+  category_scores = EXCLUDED.category_scores,
+  total_time_minutes = EXCLUDED.total_time_minutes,
+  session_count = EXCLUDED.session_count;
 
 -- =====================================================
 -- 6. 테스트 사용자 뱃지 및 즐겨찾기
@@ -146,7 +187,11 @@ VALUES
 ('test-user-1', 'badge-1', 1, 1, false),  -- 대화 초보자 (획득)
 ('test-user-1', 'badge-2', 8, 10, true),   -- 대화 중급자 (진행중, 대표 뱃지)
 ('test-user-1', 'badge-4', 78, 80, false), -- 호감도 마스터 (진행중)
-('test-user-1', 'badge-5', 3, 7, false);   -- 연속 대화왕 (진행중)
+('test-user-1', 'badge-5', 3, 7, false)   -- 연속 대화왕 (진행중)
+ON CONFLICT (user_id, badge_id) DO UPDATE SET
+  progress_current = EXCLUDED.progress_current,
+  progress_total = EXCLUDED.progress_total,
+  featured = EXCLUDED.featured;
 
 -- 이수진의 뱃지  
 INSERT INTO public.user_badges (user_id, badge_id, progress_current, progress_total, featured)
@@ -154,20 +199,26 @@ VALUES
 ('test-user-2', 'badge-1', 1, 1, false),   -- 대화 초보자 (획득)
 ('test-user-2', 'badge-2', 10, 10, false), -- 대화 중급자 (획득)
 ('test-user-2', 'badge-4', 85, 80, true),  -- 호감도 마스터 (획득, 대표 뱃지)
-('test-user-2', 'badge-8', 30, 50, false); -- 성장왕 (진행중)
+('test-user-2', 'badge-8', 30, 50, false) -- 성장왕 (진행중)
+ON CONFLICT (user_id, badge_id) DO UPDATE SET
+  progress_current = EXCLUDED.progress_current,
+  progress_total = EXCLUDED.progress_total,
+  featured = EXCLUDED.featured;
 
 -- 김민수의 즐겨찾기
 INSERT INTO public.favorites (user_id, persona_id)
 VALUES 
 ('test-user-1', 'persona-1'),  -- 김소연
-('test-user-1', 'persona-3');  -- 박서윤
+('test-user-1', 'persona-3')  -- 박서윤
+ON CONFLICT (user_id, persona_id) DO NOTHING;
 
 -- 이수진의 즐겨찾기
 INSERT INTO public.favorites (user_id, persona_id)
 VALUES
 ('test-user-2', 'persona-6'),  -- 강준호
 ('test-user-2', 'persona-7'),  -- 이도현
-('test-user-2', 'persona-8');  -- 박서준
+('test-user-2', 'persona-8')  -- 박서준
+ON CONFLICT (user_id, persona_id) DO NOTHING;
 
 -- =====================================================
 -- 7. 테스트 대화 기록
@@ -178,15 +229,22 @@ INSERT INTO public.conversations (id, user_id, partner_type, partner_id, is_tuto
 VALUES
 ('conv-1', 'test-user-1', 'persona', 'persona-1', false, 'completed'),
 ('conv-2', 'test-user-1', 'persona', 'persona-3', false, 'active'),
-('conv-3', 'test-user-1', 'coach', 'coach-1', false, 'completed');
+('conv-3', 'test-user-1', 'coach', 'coach-1', false, 'completed')
+ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
+  partner_type = EXCLUDED.partner_type,
+  partner_id = EXCLUDED.partner_id,
+  is_tutorial = EXCLUDED.is_tutorial,
+  status = EXCLUDED.status;
 
--- 대화 메시지 샘플
+-- 대화 메시지 샘플 (중복 시 새로 추가)
 INSERT INTO public.messages (conversation_id, sender_type, content)
 VALUES
 ('conv-1', 'user', '안녕하세요! 처음 뵙겠습니다.'),
 ('conv-1', 'ai', '안녕하세요! 만나서 반가워요 😊 저는 소연이에요. 마케팅 일을 하고 있어요.'),
 ('conv-1', 'user', '오, 마케팅이요? 재미있으실 것 같아요!'),
 ('conv-1', 'ai', '네, 정말 재미있어요! 특히 사람들의 마음을 움직이는 캠페인을 만들 때 보람을 느껴요. 혹시 어떤 일 하세요?');
+-- messages 테이블은 id가 자동생성되므로 중복 체크 불필요
 
 -- 대화 분석 결과
 INSERT INTO public.conversation_analysis (conversation_id, overall_score, affinity_score, improvements, achievements, tips)
@@ -194,13 +252,19 @@ VALUES
 ('conv-1', 75, 78, 
  ARRAY['더 구체적인 질문하기', '감정 표현 늘리기'],
  ARRAY['자연스러운 인사', '적절한 리액션'],
- ARRAY['상대방의 관심사에 대해 더 깊이 물어보세요', '자신의 경험을 공유하면 대화가 풍성해져요']);
+ ARRAY['상대방의 관심사에 대해 더 깊이 물어보세요', '자신의 경험을 공유하면 대화가 풍성해져요'])
+ON CONFLICT (conversation_id) DO UPDATE SET
+  overall_score = EXCLUDED.overall_score,
+  affinity_score = EXCLUDED.affinity_score,
+  improvements = EXCLUDED.improvements,
+  achievements = EXCLUDED.achievements,
+  tips = EXCLUDED.tips;
 
 -- =====================================================
--- 8. 기본 설정값
+-- 8. 기본 설정 함수 (중복 체크)
 -- =====================================================
 
--- 모든 사용자에게 기본 알림 설정이 자동으로 생성되도록 하는 함수
+-- 함수가 이미 존재할 수 있으므로 CREATE OR REPLACE 사용
 CREATE OR REPLACE FUNCTION create_default_notification_settings()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -211,15 +275,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- 트리거가 이미 존재할 수 있으므로 먼저 삭제
+DROP TRIGGER IF EXISTS create_user_notification_settings ON public.users;
+
 CREATE TRIGGER create_user_notification_settings
 AFTER INSERT ON public.users
 FOR EACH ROW EXECUTE FUNCTION create_default_notification_settings();
 
 -- =====================================================
--- 7. 성과 데이터 자동 생성 함수
+-- 9. 성과 데이터 자동 생성 함수
 -- =====================================================
 
--- 새로운 주의 성과 데이터를 자동으로 생성
 CREATE OR REPLACE FUNCTION create_weekly_performance_metrics()
 RETURNS void AS $$
 DECLARE
@@ -235,5 +301,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 매주 월요일에 실행되도록 스케줄링 (Supabase Cron Job으로 설정 필요)
--- SELECT cron.schedule('weekly-performance-metrics', '0 0 * * 1', 'SELECT create_weekly_performance_metrics();');
+-- =====================================================
+-- 완료 메시지
+-- =====================================================
+-- 시드 데이터 삽입 완료!
+-- 이 스크립트는 여러 번 실행해도 안전합니다.
