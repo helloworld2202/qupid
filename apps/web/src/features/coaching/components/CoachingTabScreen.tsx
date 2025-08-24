@@ -4,7 +4,8 @@ import React, { useEffect, useRef } from 'react';
 import { PerformanceData, AICoach, Screen } from '@qupid/core';
 import { Chart, registerables } from 'chart.js/auto';
 import { useCoaches } from '../../../shared/hooks/useCoaches';
-// import { useAppStore } from '../../../shared/stores/useAppStore';
+import { usePerformance } from '../../../shared/hooks/usePerformance';
+import { useUserStore } from '../../../shared/stores/userStore';
 import {} from '@qupid/ui';
 
 Chart.register(...registerables);
@@ -30,10 +31,11 @@ const CoachCard: React.FC<{ coach: AICoach; onStart: () => void; }> = ({ coach, 
 
 const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onStartCoachChat }) => {
   const { data: coaches = [], isLoading } = useCoaches();
-  // const { currentUserId } = useAppStore();
+  const { user } = useUserStore();
+  const { data: performanceData } = usePerformance(user?.id);
   
-  // 임시 데이터 - 나중에 API로 교체
-  const data: PerformanceData = {
+  // 기본 데이터 (API 로딩 중이거나 오류 시 사용)
+  const defaultData: PerformanceData = {
     weeklyScore: 78,
     scoreChange: 12,
     scoreChangePercentage: 18,
@@ -62,6 +64,9 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onSta
     ]
   };
   const radarChartRef = useRef<HTMLCanvasElement>(null);
+  
+  // 실제 데이터 또는 기본 데이터 사용
+  const data = performanceData || defaultData;
 
   useEffect(() => {
     let radarChart: Chart | null = null;
@@ -106,15 +111,17 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onSta
             <h2 className="font-bold text-lg">이번 주 성과 요약</h2>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                 <div>
-                    <p className="text-3xl font-black text-[#F093B0]">{data.weeklyScore}</p>
+                    <p className="text-3xl font-black text-[#F093B0]">{data.weeklyScore || 0}</p>
                     <p className="text-sm font-medium text-gray-500">총점</p>
                 </div>
                 <div>
-                    <p className="text-3xl font-black text-[#0AC5A8]">{data.scoreChangePercentage}%↗</p>
+                    <p className="text-3xl font-black text-[#0AC5A8]">
+                      {data.scoreChangePercentage > 0 ? '+' : ''}{data.scoreChangePercentage || 0}%{data.scoreChangePercentage > 0 ? '↗' : ''}
+                    </p>
                     <p className="text-sm font-medium text-gray-500">성장률</p>
                 </div>
                  <div>
-                    <p className="text-3xl font-black text-[#4F7ABA]">85%</p>
+                    <p className="text-3xl font-black text-[#4F7ABA]">{Math.round((data.weeklyScore || 0) * 0.85)}%</p>
                     <p className="text-sm font-medium text-gray-500">목표달성</p>
                 </div>
             </div>

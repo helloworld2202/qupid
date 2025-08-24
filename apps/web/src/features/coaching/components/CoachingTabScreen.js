@@ -3,13 +3,16 @@ import { useEffect, useRef } from 'react';
 import { Screen } from '@qupid/core';
 import { Chart, registerables } from 'chart.js/auto';
 import { useCoaches } from '../../../shared/hooks/useCoaches';
+import { usePerformance } from '../../../shared/hooks/usePerformance';
+import { useUserStore } from '../../../shared/stores/userStore';
 Chart.register(...registerables);
 const CoachCard = ({ coach, onStart }) => (_jsxs("div", { className: "p-4 bg-white rounded-xl border border-[#F2F4F6] flex items-center space-x-4", children: [_jsx("img", { src: coach.avatar, alt: coach.name, className: "w-16 h-16 rounded-full object-cover" }), _jsxs("div", { className: "flex-1", children: [_jsxs("p", { className: "font-bold text-base text-[#191F28]", children: [coach.name, " \uCF54\uCE58"] }), _jsxs("p", { className: "text-sm font-semibold text-[#4F7ABA]", children: [coach.specialty, " \uC804\uBB38"] }), _jsx("p", { className: "text-xs text-[#8B95A1] mt-1 truncate", children: coach.tagline })] }), _jsx("button", { onClick: onStart, className: "px-3 py-1.5 bg-[#FDF2F8] text-sm text-[#DB7093] font-bold rounded-full", children: "\uC0C1\uB2F4 \uC2DC\uC791" })] }));
 const CoachingTabScreen = ({ onNavigate, onStartCoachChat }) => {
     const { data: coaches = [], isLoading } = useCoaches();
-    // const { currentUserId } = useAppStore();
-    // 임시 데이터 - 나중에 API로 교체
-    const data = {
+    const { user } = useUserStore();
+    const { data: performanceData } = usePerformance(user?.id);
+    // 기본 데이터 (API 로딩 중이거나 오류 시 사용)
+    const defaultData = {
         weeklyScore: 78,
         scoreChange: 12,
         scoreChangePercentage: 18,
@@ -38,6 +41,8 @@ const CoachingTabScreen = ({ onNavigate, onStartCoachChat }) => {
         ]
     };
     const radarChartRef = useRef(null);
+    // 실제 데이터 또는 기본 데이터 사용
+    const data = performanceData || defaultData;
     useEffect(() => {
         let radarChart = null;
         if (radarChartRef.current) {
@@ -68,7 +73,7 @@ const CoachingTabScreen = ({ onNavigate, onStartCoachChat }) => {
             radarChart?.destroy();
         };
     }, [data]);
-    return (_jsxs("div", { className: "flex flex-col h-full w-full bg-[#F9FAFB]", children: [_jsx("header", { className: "flex-shrink-0 p-4 pt-5 bg-white border-b border-[#F2F4F6]", children: _jsx("h1", { className: "text-2xl font-bold text-[#191F28]", children: "\uCF54\uCE6D" }) }), _jsxs("main", { className: "flex-1 overflow-y-auto p-4 space-y-4 pb-24", children: [_jsxs("section", { className: "p-5 bg-white rounded-2xl border border-[#F2F4F6]", children: [_jsx("h2", { className: "font-bold text-lg", children: "\uC774\uBC88 \uC8FC \uC131\uACFC \uC694\uC57D" }), _jsxs("div", { className: "mt-3 grid grid-cols-3 gap-2 text-center", children: [_jsxs("div", { children: [_jsx("p", { className: "text-3xl font-black text-[#F093B0]", children: data.weeklyScore }), _jsx("p", { className: "text-sm font-medium text-gray-500", children: "\uCD1D\uC810" })] }), _jsxs("div", { children: [_jsxs("p", { className: "text-3xl font-black text-[#0AC5A8]", children: [data.scoreChangePercentage, "%\u2197"] }), _jsx("p", { className: "text-sm font-medium text-gray-500", children: "\uC131\uC7A5\uB960" })] }), _jsxs("div", { children: [_jsx("p", { className: "text-3xl font-black text-[#4F7ABA]", children: "85%" }), _jsx("p", { className: "text-sm font-medium text-gray-500", children: "\uBAA9\uD45C\uB2EC\uC131" })] })] })] }), _jsxs("section", { className: "p-5 bg-white rounded-2xl border border-[#F2F4F6]", children: [_jsx("h3", { className: "font-bold text-lg", children: "\uC601\uC5ED\uBCC4 \uBD84\uC11D" }), _jsx("div", { className: "h-64 mt-2", children: _jsx("canvas", { ref: radarChartRef }) })] }), _jsxs("section", { children: [_jsx("h2", { className: "text-lg font-bold text-[#191F28] px-1", children: "1:1 \uB9DE\uCDA4 \uCF54\uCE6D \uD83C\uDF93" }), _jsx("p", { className: "text-sm text-[#8B95A1] px-1 mb-3", children: "\uBD80\uC871\uD55C \uBD80\uBD84\uC744 \uC804\uBB38 \uCF54\uCE58\uC640 \uD568\uAED8 \uC9D1\uC911\uC801\uC73C\uB85C \uC5F0\uC2B5\uD574\uBCF4\uC138\uC694." }), _jsx("div", { className: "space-y-3", children: isLoading ? (_jsx("div", { className: "flex justify-center items-center py-8", children: _jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]" }) })) : (coaches.map(coach => (_jsx(CoachCard, { coach: coach, onStart: () => {
+    return (_jsxs("div", { className: "flex flex-col h-full w-full bg-[#F9FAFB]", children: [_jsx("header", { className: "flex-shrink-0 p-4 pt-5 bg-white border-b border-[#F2F4F6]", children: _jsx("h1", { className: "text-2xl font-bold text-[#191F28]", children: "\uCF54\uCE6D" }) }), _jsxs("main", { className: "flex-1 overflow-y-auto p-4 space-y-4 pb-24", children: [_jsxs("section", { className: "p-5 bg-white rounded-2xl border border-[#F2F4F6]", children: [_jsx("h2", { className: "font-bold text-lg", children: "\uC774\uBC88 \uC8FC \uC131\uACFC \uC694\uC57D" }), _jsxs("div", { className: "mt-3 grid grid-cols-3 gap-2 text-center", children: [_jsxs("div", { children: [_jsx("p", { className: "text-3xl font-black text-[#F093B0]", children: data.weeklyScore || 0 }), _jsx("p", { className: "text-sm font-medium text-gray-500", children: "\uCD1D\uC810" })] }), _jsxs("div", { children: [_jsxs("p", { className: "text-3xl font-black text-[#0AC5A8]", children: [data.scoreChangePercentage > 0 ? '+' : '', data.scoreChangePercentage || 0, "%", data.scoreChangePercentage > 0 ? '↗' : ''] }), _jsx("p", { className: "text-sm font-medium text-gray-500", children: "\uC131\uC7A5\uB960" })] }), _jsxs("div", { children: [_jsxs("p", { className: "text-3xl font-black text-[#4F7ABA]", children: [Math.round((data.weeklyScore || 0) * 0.85), "%"] }), _jsx("p", { className: "text-sm font-medium text-gray-500", children: "\uBAA9\uD45C\uB2EC\uC131" })] })] })] }), _jsxs("section", { className: "p-5 bg-white rounded-2xl border border-[#F2F4F6]", children: [_jsx("h3", { className: "font-bold text-lg", children: "\uC601\uC5ED\uBCC4 \uBD84\uC11D" }), _jsx("div", { className: "h-64 mt-2", children: _jsx("canvas", { ref: radarChartRef }) })] }), _jsxs("section", { children: [_jsx("h2", { className: "text-lg font-bold text-[#191F28] px-1", children: "1:1 \uB9DE\uCDA4 \uCF54\uCE6D \uD83C\uDF93" }), _jsx("p", { className: "text-sm text-[#8B95A1] px-1 mb-3", children: "\uBD80\uC871\uD55C \uBD80\uBD84\uC744 \uC804\uBB38 \uCF54\uCE58\uC640 \uD568\uAED8 \uC9D1\uC911\uC801\uC73C\uB85C \uC5F0\uC2B5\uD574\uBCF4\uC138\uC694." }), _jsx("div", { className: "space-y-3", children: isLoading ? (_jsx("div", { className: "flex justify-center items-center py-8", children: _jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]" }) })) : (coaches.map(coach => (_jsx(CoachCard, { coach: coach, onStart: () => {
                                         if (onStartCoachChat) {
                                             onStartCoachChat(coach);
                                         }
