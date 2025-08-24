@@ -169,6 +169,25 @@
   - ✅ 코치 목록 실시간 조회
   - ✅ 뱃지 데이터 연동
 
+#### 10. 사용자 인증 시스템 구현
+- **날짜**: 2025-08-24 16:30
+- **문제/요구사항**: Supabase Auth 기반 인증 시스템 필요
+- **해결/구현**:
+  - AuthService 구현 (회원가입, 로그인, 토큰 관리)
+  - 로그인/회원가입 화면 구현 (디자인 가이드 준수)
+  - 인증 상태에 따른 라우팅 처리
+  - 로그아웃 기능 추가
+- **수정 파일**:
+  - `apps/api/src/modules/auth/` - 인증 모듈
+  - `apps/web/src/features/auth/components/LoginScreen.tsx` - 로그인 화면
+  - `apps/web/src/features/auth/components/SignupScreen.tsx` - 회원가입 화면
+  - `apps/web/src/App.tsx` - 인증 라우팅 추가
+- **API 엔드포인트**:
+  - `/api/v1/auth/signup` - 회원가입
+  - `/api/v1/auth/login` - 로그인
+  - `/api/v1/auth/logout` - 로그아웃
+  - `/api/v1/auth/session` - 세션 확인
+
 ---
 
 ## 기술 스택 현황
@@ -213,14 +232,17 @@ ALLOWED_ORIGINS=http://localhost:5173
 ## 현재 상태 및 완료 사항
 
 ### 완료된 작업 (2025-08-24)
-✅ **데이터베이스 연동 부분 완료**
+✅ **데이터베이스 연동 및 인증 시스템 완료**
 - Supabase PostgreSQL 데이터베이스 구축
 - 9개 테이블 스키마 설계 및 생성
 - 시드 데이터 삽입 (personas: 6, coaches: 4, badges: 8)
-- API 엔드포인트 구현 (personas, coaches, badges)
+- API 엔드포인트 구현 (personas, coaches, badges, auth)
 - React Query 훅 생성 및 연동
+- Supabase Auth 기반 인증 시스템 구현
+- 로그인/회원가입 화면 구현
 
 ### 작동 확인된 기능
+- ✅ 사용자 인증 (로그인/회원가입/로그아웃)
 - ✅ 온보딩 및 튜토리얼 플로우
 - ✅ 홈 화면 (실제 페르소나, 뱃지 데이터)
 - ✅ 채팅 탭 (실제 페르소나 목록)
@@ -238,11 +260,11 @@ ALLOWED_ORIGINS=http://localhost:5173
 ## 남은 작업 목록
 
 ### 우선순위 높음
-1. **사용자 인증 시스템**
-   - Supabase Auth 통합
-   - 로그인/회원가입 화면 구현
-   - JWT 토큰 관리
-   - 세션 유지 로직
+1. ~~**사용자 인증 시스템**~~ ✅ 완료 (2025-08-24)
+   - ~~Supabase Auth 통합~~
+   - ~~로그인/회원가입 화면 구현~~
+   - ~~JWT 토큰 관리~~
+   - ~~세션 유지 로직~~
 
 2. **실제 채팅 기능 구현**
    - OpenAI API 연동 (GPT-4o-mini)
@@ -318,4 +340,4 @@ pnpm install:all      # 의존성 재설치
 
 ---
 
-*마지막 업데이트: 2025-08-24 15:30*
+*마지막 업데이트: 2025-08-24 16:45*
