@@ -1,71 +1,46 @@
 import { Request, Response, NextFunction } from 'express';
-import { z } from 'zod';
 import { ChatService } from './app/ChatService.js';
-import { ChatServiceStreaming } from './app/ChatServiceStreaming.js';
+import { ChatSessionService } from './app/ChatSessionService.js';
 import { ConversationAnalyzer } from './app/ConversationAnalyzer.js';
-import { AuthenticatedRequest } from '../../shared/middleware/authenticate.js';
-import { Message } from '@qupid/core';
+import { AppError } from '../../shared/errors/AppError.js';
 
 const chatService = new ChatService();
-const streamingService = new ChatServiceStreaming();
+const sessionService = new ChatSessionService();
 const analyzer = new ConversationAnalyzer();
 
-// Validation schemas
-const createSessionSchema = z.object({
-  personaId: z.string(),
-  systemInstruction: z.string()
-});
-
-const sendMessageSchema = z.object({
-  message: z.string().min(1).max(1000)
-});
-
-const analyzeConversationSchema = z.object({
-  messages: z.array(z.object({
-    sender: z.enum(['user', 'ai', 'system']),
-    text: z.string(),
-    timestamp: z.string().optional()
-  }))
-});
-
-const getRealtimeFeedbackSchema = z.object({
-  lastUserMessage: z.string(),
-  lastAiMessage: z.string().optional()
-});
-
-const getCoachSuggestionSchema = z.object({
-  messages: z.array(z.object({
-    sender: z.enum(['user', 'ai', 'system']),
-    text: z.string(),
-    timestamp: z.string().optional()
-  }))
-});
-
+/**
+ * POST /api/v1/chat/sessions
+ * Create a new chat session
+ */
 export const createSession = async (
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { personaId, systemInstruction } = createSessionSchema.parse(req.body);
-    // 테스트용 사용자 ID (실제로는 인증된 사용자 ID 사용)
-    const userId = req.user?.id || 'a6d4ac3f-b8cf-41eb-b744-0279b12ea192';
+    const { personaId, systemInstruction } = req.body;
     
-    const sessionId = await chatService.createSession(
-      userId,
-      personaId,
-      systemInstruction
-    );
+    if (!personaId) {
+      throw AppError.badRequest('Persona ID is required');
+    }
+
+    const sessionId = await sessionService.createSession(personaId, systemInstruction);
     
     res.json({
       ok: true,
-      data: { sessionId }
+      data: {
+        sessionId
+      }
     });
   } catch (error) {
     next(error);
   }
 };
 
+/**
+ * POST /api/v1/chat/sessions/:sessionId/messages
+ * Send a message in a chat session
+ */
 export const sendMessage = async (
   req: Request,
   res: Response,
@@ -73,39 +48,109 @@ export const sendMessage = async (
 ) => {
   try {
     const { sessionId } = req.params;
-    const { message } = sendMessageSchema.parse(req.body);
+    const { message } = req.body;
     
-    const response = await chatService.sendMessage(sessionId, message);
+    if (!message) {
+      throw AppError.badRequest('Message is required');
+    }
+
+    const response = await sessionService.sendMessage(sessionId, message);
     
     res.json({
       ok: true,
-      data: { response }
+      data: response
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const analyzeConversation = async (
+/**
+ * POST /api/v1/chat/sessions/:sessionId/stream
+ * Stream a message response
+ */
+export const streamMessage = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { sessionId } = req.params;
-    const { messages } = analyzeConversationSchema.parse(req.body);
+    const { message } = req.body;
     
-    const analysis = await chatService.analyzeConversation(
-      messages.map(m => ({
-        ...m,
-        timestamp: m.timestamp ? new Date(m.timestamp) : undefined
-      })) as Message[]
-    );
-    
-    // Save analysis to database if sessionId is provided
-    if (sessionId) {
-      await chatService.saveConversationAnalysis(sessionId, analysis);
+    if (!message) {
+      throw AppError.badRequest('Message is required');
     }
+
+    // Set SSE headers
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    // Stream the response
+    await sessionService.streamMessage(
+      sessionId,
+      message,
+      (chunk: string) => {
+        res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
+      }
+    );
+
+    // Send completion signal
+    res.write(`data: [DONE]\n\n`);
+    res.end();
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/v1/chat/sessions/:sessionId
+ * Get session information
+ */
+export const getSessionInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sessionId } = req.params;
+    
+    const session = await sessionService.getSession(sessionId);
+    
+    if (!session) {
+      throw AppError.notFound('Session');
+    }
+
+    res.json({
+      ok: true,
+      data: session
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /api/v1/chat/analyze
+ * Analyze conversation
+ */
+export const analyzeConversation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { messages } = req.body;
+    
+    if (!messages || !Array.isArray(messages)) {
+      throw AppError.badRequest('Messages array is required');
+    }
+
+    const analysis = await analyzer.analyze(messages);
     
     res.json({
       ok: true,
@@ -116,14 +161,22 @@ export const analyzeConversation = async (
   }
 };
 
+/**
+ * POST /api/v1/chat/feedback
+ * Get realtime feedback for a user message
+ */
 export const getRealtimeFeedback = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { lastUserMessage, lastAiMessage } = getRealtimeFeedbackSchema.parse(req.body);
+    const { lastUserMessage, lastAiMessage } = req.body;
     
+    if (!lastUserMessage) {
+      throw AppError.badRequest('Last user message is required');
+    }
+
     const feedback = await chatService.getRealtimeFeedback(
       lastUserMessage,
       lastAiMessage
@@ -138,20 +191,23 @@ export const getRealtimeFeedback = async (
   }
 };
 
+/**
+ * POST /api/v1/chat/coach-suggestion
+ * Get AI coach suggestion for the conversation
+ */
 export const getCoachSuggestion = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { messages } = getCoachSuggestionSchema.parse(req.body);
+    const { messages } = req.body;
     
-    const suggestion = await chatService.getCoachSuggestion(
-      messages.map(m => ({
-        ...m,
-        timestamp: m.timestamp ? new Date(m.timestamp) : undefined
-      })) as Message[]
-    );
+    if (!messages || !Array.isArray(messages)) {
+      throw AppError.badRequest('Messages array is required');
+    }
+
+    const suggestion = await chatService.getCoachSuggestion(messages);
     
     res.json({
       ok: true,
@@ -162,32 +218,25 @@ export const getCoachSuggestion = async (
   }
 };
 
-export const getSessionInfo = async (
+/**
+ * POST /api/v1/chat/sessions/:sessionId/end
+ * End conversation and trigger analysis
+ */
+export const endConversation = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { sessionId } = req.params;
-    const session = chatService.getSession(sessionId);
     
-    if (!session) {
-      return res.status(404).json({
-        ok: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: 'Session not found'
-        }
-      });
-    }
+    // End the session
+    await sessionService.endSession(sessionId);
     
     res.json({
       ok: true,
       data: {
-        id: session.id,
-        personaId: session.personaId,
-        messageCount: session.getMessageCount(),
-        messages: session.getMessages()
+        message: 'Conversation ended'
       }
     });
   } catch (error) {
@@ -195,43 +244,11 @@ export const getSessionInfo = async (
   }
 };
 
-// Streaming message endpoint
-const streamMessageSchema = z.object({
-  message: z.string().min(1).max(1000),
-  systemInstruction: z.string(),
-  previousMessages: z.array(z.object({
-    role: z.enum(['user', 'assistant']),
-    content: z.string()
-  })).optional().default([])
-});
-
-export const streamMessage = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { sessionId } = req.params;
-    const { message, systemInstruction, previousMessages } = streamMessageSchema.parse(req.body);
-    
-    // Stream response
-    await streamingService.streamMessage(
-      sessionId,
-      message,
-      systemInstruction,
-      previousMessages,
-      res
-    );
-  } catch (error) {
-    // Error handling is done inside streamMessage
-    if (!res.headersSent) {
-      next(error);
-    }
-  }
-};
-
-// End conversation and trigger analysis
-export const endConversation = async (
+/**
+ * POST /api/v1/chat/sessions/:sessionId/analyze
+ * Analyze and save conversation to database
+ */
+export const analyzeAndSave = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -251,6 +268,84 @@ export const endConversation = async (
         message: 'Conversation ended and analyzed',
         analysis
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/v1/chat/history/:userId
+ * 사용자의 대화 히스토리 조회
+ */
+export const getConversationHistory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 20, filter } = req.query;
+    
+    const history = await chatService.getConversationHistory(
+      userId,
+      Number(page),
+      Number(limit),
+      filter as string
+    );
+    
+    res.json({
+      ok: true,
+      data: history
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/v1/chat/history/:userId/conversation/:conversationId
+ * 특정 대화 상세 조회
+ */
+export const getConversationDetail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userId, conversationId } = req.params;
+    
+    const detail = await chatService.getConversationDetail(
+      userId,
+      conversationId
+    );
+    
+    res.json({
+      ok: true,
+      data: detail
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/v1/chat/history/:userId/stats
+ * 사용자의 대화 통계 조회
+ */
+export const getConversationStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userId } = req.params;
+    
+    const stats = await chatService.getConversationStats(userId);
+    
+    res.json({
+      ok: true,
+      data: stats
     });
   } catch (error) {
     next(error);

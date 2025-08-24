@@ -1,7 +1,86 @@
 import { supabase } from '../../../config/supabase.js';
-import { Message } from '@qupid/core';
+import { openai } from '../../../shared/infra/openai.js';
+import { Message, ConversationAnalysis } from '@qupid/core';
 
 export class ConversationAnalyzer {
+  /**
+   * 대화 분석 (메모리에서만)
+   */
+  async analyze(messages: Message[]): Promise<ConversationAnalysis> {
+    if (messages.length < 2) {
+      return this.getDefaultAnalysis();
+    }
+
+    const conversationText = messages
+      .map(m => `${m.sender === 'user' ? '사용자' : 'AI'}: ${m.text}`)
+      .join('\n');
+
+    const prompt = `다음 연애 대화를 분석하고 JSON 형식으로 평가해주세요:
+
+${conversationText}
+
+평가 기준:
+1. 친근함 (0-100): 따뜻하고 편안한 대화 분위기
+2. 호기심 (0-100): 질문의 양과 질, 상대에 대한 관심
+3. 공감력 (0-100): 상대의 감정 이해와 반응
+
+JSON 형식:
+{
+  "totalScore": 전체 점수 (0-100),
+  "friendliness": { "score": 점수, "feedback": "피드백" },
+  "curiosity": { "score": 점수, "feedback": "피드백" },
+  "empathy": { "score": 점수, "feedback": "피드백" },
+  "strengths": ["강점1", "강점2"],
+  "improvements": ["개선점1", "개선점2"],
+  "feedback": "전체적인 피드백 (2-3문장)",
+  "badges": []
+}`;
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'You are a professional conversation analyzer. Respond only with valid JSON.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7,
+        response_format: { type: 'json_object' }
+      });
+
+      const result = JSON.parse(completion.choices[0].message.content || '{}');
+      
+      return {
+        totalScore: result.totalScore || 75,
+        friendliness: result.friendliness || { score: 80, feedback: '친근한 대화였어요!' },
+        curiosity: result.curiosity || { score: 75, feedback: '호기심을 보여주셨어요!' },
+        empathy: result.empathy || { score: 70, feedback: '공감 능력을 보여주셨어요!' },
+        strengths: result.strengths || ['친근한 태도', '적극적인 참여'],
+        improvements: result.improvements || ['더 많은 질문하기', '감정 표현 더하기'],
+        feedback: result.feedback || '좋은 대화였어요! 계속 연습하면 더 좋아질 거예요.',
+        badges: result.badges || []
+      };
+    } catch (error) {
+      console.error('Analysis error:', error);
+      return this.getDefaultAnalysis();
+    }
+  }
+
+  private getDefaultAnalysis(): ConversationAnalysis {
+    return {
+      totalScore: 75,
+      friendliness: { score: 80, feedback: '친근한 대화였어요!' },
+      curiosity: { score: 75, feedback: '호기심을 보여주셨어요!' },
+      empathy: { score: 70, feedback: '공감 능력을 보여주셨어요!' },
+      strengths: ['친근한 태도', '적극적인 참여'],
+      improvements: ['더 많은 질문하기', '감정 표현 더하기'],
+      feedback: '좋은 대화였어요! 계속 연습하면 더 좋아질 거예요.',
+      badges: []
+    };
+  }
+
+  /**
+   * 대화 분석 및 DB 저장
+   */
   async analyzeAndSave(conversationId: string): Promise<void> {
     try {
       // Get all messages from the conversation

@@ -86,4 +86,38 @@ router.post(
   controller.getCoachSuggestion
 );
 
+// 대화 히스토리 조회
+router.get(
+  '/history/:userId',
+  requestValidator({
+    params: z.object({
+      userId: z.string()
+    })
+  }),
+  controller.getConversationHistory
+);
+
+// 특정 대화 상세 조회
+router.get(
+  '/history/:userId/conversation/:conversationId',
+  requestValidator({
+    params: z.object({
+      userId: z.string(),
+      conversationId: z.string()
+    })
+  }),
+  controller.getConversationDetail
+);
+
+// 대화 통계 조회
+router.get(
+  '/history/:userId/stats',
+  requestValidator({
+    params: z.object({
+      userId: z.string()
+    })
+  }),
+  controller.getConversationStats
+);
+
 export default router;
