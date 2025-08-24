@@ -292,18 +292,15 @@ VALUES
 ('c1111111-1111-1111-1111-111111111111'::uuid, 'user', '혹시 게임 좋아하세요?'),
 ('c1111111-1111-1111-1111-111111111111'::uuid, 'ai', '네! 저는 요즘 발로란트에 빠져있어요! RPG랑 어드벤처 게임도 좋아해요. 어떤 게임 좋아하세요?');
 
+-- conversation_analysis는 conversation_id에 UNIQUE 제약이 없으므로 먼저 삭제 후 삽입
+DELETE FROM public.conversation_analysis WHERE conversation_id = 'c1111111-1111-1111-1111-111111111111'::uuid;
+
 INSERT INTO public.conversation_analysis (conversation_id, overall_score, affinity_score, improvements, achievements, tips)
 VALUES
 ('c1111111-1111-1111-1111-111111111111'::uuid, 78, 85, 
  ARRAY['더 구체적인 질문하기', '감정 표현 늘리기'],
  ARRAY['자연스러운 인사', '적절한 리액션', '공통 관심사 발견'],
- ARRAY['상대방의 관심사에 대해 더 깊이 물어보세요', '자신의 경험을 공유하면 대화가 풍성해져요'])
-ON CONFLICT (conversation_id) DO UPDATE SET
-  overall_score = EXCLUDED.overall_score,
-  affinity_score = EXCLUDED.affinity_score,
-  improvements = EXCLUDED.improvements,
-  achievements = EXCLUDED.achievements,
-  tips = EXCLUDED.tips;
+ ARRAY['상대방의 관심사에 대해 더 깊이 물어보세요', '자신의 경험을 공유하면 대화가 풍성해져요']);
 
 -- =====================================================
 -- 테스트 계정 정보
