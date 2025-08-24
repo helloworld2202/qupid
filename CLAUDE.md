@@ -4,6 +4,9 @@
 - **프로젝트명**: Qupid - AI 연애 코칭 앱
 - **목적**: AI 페르소나와의 대화 연습을 통한 연애 스킬 향상
 - **구조**: pnpm 워크스페이스 기반 모노레포
+- **원본 프로젝트 경로**: `/Users/simdaseul/Downloads/qupid-origin/`
+  - 리팩토링 전 원본 코드 백업 위치
+  - 문제 발생 시 참고용
 
 ---
 
@@ -116,20 +119,55 @@
 
 ### 2025-08-24 - 데이터베이스 연동 작업
 
-#### 7. 데이터베이스 권한 문제 해결
+#### 7. 데이터베이스 설계 및 초기 설정
 - **날짜**: 2025-08-24 10:20
-- **문제/요구사항**: RLS 정책으로 인한 API 접근 권한 오류
+- **문제/요구사항**: 하드코딩 데이터를 실제 데이터베이스로 전환
 - **해결/구현**:
-  - `docs/fix-rls-policies.sql` 생성 - RLS 비활성화 스크립트
-  - `docs/DATABASE_SETUP.md` 업데이트 - 설정 가이드 개선
-  - 테스트 스크립트 작성 (`apps/api/test-db.js`)
+  - PostgreSQL 스키마 설계 (9개 테이블)
+  - Supabase 연동 및 RLS 정책 설정
+  - 시드 데이터 생성 (personas: 6, coaches: 4, badges: 8)
 - **수정 파일**:
-  - `docs/fix-rls-policies.sql` - 개발용 RLS 정책 수정
-  - `docs/DATABASE_SETUP.md` - 트러블슈팅 섹션 추가
-  - `apps/api/src/config/supabase.ts` - 스키마 설정 추가
-- **현재 이슈**: 
-  - Supabase 대시보드에서 RLS 정책 수정 필요
-  - `fix-rls-policies.sql` 실행으로 해결 가능
+  - `docs/database-schema.sql` - 전체 DB 스키마
+  - `docs/seed-data.sql` - 초기 데이터
+  - `docs/grant-all-permissions.sql` - 권한 설정
+- **해결된 이슈**: 
+  - 레거시 API 키 문제 해결
+  - RLS 권한 문제 해결 (grant-all-permissions.sql)
+
+#### 8. API 엔드포인트 구현
+- **날짜**: 2025-08-24 14:00
+- **문제/요구사항**: 데이터베이스와 연동된 API 엔드포인트 필요
+- **해결/구현**:
+  - PersonaService, CoachService 구현
+  - Badge API 엔드포인트 추가
+  - User API 기본 구조 구현
+- **수정 파일**:
+  - `apps/api/src/modules/persona/` - 페르소나 API
+  - `apps/api/src/modules/coaching/` - 코칭 API
+  - `apps/api/src/modules/badge/` - 뱃지 API
+  - `apps/api/src/modules/user/` - 사용자 API
+- **API 엔드포인트**:
+  - `/api/v1/personas` - 페르소나 목록
+  - `/api/v1/coaches` - 코치 목록
+  - `/api/v1/badges` - 뱃지 목록
+  - `/api/v1/users/:id/badges` - 사용자 뱃지
+
+#### 9. 프론트엔드 API 통합
+- **날짜**: 2025-08-24 15:00
+- **문제/요구사항**: 하드코딩 데이터를 실제 API 호출로 전환
+- **해결/구현**:
+  - React Query 훅 생성 (usePersonas, useCoaches, useBadges)
+  - HomeScreen, ChatTabScreen API 연동
+  - BadgesScreen 실제 데이터 표시
+- **수정 파일**:
+  - `apps/web/src/shared/hooks/usePersonas.ts` - 페르소나 훅
+  - `apps/web/src/shared/hooks/useCoaches.ts` - 코치 훅
+  - `apps/web/src/shared/hooks/useBadges.ts` - 뱃지 훅
+  - `apps/web/src/shared/hooks/useUser.ts` - 사용자 훅
+- **완료된 통합**:
+  - ✅ 페르소나 목록 실시간 조회
+  - ✅ 코치 목록 실시간 조회
+  - ✅ 뱃지 데이터 연동
 
 ---
 
@@ -174,62 +212,81 @@ ALLOWED_ORIGINS=http://localhost:5173
 
 ## 현재 상태 및 완료 사항
 
-### 완료된 작업 (2025-08-23)
-✅ **원본 UI/UX 100% 복원 완료**
-- 모든 화면 하드코딩 데이터 적용
-- 애니메이션 및 네비게이션 버그 수정
-- 튜토리얼 플로우 정상화
-- 코칭 기능 완벽 복원
+### 완료된 작업 (2025-08-24)
+✅ **데이터베이스 연동 부분 완료**
+- Supabase PostgreSQL 데이터베이스 구축
+- 9개 테이블 스키마 설계 및 생성
+- 시드 데이터 삽입 (personas: 6, coaches: 4, badges: 8)
+- API 엔드포인트 구현 (personas, coaches, badges)
+- React Query 훅 생성 및 연동
 
 ### 작동 확인된 기능
 - ✅ 온보딩 및 튜토리얼 플로우
-- ✅ 홈 화면 및 추천 시스템
-- ✅ 채팅 탭 및 페르소나 선택
-- ✅ 코칭 탭 및 AI 코치 상담
-- ✅ 성과 분석 대시보드
-- ✅ 뱃지 시스템
+- ✅ 홈 화면 (실제 페르소나, 뱃지 데이터)
+- ✅ 채팅 탭 (실제 페르소나 목록)
+- ✅ 코칭 탭 (실제 코치 목록)
+- ✅ 뱃지 화면 (실제 뱃지 데이터)
+- ✅ 성과 분석 대시보드 (하드코딩)
 - ✅ 프로필 및 설정
 - ✅ 모든 네비게이션 플로우
 
-## 다음 작업 추천
+### 현재 실행 중인 서비스
+- 🟢 API 서버: http://localhost:4000
+- 🟢 웹 서버: http://localhost:5173
+- 🟢 데이터베이스: Supabase (연결 완료)
 
-### Phase 1: API 연동 (우선순위 높음)
-1. **백엔드 API 활성화**
-   - OpenAI API 키 설정
-   - Supabase 데이터베이스 연결
-   - 실제 채팅 기능 구현
+## 남은 작업 목록
 
-2. **프론트엔드 API 통합**
-   - 하드코딩 데이터를 API 호출로 전환
-   - React Query 훅 구현
-   - 에러 처리 및 로딩 상태
+### 우선순위 높음
+1. **사용자 인증 시스템**
+   - Supabase Auth 통합
+   - 로그인/회원가입 화면 구현
+   - JWT 토큰 관리
+   - 세션 유지 로직
 
-### Phase 2: 기능 고도화
-3. **사용자 데이터 영속성**
-   - 실제 사용자 프로필 저장
-   - 대화 기록 저장 및 조회
-   - 성과 데이터 실시간 업데이트
+2. **실제 채팅 기능 구현**
+   - OpenAI API 연동 (GPT-4o-mini)
+   - 대화 스트리밍 응답
+   - 메시지 저장 (conversations, messages 테이블)
+   - 대화 히스토리 조회
 
-4. **AI 채팅 개선**
-   - 스트리밍 응답 구현
-   - 대화 컨텍스트 관리
-   - 다양한 프롬프트 전략
+3. **대화 분석 및 성과 계산**
+   - 대화 후 자동 분석 로직
+   - 성과 점수 실시간 계산
+   - conversation_analysis 테이블 활용
+   - 통계 데이터 집계
 
-### Phase 3: 품질 개선
-5. **테스트 추가**
-   - 단위 테스트 (Vitest)
-   - E2E 테스트 (Playwright)
-   - API 통합 테스트
+### 우선순위 중간
+4. **뱃지 획득 로직**
+   - 조건별 자동 뱃지 부여
+   - user_badges 테이블 연동
+   - 획득 알림 시스템
 
-6. **성능 최적화**
-   - 번들 사이즈 분석
-   - 코드 스플리팅
+5. **사용자 프로필 완전 연동**
+   - 프로필 수정 API
+   - 즐겨찾기 기능 (user_favorites)
+   - 프로필 이미지 업로드
+
+6. **성과 대시보드 실시간화**
+   - Chart.js 실제 데이터 연동
+   - 주간/월간 통계 계산
+   - 카테고리별 점수 분석
+
+### 우선순위 낮음
+7. **이미지 관리**
+   - Supabase Storage 연동
+   - 프로필/페르소나 이미지 업로드
    - 이미지 최적화
 
-7. **보안 강화**
-   - Rate limiting 세부 조정
-   - API 키 관리 개선
-   - 입력 검증 강화
+8. **알림 시스템**
+   - 실시간 알림 (웹소켓)
+   - 푸시 알림 설정
+   - 알림 히스토리
+
+9. **테스트 및 최적화**
+   - 단위 테스트 작성
+   - E2E 테스트
+   - 성능 최적화
 
 ---
 
@@ -261,4 +318,4 @@ pnpm install:all      # 의존성 재설치
 
 ---
 
-*마지막 업데이트: 2025-08-23 18:35*
+*마지막 업데이트: 2025-08-24 15:30*
