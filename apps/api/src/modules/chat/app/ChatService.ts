@@ -714,4 +714,101 @@ export class ChatService {
       }
     }
   }
+
+  /**
+   * 대화 스타일 분석 및 추천
+   */
+  async analyzeConversationStyle(messages: Message[]): Promise<{
+    currentStyle: {
+      type: string;
+      characteristics: string[];
+      strengths: string[];
+      weaknesses: string[];
+    };
+    recommendations: {
+      category: string;
+      tips: string[];
+      examples: string[];
+    }[];
+  }> {
+    if (messages.length < 3) {
+      return {
+        currentStyle: {
+          type: '분석 중',
+          characteristics: ['대화가 더 필요해요'],
+          strengths: [],
+          weaknesses: []
+        },
+        recommendations: []
+      };
+    }
+
+    const userMessages = messages.filter(m => m.sender === 'user');
+    const conversationText = userMessages.map(m => m.text).join('\n');
+
+    const prompt = `다음 연애 대화를 분석하고 스타일과 개선 추천을 제공해주세요:
+
+${conversationText}
+
+다음 JSON 형식으로 응답해주세요:
+{
+  "currentStyle": {
+    "type": "대화 스타일 유형 (예: 친근한, 수줍은, 적극적인, 유머러스한)",
+    "characteristics": ["특징1", "특징2", "특징3"],
+    "strengths": ["강점1", "강점2"],
+    "weaknesses": ["약점1", "약점2"]
+  },
+  "recommendations": [
+    {
+      "category": "카테고리명 (예: 질문하기, 감정표현, 유머)",
+      "tips": ["구체적인 팁1", "구체적인 팁2"],
+      "examples": ["예시 문장1", "예시 문장2"]
+    }
+  ]
+}`;
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { 
+            role: 'system', 
+            content: 'You are a dating conversation style analyzer. Provide helpful and encouraging feedback. Respond only with valid JSON.' 
+          },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7,
+        response_format: { type: 'json_object' }
+      });
+
+      const result = JSON.parse(completion.choices[0].message.content || '{}');
+      
+      return {
+        currentStyle: result.currentStyle || {
+          type: '친근한',
+          characteristics: ['따뜻한 대화', '적극적인 반응'],
+          strengths: ['공감 능력', '대화 이어가기'],
+          weaknesses: ['질문 부족']
+        },
+        recommendations: result.recommendations || [
+          {
+            category: '질문하기',
+            tips: ['상대방의 관심사에 대해 구체적으로 물어보세요', '열린 질문을 활용하세요'],
+            examples: ['어떤 영화 장르를 좋아하세요?', '주말에는 보통 뭐 하면서 시간을 보내세요?']
+          }
+        ]
+      };
+    } catch (error) {
+      console.error('Style analysis error:', error);
+      return {
+        currentStyle: {
+          type: '분석 중',
+          characteristics: ['대화 스타일 분석 중입니다'],
+          strengths: [],
+          weaknesses: []
+        },
+        recommendations: []
+      };
+    }
+  }
 }

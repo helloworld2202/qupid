@@ -120,4 +120,10 @@ router.get(
   controller.getConversationStats
 );
 
+// 대화 스타일 분석 및 추천
+router.post(
+  '/style-analysis',
+  controller.analyzeConversationStyle
+);
+
 export default router;

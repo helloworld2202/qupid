@@ -4,6 +4,8 @@ import { ArrowLeftIcon, PaperAirplaneIcon, CoachKeyIcon } from '@qupid/ui';
 import { TUTORIAL_STEPS } from '@qupid/core';
 import { useChatSession, useSendMessage, useAnalyzeConversation, useRealtimeFeedback, useCoachSuggestion } from '../hooks/useChatQueries';
 import { useCreateCoachingSession, useSendCoachingMessage, useAnalyzeCoachingSession } from '../../coaching/hooks/useCoachingQueries';
+import { useStyleAnalysis } from '../hooks/useStyleAnalysis';
+import { StyleRecommendationModal } from './StyleRecommendationModal';
 
 interface ChatScreenProps {
   partner?: Persona | AICoach;
@@ -79,6 +81,8 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const [showCoachHint, setShowCoachHint] = useState(false);
   const [coachSuggestion, setCoachSuggestion] = useState<{reason: string, suggestion: string} | null>(null);
   const [isFetchingSuggestion, setIsFetchingSuggestion] = useState(false);
+  const [showStyleModal, setShowStyleModal] = useState(false);
+  const [styleAnalysis, setStyleAnalysis] = useState<any>(null);
 
   const sessionIdRef = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -90,6 +94,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const analyzeMutation = useAnalyzeConversation();
   const feedbackMutation = useRealtimeFeedback();
   const coachMutation = useCoachSuggestion();
+  const styleAnalysisMutation = useStyleAnalysis();
   
   // 코칭 세션 hooks
   const createCoachingSessionMutation = useCreateCoachingSession();
@@ -313,7 +318,19 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                 <h2 className="font-bold text-lg text-[#191F28]">{partner.name}</h2>
                 <p className="text-sm text-[#0AC5A8] font-semibold">🟢 온라인</p>
             </div>
-            <div className="flex-1 text-right">
+            <div className="flex-1 flex items-center justify-end gap-2">
+                {!isTutorialMode && messages.length > 3 && (
+                    <button
+                        onClick={async () => {
+                            const result = await styleAnalysisMutation.mutateAsync(messages);
+                            setStyleAnalysis(result);
+                            setShowStyleModal(true);
+                        }}
+                        className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                    >
+                        💡 스타일 분석
+                    </button>
+                )}
                 {isTutorialMode && tutorialStep.step < 5 && <span className="font-bold text-[#F093B0]">{tutorialStep.step}/{TUTORIAL_STEPS.length - 1} 단계</span>}
             </div>
         </div>
@@ -429,6 +446,14 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
           </div>
         </div>
       </div>
+
+      {/* Style Recommendation Modal */}
+      <StyleRecommendationModal
+        isOpen={showStyleModal}
+        onClose={() => setShowStyleModal(false)}
+        analysis={styleAnalysis}
+        isLoading={styleAnalysisMutation.isPending}
+      />
     </div>
   );
 };

@@ -354,3 +354,30 @@ export const getConversationStats = async (
     next(error);
   }
 };
+
+/**
+ * POST /api/v1/chat/style-analysis
+ * 대화 스타일 분석 및 추천
+ */
+export const analyzeConversationStyle = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { messages } = req.body;
+    
+    if (!messages || !Array.isArray(messages)) {
+      throw AppError.badRequest('Messages array is required');
+    }
+
+    const analysis = await chatService.analyzeConversationStyle(messages);
+    
+    res.json({
+      ok: true,
+      data: analysis
+    });
+  } catch (error) {
+    next(error);
+  }
+};
