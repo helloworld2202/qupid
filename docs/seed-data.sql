@@ -98,27 +98,106 @@ INSERT INTO public.badges (id, name, icon, description, category, rarity, requir
 -- 4. 테스트 사용자 (개발용)
 -- =====================================================
 
--- 테스트 사용자는 Supabase Auth를 통해 생성 후 
--- 해당 UUID를 사용하여 users 테이블에 추가
--- 예시:
--- INSERT INTO public.users (id, name, user_gender, partner_gender, experience, confidence, difficulty, interests, is_tutorial_completed)
--- VALUES 
--- ('auth-user-uuid-here', '테스트 사용자', 'male', 'female', '없음', 3, 2, 
---  ARRAY['게임', '영화', '음악'], false);
+-- 테스트용 기본 사용자 데이터
+-- UUID는 Supabase가 자동 생성하도록 gen_random_uuid() 사용
+INSERT INTO public.users (id, name, user_gender, partner_gender, experience, confidence, difficulty, interests, is_tutorial_completed)
+VALUES 
+-- 남성 테스트 사용자 (여성 AI와 대화)
+('test-user-1', '김민수', 'male', 'female', '1-2번 정도', 3, 2, 
+ ARRAY['게임', '영화', '음악', '운동'], true),
+ 
+-- 여성 테스트 사용자 (남성 AI와 대화) 
+('test-user-2', '이수진', 'female', 'male', '몇 번 있어요', 4, 3,
+ ARRAY['여행', '요리', '독서', '요가'], true),
+
+-- 튜토리얼 미완료 사용자
+('test-user-3', '박준영', 'male', 'female', '전혀 없어요', 2, 1,
+ ARRAY['게임', '애니메이션'], false);
 
 -- =====================================================
 -- 5. 샘플 성과 데이터 (테스트용)
 -- =====================================================
 
 -- 테스트 사용자의 성과 데이터
--- INSERT INTO public.performance_metrics (user_id, week_start, weekly_score, daily_scores, category_scores, total_time_minutes, session_count)
--- VALUES 
--- ('auth-user-uuid-here', '2025-08-18', 78, ARRAY[60, 65, 70, 68, 75, 72, 78],
---  '{"친근함": 85, "호기심": 92, "공감력": 58, "유머": 60, "배려": 75, "적극성": 70}'::jsonb,
---  135, 8);
+INSERT INTO public.performance_metrics (user_id, week_start, weekly_score, daily_scores, category_scores, total_time_minutes, session_count)
+VALUES 
+-- 김민수의 이번 주 성과
+('test-user-1', date_trunc('week', CURRENT_DATE)::date, 78, ARRAY[60, 65, 70, 68, 75, 72, 78],
+ '{"친근함": 85, "호기심": 92, "공감력": 58, "유머": 60, "배려": 75, "적극성": 70}'::jsonb,
+ 135, 8),
+ 
+-- 김민수의 지난 주 성과
+('test-user-1', date_trunc('week', CURRENT_DATE - INTERVAL '7 days')::date, 65, ARRAY[55, 58, 60, 62, 65, 63, 65],
+ '{"친근함": 72, "호기심": 78, "공감력": 45, "유머": 52, "배려": 68, "적극성": 60}'::jsonb,
+ 95, 6),
+
+-- 이수진의 이번 주 성과
+('test-user-2', date_trunc('week', CURRENT_DATE)::date, 85, ARRAY[75, 78, 80, 82, 85, 83, 85],
+ '{"친근함": 90, "호기심": 88, "공감력": 82, "유머": 75, "배려": 88, "적극성": 80}'::jsonb,
+ 180, 10);
 
 -- =====================================================
--- 6. 기본 설정값
+-- 6. 테스트 사용자 뱃지 및 즐겨찾기
+-- =====================================================
+
+-- 김민수의 뱃지
+INSERT INTO public.user_badges (user_id, badge_id, progress_current, progress_total, featured)
+VALUES 
+('test-user-1', 'badge-1', 1, 1, false),  -- 대화 초보자 (획득)
+('test-user-1', 'badge-2', 8, 10, true),   -- 대화 중급자 (진행중, 대표 뱃지)
+('test-user-1', 'badge-4', 78, 80, false), -- 호감도 마스터 (진행중)
+('test-user-1', 'badge-5', 3, 7, false);   -- 연속 대화왕 (진행중)
+
+-- 이수진의 뱃지  
+INSERT INTO public.user_badges (user_id, badge_id, progress_current, progress_total, featured)
+VALUES
+('test-user-2', 'badge-1', 1, 1, false),   -- 대화 초보자 (획득)
+('test-user-2', 'badge-2', 10, 10, false), -- 대화 중급자 (획득)
+('test-user-2', 'badge-4', 85, 80, true),  -- 호감도 마스터 (획득, 대표 뱃지)
+('test-user-2', 'badge-8', 30, 50, false); -- 성장왕 (진행중)
+
+-- 김민수의 즐겨찾기
+INSERT INTO public.favorites (user_id, persona_id)
+VALUES 
+('test-user-1', 'persona-1'),  -- 김소연
+('test-user-1', 'persona-3');  -- 박서윤
+
+-- 이수진의 즐겨찾기
+INSERT INTO public.favorites (user_id, persona_id)
+VALUES
+('test-user-2', 'persona-6'),  -- 강준호
+('test-user-2', 'persona-7'),  -- 이도현
+('test-user-2', 'persona-8');  -- 박서준
+
+-- =====================================================
+-- 7. 테스트 대화 기록
+-- =====================================================
+
+-- 김민수의 최근 대화
+INSERT INTO public.conversations (id, user_id, partner_type, partner_id, is_tutorial, status)
+VALUES
+('conv-1', 'test-user-1', 'persona', 'persona-1', false, 'completed'),
+('conv-2', 'test-user-1', 'persona', 'persona-3', false, 'active'),
+('conv-3', 'test-user-1', 'coach', 'coach-1', false, 'completed');
+
+-- 대화 메시지 샘플
+INSERT INTO public.messages (conversation_id, sender_type, content)
+VALUES
+('conv-1', 'user', '안녕하세요! 처음 뵙겠습니다.'),
+('conv-1', 'ai', '안녕하세요! 만나서 반가워요 😊 저는 소연이에요. 마케팅 일을 하고 있어요.'),
+('conv-1', 'user', '오, 마케팅이요? 재미있으실 것 같아요!'),
+('conv-1', 'ai', '네, 정말 재미있어요! 특히 사람들의 마음을 움직이는 캠페인을 만들 때 보람을 느껴요. 혹시 어떤 일 하세요?');
+
+-- 대화 분석 결과
+INSERT INTO public.conversation_analysis (conversation_id, overall_score, affinity_score, improvements, achievements, tips)
+VALUES
+('conv-1', 75, 78, 
+ ARRAY['더 구체적인 질문하기', '감정 표현 늘리기'],
+ ARRAY['자연스러운 인사', '적절한 리액션'],
+ ARRAY['상대방의 관심사에 대해 더 깊이 물어보세요', '자신의 경험을 공유하면 대화가 풍성해져요']);
+
+-- =====================================================
+-- 8. 기본 설정값
 -- =====================================================
 
 -- 모든 사용자에게 기본 알림 설정이 자동으로 생성되도록 하는 함수
