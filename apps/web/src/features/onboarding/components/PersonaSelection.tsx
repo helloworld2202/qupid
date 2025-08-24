@@ -44,7 +44,7 @@ const PersonaSelection: React.FC<PersonaSelectionProps> = ({ personas, userProfi
     .filter(p => p.gender === partnerGender)
     .filter(p => 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      p.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      p.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
   return (

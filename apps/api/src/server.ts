@@ -17,15 +17,19 @@ import userRoutes from "./modules/user/routes.js"
 import badgeRoutes from "./modules/badge/routes.js"
 import analyticsRoutes from "./modules/analytics/routes.js"
 
-const logger = pino({
-  level: env.NODE_ENV === "production" ? "info" : "debug",
-  transport: {
-    target: "pino-pretty",
-    options: {
-      colorize: true
-    }
-  }
-})
+const logger = env.NODE_ENV === "production" 
+  ? pino({
+      level: "info"
+    })
+  : pino({
+      level: "debug",
+      transport: {
+        target: "pino-pretty",
+        options: {
+          colorize: true
+        }
+      }
+    })
 
 const app = express()
 

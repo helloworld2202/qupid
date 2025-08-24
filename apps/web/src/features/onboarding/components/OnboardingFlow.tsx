@@ -205,7 +205,7 @@ const CompletionScreen: React.FC<{ onComplete: () => void; profile: NewUserProfi
                     <ul className="space-y-3">
                         <li className="flex justify-between"><span className="font-bold">성별</span><span>{profile.user_gender === 'male' ? '남성' : '여성'} ({partnerGender}와 연습)</span></li>
                         <li className="flex justify-between"><span className="font-bold">경험</span><span>{profile.experience}</span></li>
-                        <li className="flex justify-between"><span className="font-bold">관심사</span><span className="truncate ml-4">{profile.interests.map(i => i.split(' ')[1]).join(', ')}</span></li>
+                        <li className="flex justify-between"><span className="font-bold">관심사</span><span className="truncate ml-4">{profile.interests.map((i: string) => i.split(' ')[1]).join(', ')}</span></li>
                     </ul>
                 </div>
              </main>
@@ -237,7 +237,7 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile) =>
         difficulty: profile.experience === '전혈 없어요' ? 1 : 
                    profile.experience === '1-2번 정도' ? 2 :
                    profile.experience === '몇 번 있어요' ? 3 : 4,
-        interests: profile.interests.map(i => i.split(' ')[1] || i),
+        interests: profile.interests.map((i: string) => i.split(' ')[1] || i),
         isTutorialCompleted: false
       };
       

@@ -112,7 +112,7 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
                             <p className="text-base font-medium">관심 분야</p>
                             <div className="mt-2 flex flex-wrap gap-2">
                                 {profile.interests && profile.interests.length > 0 ? (
-                                    profile.interests.map(interest => (
+                                    profile.interests.map((interest: string) => (
                                         <span key={interest} className="px-3 py-1.5 bg-[#EBF2FF] text-[#4F7ABA] text-sm font-medium rounded-full">
                                             {interest.replace(/^(?:. )/, '#')}
                                         </span>
