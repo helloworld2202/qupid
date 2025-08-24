@@ -8,80 +8,95 @@
 -- Supabase Auth에 테스트 사용자 생성
 -- 비밀번호는 모두 'test1234'로 설정
 
--- 테스트 사용자 1
-INSERT INTO auth.users (
-    id,
-    email,
-    encrypted_password,
-    email_confirmed_at,
-    created_at,
-    updated_at,
-    raw_app_meta_data,
-    raw_user_meta_data,
-    aud,
-    role
-) VALUES (
-    '11111111-1111-1111-1111-111111111111'::uuid,
-    'test1@example.com',
-    crypt('test1234', gen_salt('bf')),
-    NOW(),
-    NOW(),
-    NOW(),
-    '{"provider": "email", "providers": ["email"]}'::jsonb,
-    '{"name": "테스트 사용자"}'::jsonb,
-    'authenticated',
-    'authenticated'
-) ON CONFLICT (id) DO NOTHING;
+-- 테스트 사용자 1 (ID나 email이 이미 존재하면 건너뜀)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = '11111111-1111-1111-1111-111111111111'::uuid OR email = 'test1@example.com') THEN
+        INSERT INTO auth.users (
+            id,
+            email,
+            encrypted_password,
+            email_confirmed_at,
+            created_at,
+            updated_at,
+            raw_app_meta_data,
+            raw_user_meta_data,
+            aud,
+            role
+        ) VALUES (
+            '11111111-1111-1111-1111-111111111111'::uuid,
+            'test1@example.com',
+            crypt('test1234', gen_salt('bf')),
+            NOW(),
+            NOW(),
+            NOW(),
+            '{"provider": "email", "providers": ["email"]}'::jsonb,
+            '{"name": "테스트 사용자"}'::jsonb,
+            'authenticated',
+            'authenticated'
+        );
+    END IF;
+END $$;
 
--- 테스트 사용자 2
-INSERT INTO auth.users (
-    id,
-    email,
-    encrypted_password,
-    email_confirmed_at,
-    created_at,
-    updated_at,
-    raw_app_meta_data,
-    raw_user_meta_data,
-    aud,
-    role
-) VALUES (
-    '22222222-2222-2222-2222-222222222222'::uuid,
-    'test2@example.com',
-    crypt('test1234', gen_salt('bf')),
-    NOW(),
-    NOW(),
-    NOW(),
-    '{"provider": "email", "providers": ["email"]}'::jsonb,
-    '{"name": "테스트 사용자2"}'::jsonb,
-    'authenticated',
-    'authenticated'
-) ON CONFLICT (id) DO NOTHING;
+-- 테스트 사용자 2 (ID나 email이 이미 존재하면 건너뜀)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = '22222222-2222-2222-2222-222222222222'::uuid OR email = 'test2@example.com') THEN
+        INSERT INTO auth.users (
+            id,
+            email,
+            encrypted_password,
+            email_confirmed_at,
+            created_at,
+            updated_at,
+            raw_app_meta_data,
+            raw_user_meta_data,
+            aud,
+            role
+        ) VALUES (
+            '22222222-2222-2222-2222-222222222222'::uuid,
+            'test2@example.com',
+            crypt('test1234', gen_salt('bf')),
+            NOW(),
+            NOW(),
+            NOW(),
+            '{"provider": "email", "providers": ["email"]}'::jsonb,
+            '{"name": "테스트 사용자2"}'::jsonb,
+            'authenticated',
+            'authenticated'
+        );
+    END IF;
+END $$;
 
--- 테스트 사용자 3 (튜토리얼 미완료)
-INSERT INTO auth.users (
-    id,
-    email,
-    encrypted_password,
-    email_confirmed_at,
-    created_at,
-    updated_at,
-    raw_app_meta_data,
-    raw_user_meta_data,
-    aud,
-    role
-) VALUES (
-    '33333333-3333-3333-3333-333333333333'::uuid,
-    'test3@example.com',
-    crypt('test1234', gen_salt('bf')),
-    NOW(),
-    NOW(),
-    NOW(),
-    '{"provider": "email", "providers": ["email"]}'::jsonb,
-    '{"name": "튜토리얼 테스트"}'::jsonb,
-    'authenticated',
-    'authenticated'
-) ON CONFLICT (id) DO NOTHING;
+-- 테스트 사용자 3 (튜토리얼 미완료, ID나 email이 이미 존재하면 건너뜀)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = '33333333-3333-3333-3333-333333333333'::uuid OR email = 'test3@example.com') THEN
+        INSERT INTO auth.users (
+            id,
+            email,
+            encrypted_password,
+            email_confirmed_at,
+            created_at,
+            updated_at,
+            raw_app_meta_data,
+            raw_user_meta_data,
+            aud,
+            role
+        ) VALUES (
+            '33333333-3333-3333-3333-333333333333'::uuid,
+            'test3@example.com',
+            crypt('test1234', gen_salt('bf')),
+            NOW(),
+            NOW(),
+            NOW(),
+            '{"provider": "email", "providers": ["email"]}'::jsonb,
+            '{"name": "튜토리얼 테스트"}'::jsonb,
+            'authenticated',
+            'authenticated'
+        );
+    END IF;
+END $$;
 
 -- =====================================================
 -- 이후 기존 seed-data.sql 내용과 동일
