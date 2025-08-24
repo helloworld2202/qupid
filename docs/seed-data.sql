@@ -276,8 +276,8 @@ ON CONFLICT (user_id, persona_id) DO NOTHING;
 -- 8. 대화 기록
 INSERT INTO public.conversations (id, user_id, partner_type, partner_id, is_tutorial, status)
 VALUES
-('conv-1', '11111111-1111-1111-1111-111111111111'::uuid, 'persona', 'persona-1', false, 'completed'),
-('conv-2', '11111111-1111-1111-1111-111111111111'::uuid, 'coach', 'coach-1', false, 'completed')
+('c1111111-1111-1111-1111-111111111111'::uuid, '11111111-1111-1111-1111-111111111111'::uuid, 'persona', 'persona-1', false, 'completed'),
+('c2222222-2222-2222-2222-222222222222'::uuid, '11111111-1111-1111-1111-111111111111'::uuid, 'coach', 'coach-1', false, 'completed')
 ON CONFLICT (id) DO UPDATE SET
   user_id = EXCLUDED.user_id,
   partner_type = EXCLUDED.partner_type,
@@ -287,14 +287,14 @@ ON CONFLICT (id) DO UPDATE SET
 
 INSERT INTO public.messages (conversation_id, sender_type, content)
 VALUES
-('conv-1', 'user', '안녕하세요! 처음 뵙겠습니다'),
-('conv-1', 'ai', '안녕하세요! 처음 뵙네요 😊'),
-('conv-1', 'user', '혹시 게임 좋아하세요?'),
-('conv-1', 'ai', '네! 저는 요즘 발로란트에 빠져있어요! RPG랑 어드벤처 게임도 좋아해요. 어떤 게임 좋아하세요?');
+('c1111111-1111-1111-1111-111111111111'::uuid, 'user', '안녕하세요! 처음 뵙겠습니다'),
+('c1111111-1111-1111-1111-111111111111'::uuid, 'ai', '안녕하세요! 처음 뵙네요 😊'),
+('c1111111-1111-1111-1111-111111111111'::uuid, 'user', '혹시 게임 좋아하세요?'),
+('c1111111-1111-1111-1111-111111111111'::uuid, 'ai', '네! 저는 요즘 발로란트에 빠져있어요! RPG랑 어드벤처 게임도 좋아해요. 어떤 게임 좋아하세요?');
 
 INSERT INTO public.conversation_analysis (conversation_id, overall_score, affinity_score, improvements, achievements, tips)
 VALUES
-('conv-1', 78, 85, 
+('c1111111-1111-1111-1111-111111111111'::uuid, 78, 85, 
  ARRAY['더 구체적인 질문하기', '감정 표현 늘리기'],
  ARRAY['자연스러운 인사', '적절한 리액션', '공통 관심사 발견'],
  ARRAY['상대방의 관심사에 대해 더 깊이 물어보세요', '자신의 경험을 공유하면 대화가 풍성해져요'])
