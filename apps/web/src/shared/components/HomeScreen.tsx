@@ -73,7 +73,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   
   const displayPerformanceData = performanceData || defaultPerformanceData;
   const recentBadge = badges && badges.length > 0 ? badges.find(b => b.featured) : undefined;
-  const partnerGender = userProfile.user_gender === 'female' ? 'male' : 'female';
+  const partnerGender = currentUser.user_gender === 'female' ? 'male' : 'female';
   const recommendedPersonas = personas && personas.length > 0 
     ? personas.filter(p => p.gender === partnerGender).slice(0, 5) 
     : [];
