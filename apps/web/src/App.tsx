@@ -38,12 +38,28 @@ import { MyTabScreen } from './features/profile/components/MyTabScreen';
 import { ProfileEditScreen } from './features/profile/components/ProfileEditScreen';
 import { SettingsScreen } from './features/profile/components/SettingsScreen';
 import { BadgesScreen } from './features/profile/components/BadgesScreen';
+import { useBadges, useUserBadges } from './shared/hooks/useBadges';
 import { FavoritesScreen } from './features/profile/components/FavoritesScreen';
 import { NotificationSettingsScreen } from './features/profile/components/NotificationSettingsScreen';
 import { DeleteAccountScreen } from './features/profile/components/DeleteAccountScreen';
 import { DesignGuideScreen } from './features/profile/components/DesignGuideScreen';
 import { PerformanceDetailScreen } from './features/analytics/components/PerformanceDetailScreen';
 import { DataExportScreen } from './features/analytics/components/DataExportScreen';
+
+// Badges Container with API integration
+const BadgesContainer: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const { data: badges = [], isLoading } = useBadges();
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]"></div>
+      </div>
+    );
+  }
+  
+  return <BadgesScreen badges={badges} onBack={onBack} />;
+};
 
 const AppContent: React.FC = () => {
   const { user, setUser } = useUserStore();
@@ -254,12 +270,7 @@ const AppContent: React.FC = () => {
         );
       
       case Screen.Badges:
-        const badges: Badge[] = [
-          { id: '1', name: '대화 초보자', icon: '🌱', description: '첫 대화 완료', category: '대화', rarity: 'Common', acquired: true, featured: true },
-          { id: '2', name: '호감도 마스터', icon: '💖', description: '호감도 80% 달성', category: '대화', rarity: 'Rare', acquired: false, progress: { current: 65, total: 80 } },
-          { id: '3', name: '연속 대화왕', icon: '🔥', description: '7일 연속 대화', category: '성장', rarity: 'Epic', acquired: false, progress: { current: 3, total: 7 } },
-        ];
-        return <BadgesScreen badges={badges} onBack={() => navigateTo(previousScreen)} />;
+        return <BadgesContainer onBack={() => navigateTo(previousScreen)} />;
       
       case Screen.Favorites:
         const favoritePersonas = PREDEFINED_PERSONAS.filter(p => favoriteIds.includes(p.id));

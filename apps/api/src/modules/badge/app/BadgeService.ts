@@ -1,0 +1,71 @@
+import { supabase } from '../../../config/supabase';
+import { Badge } from '@qupid/core';
+
+export class BadgeService {
+  async getAllBadges(): Promise<Badge[]> {
+    const { data, error } = await supabase
+      .from('badges')
+      .select('*')
+      .order('category', { ascending: true })
+      .order('rarity', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching badges:', error);
+      throw new Error('Failed to fetch badges');
+    }
+
+    return data || [];
+  }
+
+  async getUserBadges(userId: string): Promise<Badge[]> {
+    const { data, error } = await supabase
+      .from('user_badges')
+      .select(`
+        badge_id,
+        acquired_at,
+        badges (*)
+      `)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching user badges:', error);
+      throw new Error('Failed to fetch user badges');
+    }
+
+    // Transform the data to include acquired status
+    const userBadges = data?.map(item => ({
+      ...item.badges,
+      acquired: true,
+      acquired_at: item.acquired_at
+    })) || [];
+
+    // Get all badges to show both acquired and not acquired
+    const allBadges = await this.getAllBadges();
+    
+    // Merge user badges with all badges
+    return allBadges.map(badge => {
+      const userBadge = userBadges.find(ub => ub.id === badge.id);
+      return {
+        ...badge,
+        acquired: !!userBadge,
+        acquired_at: userBadge?.acquired_at
+      };
+    });
+  }
+
+  async awardBadge(userId: string, badgeId: string): Promise<void> {
+    const { error } = await supabase
+      .from('user_badges')
+      .insert({
+        user_id: userId,
+        badge_id: badgeId,
+        acquired_at: new Date().toISOString()
+      })
+      .single();
+
+    if (error) {
+      console.error('Error awarding badge:', error);
+      throw new Error('Failed to award badge');
+    }
+  }
+}

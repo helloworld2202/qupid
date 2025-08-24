@@ -3,34 +3,37 @@
 import React from 'react';
 import { UserProfile, Persona, Screen, Badge, PerformanceData, PREDEFINED_PERSONAS } from '@qupid/core';
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
+import { usePersonas } from '../hooks/usePersonas';
+import { useBadges } from '../hooks/useBadges';
+import { useAppStore } from '../stores/useAppStore';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen | string) => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
-  // 임시 데이터
+  const { currentUserId } = useAppStore();
+  
+  // API 데이터 페칭
+  const { data: allPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
+  const { data: allBadges = [], isLoading: isLoadingBadges } = useBadges();
+  
+  // 임시 사용자 프로필 (나중에 실제 API로 교체)
   const userProfile = { 
     name: '사용자', 
     user_gender: 'male',
+    partner_gender: 'female',
     interests: ['게임', '영화'],
     experience: '없음',
     confidence: 3,
     difficulty: 2
   } as UserProfile;
-  const personas: Persona[] = PREDEFINED_PERSONAS.filter(p => p.gender === 'female');
-  const badges: Badge[] = [
-    { 
-      id: '1', 
-      name: '대화 초보자', 
-      icon: '🌱', 
-      description: '첫 대화 완료', 
-      category: '대화',
-      rarity: 'Common',
-      acquired: true,
-      featured: true 
-    }
-  ];
+  
+  // 이성 페르소나만 필터링
+  const personas = allPersonas.filter(p => p.gender === userProfile.partner_gender);
+  
+  // 획득한 뱃지만 필터링
+  const badges = allBadges.filter(b => b.acquired);
   const performanceData = {
     weeklyScore: 78,
     scoreChange: 12,
@@ -63,6 +66,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const partnerGender = userProfile.user_gender === 'female' ? 'male' : 'female';
   const recommendedPersonas = personas.filter(p => p.gender === partnerGender).slice(0, 5);
   
+  // 로딩 상태 처리
+  if (isLoadingPersonas || isLoadingBadges) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full w-full" style={{ backgroundColor: 'var(--background)' }}>
       {/* Header */}
