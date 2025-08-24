@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import { UserProfile, Screen } from '@qupid/core';
 import { ChevronRightIcon } from '@qupid/ui';
+import { useUserProfile } from '../../../shared/hooks/api/useUser';
+import { useAppStore } from '../../../shared/stores/useAppStore';
 
 interface MyTabScreenProps {
   onNavigate: (screen: Screen) => void;
+  onLogout?: () => void;
 }
 
 const TossToggle: React.FC<{ value: boolean; onToggle: () => void; }> = ({ value, onToggle }) => (
@@ -63,15 +66,18 @@ const SectionContainer: React.FC<{ title?: string, children: React.ReactNode, cl
     </div>
 );
 
-const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate }) => {
-    // localStorage에서 사용자 정보 가져오기
-    const storedProfile = localStorage.getItem('userProfile');
-    const userProfile = storedProfile ? JSON.parse(storedProfile) : { name: '사용자', user_gender: 'male' } as UserProfile;
+const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate, onLogout }) => {
+    const { currentUserId } = useAppStore();
+    const { data: userProfile, isLoading } = useUserProfile(currentUserId || '');
+    
+    // 로딩 중이거나 데이터가 없을 때의 기본값
+    const defaultProfile = { name: '사용자', user_gender: 'male' } as UserProfile;
+    const profile = userProfile || defaultProfile;
     const [practiceNotification, setPracticeNotification] = useState(true);
     const [analysisDisplay, setAnalysisDisplay] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
 
-    const initial = userProfile.name.charAt(0).toUpperCase();
+    const initial = profile.name.charAt(0).toUpperCase();
 
     return (
         <div className="flex flex-col h-full w-full bg-[#F9FAFB]">
@@ -89,7 +95,7 @@ const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate }) => {
                         {initial}
                     </div>
                     <div className="ml-4 flex-1">
-                        <p className="font-bold text-xl text-[#191F28]">{userProfile.name}</p>
+                        <p className="font-bold text-xl text-[#191F28]">{profile.name}</p>
                         <p className="font-medium text-sm text-[#8B95A1]">Level 3 · 대화 중급자</p>
                         <div className="mt-1.5 h-1 w-full bg-white/30 rounded-full">
                             <div className="h-1 rounded-full bg-[#F093B0]" style={{ width: '75%' }}></div>
@@ -128,7 +134,7 @@ const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate }) => {
                 
                 {/* Danger Zone */}
                 <SectionContainer>
-                    <SettingItem icon="🚪" title="로그아웃" onClick={() => {}} dangerous rightComponent={<></>} />
+                    <SettingItem icon="🚪" title="로그아웃" onClick={onLogout} dangerous rightComponent={<></>} />
                     <SettingItem icon="❌" title="회원 탈퇴" subtitle="모든 데이터가 삭제됩니다" onClick={() => onNavigate(Screen.DeleteAccount)} dangerous rightComponent={<></>} />
                 </SectionContainer>
 

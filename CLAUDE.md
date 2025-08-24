@@ -191,4 +191,26 @@ pnpm typecheck        # 타입 체크
 
 ---
 
-*마지막 업데이트: 2025-08-24 15:00*
+## 배포 설정 완료 (2025-08-24 18:00)
+
+### 배포 구성
+- **Frontend**: Vercel (무료)
+- **Backend**: Railway (월 $5~)
+- **Database**: Supabase (기존 유지)
+- **CI/CD**: GitHub Actions 자동 배포
+
+### 생성된 배포 파일
+1. `vercel.json` - Vercel 빌드 설정
+2. `apps/api/Dockerfile` - Railway용 Docker 이미지
+3. `railway.json` - Railway 배포 설정
+4. `.github/workflows/deploy.yml` - 자동 배포 파이프라인
+5. `deploy-guide.md` - 상세 배포 가이드 (GitHub Secrets 설정 포함)
+
+### 배포 프로세스
+- main 브랜치 push → GitHub Actions 트리거
+- Frontend/Backend 병렬 자동 배포
+- 필요한 모든 Secrets은 GitHub Settings에서 설정
+
+---
+
+*마지막 업데이트: 2025-08-24 18:00*

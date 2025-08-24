@@ -7,6 +7,7 @@ import { usePersonas } from '../hooks/usePersonas';
 import { useBadges } from '../hooks/useBadges';
 import { usePerformance } from '../hooks/usePerformance';
 import { useAppStore } from '../stores/useAppStore';
+import { useUserProfile } from '../hooks/api/useUser';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen | string) => void;
@@ -19,20 +20,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const { data: allPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
   const { data: allBadges = [], isLoading: isLoadingBadges } = useBadges();
   const { data: performanceData, isLoading: isLoadingPerformance } = usePerformance(currentUserId);
+  const { data: userProfile, isLoading: isLoadingUser } = useUserProfile(currentUserId || '');
   
-  // 임시 사용자 프로필 (나중에 실제 API로 교체)
-  const userProfile = { 
+  // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
+  const defaultUserProfile = { 
     name: '사용자', 
-    user_gender: 'male',
-    partner_gender: 'female',
-    interests: ['게임', '영화'],
+    user_gender: 'male' as const,
+    partner_gender: 'female' as const,
+    interests: [],
     experience: '없음',
     confidence: 3,
     difficulty: 2
   } as UserProfile;
   
+  const currentUser = userProfile || defaultUserProfile;
+  
   // 이성 페르소나만 필터링
-  const personas = allPersonas.filter(p => p.gender === userProfile.partner_gender);
+  const personas = allPersonas.filter(p => p.gender === currentUser.partner_gender);
   
   // 획득한 뱃지만 필터링
   const badges = allBadges.filter(b => b.acquired);
@@ -91,7 +95,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             <div className="flex items-center">
                 <img src="https://em-content.zobj.net/source/apple/391/waving-hand_1f44b.png" alt="profile" className="w-10 h-10 rounded-full" />
                 <div className="ml-3">
-                    <p className="font-bold text-xl text-[#191F28]">안녕하세요, {userProfile.name}님!</p>
+                    <p className="font-bold text-xl text-[#191F28]">안녕하세요, {currentUser.name}님!</p>
                     <p className="text-sm text-[#8B95A1]">오늘도 대화 실력을 키워볼까요?</p>
                 </div>
             </div>

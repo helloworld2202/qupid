@@ -73,8 +73,22 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ onNavigate, onSignupSuccess
         localStorage.setItem('userId', data.data.user.id);
       }
       
-      onSignupSuccess(data.data);
-      onNavigate('ONBOARDING'); // 온보딩으로 이동
+      // 프로필 저장
+      if (data.data.profile) {
+        localStorage.setItem('userProfile', JSON.stringify(data.data.profile));
+        
+        // 튜토리얼 완료 여부 확인
+        if (data.data.profile.is_tutorial_completed) {
+          onSignupSuccess(data.data);
+          onNavigate('HOME');
+        } else {
+          onSignupSuccess(data.data);
+          onNavigate('ONBOARDING'); // 온보딩으로 이동
+        }
+      } else {
+        onSignupSuccess(data.data);
+        onNavigate('ONBOARDING'); // 온보딩으로 이동
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

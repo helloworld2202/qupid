@@ -38,8 +38,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onNavigate, onLoginSuccess })
       localStorage.setItem('refreshToken', data.data.session.refresh_token);
       localStorage.setItem('userId', data.data.user.id);
       
-      onLoginSuccess(data.data);
-      onNavigate('HOME');
+      // 프로필 저장
+      if (data.data.profile) {
+        localStorage.setItem('userProfile', JSON.stringify(data.data.profile));
+        
+        // 튜토리얼 완료 여부 확인
+        if (!data.data.profile.is_tutorial_completed) {
+          onLoginSuccess(data.data);
+          onNavigate(Screen.TutorialIntro); // 튜토리얼로 이동
+        } else {
+          onLoginSuccess(data.data);
+          onNavigate('HOME');
+        }
+      } else {
+        onLoginSuccess(data.data);
+        onNavigate('HOME');
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

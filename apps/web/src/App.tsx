@@ -139,12 +139,28 @@ const AppContent: React.FC = () => {
           <ChatScreen
             partner={sessionData?.partner}
             isTutorial={sessionData?.isTutorial || false}
-            onComplete={(analysis, tutorialCompleted) => {
+            onComplete={async (analysis, tutorialCompleted) => {
               if (tutorialCompleted && user) {
                 // 튜토리얼 완료 시 처리
                 const updatedProfile = { ...user, isTutorialCompleted: true };
                 setUser(updatedProfile);
                 localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+                
+                // 서버에 튜토리얼 완료 상태 업데이트
+                const userId = localStorage.getItem('userId');
+                if (userId) {
+                  try {
+                    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+                    await fetch(`${API_URL}/users/${userId}/tutorial/complete`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                    });
+                  } catch (error) {
+                    console.error('Failed to update tutorial status:', error);
+                  }
+                }
                 
                 // 홈으로 이동
                 setSessionData(null);
@@ -256,7 +272,21 @@ const AppContent: React.FC = () => {
         );
       
       case 'MY_TAB':
-        return <MyTabScreen onNavigate={navigateTo} />;
+        return (
+          <MyTabScreen 
+            onNavigate={navigateTo}
+            onLogout={() => {
+              // 로그아웃 처리
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('userId');
+              localStorage.removeItem('userProfile');
+              setUser(null);
+              setAppState('auth');
+              navigateTo('LOGIN');
+            }}
+          />
+        );
       
       case Screen.ProfileEdit:
         return (
@@ -392,7 +422,12 @@ const AppContent: React.FC = () => {
                 setUser(userData.profile);
                 localStorage.setItem('userProfile', JSON.stringify(userData.profile));
                 setAppState('main');
-                navigateTo('HOME');
+                // 튜토리얼 완료 여부에 따라 다른 화면으로 이동
+                if (!userData.profile.is_tutorial_completed) {
+                  navigateTo(Screen.TutorialIntro);
+                } else {
+                  navigateTo('HOME');
+                }
               } else {
                 setAppState('onboarding');
                 navigateTo('ONBOARDING');
@@ -411,7 +446,12 @@ const AppContent: React.FC = () => {
                 setUser(userData.profile);
                 localStorage.setItem('userProfile', JSON.stringify(userData.profile));
                 setAppState('main');
-                navigateTo('HOME');
+                // 튜토리얼 완료 여부에 따라 다른 화면으로 이동
+                if (!userData.profile.is_tutorial_completed) {
+                  navigateTo(Screen.TutorialIntro);
+                } else {
+                  navigateTo('HOME');
+                }
               } else {
                 setAppState('onboarding');
                 navigateTo('ONBOARDING');
