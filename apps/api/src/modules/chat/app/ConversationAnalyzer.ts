@@ -1,8 +1,10 @@
 import { supabase } from '../../../config/supabase.js';
 import { openai } from '../../../shared/infra/openai.js';
 import { Message, ConversationAnalysis } from '@qupid/core';
+import { NotificationService } from '../../notification/app/NotificationService.js';
 
 export class ConversationAnalyzer {
+  private notificationService = new NotificationService();
   /**
    * 대화 분석 (메모리에서만)
    */
@@ -207,13 +209,28 @@ JSON 형식:
       // Check conversation count badges
       if (totalConversations === 1) {
         await this.awardBadge(userId, 'first-chat'); // 첫 대화
+        await this.notificationService.createAchievementNotification(
+          userId,
+          '🎉 첫 대화를 완료했어요! 큐피드와 함께하는 연애 연습이 시작되었습니다.',
+          'first-chat'
+        );
       } else if (totalConversations === 10) {
         await this.awardBadge(userId, 'conversation-10'); // 대화 10회
+        await this.notificationService.createAchievementNotification(
+          userId,
+          '🏆 10번의 대화를 완료했어요! 당신은 이제 연애 대화 중급자입니다.',
+          'conversation-10'
+        );
       }
 
       // Check score badges
       if (avgScore >= 80 && totalConversations >= 5) {
         await this.awardBadge(userId, 'high-scorer'); // 고득점자
+        await this.notificationService.createAchievementNotification(
+          userId,
+          '⭐ 평균 80점 이상을 달성했어요! 당신의 연애 대화 실력이 뛰어납니다.',
+          'high-scorer'
+        );
       }
     } catch (error) {
       console.error('Failed to check badges:', error);

@@ -12,6 +12,7 @@ import authRoutes from "./modules/auth/routes.js"
 import chatRoutes from "./modules/chat/routes.js"
 import stylingRoutes from "./modules/styling/routes.js"
 import personaRoutes from "./modules/persona/routes.js"
+import notificationRoutes from "./modules/notification/routes.js"
 import coachingRoutes from "./modules/coaching/routes.js"
 import userRoutes from "./modules/user/routes.js"
 import badgeRoutes from "./modules/badge/routes.js"
@@ -93,6 +94,7 @@ app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/chat", chatRoutes)
 app.use("/api/v1/styling", stylingRoutes)
 app.use("/api/v1/personas", personaRoutes)
+app.use("/api/v1/notifications", notificationRoutes)
 app.use("/api/v1/coaches", coachingRoutes)
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1", badgeRoutes)
