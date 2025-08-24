@@ -1,0 +1,308 @@
+-- Qupid Seed Data (중복 안전 버전)
+-- 이 스크립트는 여러 번 실행해도 안전합니다
+-- ON CONFLICT 구문으로 중복 데이터를 처리합니다
+
+-- =====================================================
+-- 1. AI PERSONAS (페르소나 데이터)
+-- =====================================================
+
+INSERT INTO public.personas (id, name, gender, age, mbti, personality, occupation, bio, interests, avatar, match_rate, difficulty, tags) VALUES
+('persona-1', '김소연', 'female', 25, 'ENFJ', '밝고 활발한', '마케팅 매니저', 
+ '항상 긍정적인 에너지를 가지고 있어요! 새로운 사람들과 대화하는 걸 좋아하고, 특히 맛집 탐방이나 여행 이야기를 나누는 걸 즐겨요.',
+ ARRAY['맛집 탐방', '여행', '요가', '독서'],
+ 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
+ 85, 'Easy', ARRAY['친근함', '긍정적', '대화 주도']),
+
+('persona-2', '이지은', 'female', 28, 'ISFJ', '차분하고 따뜻한', '초등학교 교사',
+ '아이들을 가르치는 일을 하고 있어요. 조용한 카페에서 책 읽는 걸 좋아하고, 주말엔 베이킹을 즐겨해요.',
+ ARRAY['독서', '베이킹', '카페 투어', '클래식 음악'],
+ 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
+ 72, 'Medium', ARRAY['따뜻함', '경청', '공감']),
+
+('persona-3', '박서윤', 'female', 26, 'ENTP', '지적이고 호기심 많은', 'UX 디자이너',
+ '디자인과 기술을 사랑하는 디자이너예요. 새로운 아이디어를 생각하고 토론하는 걸 좋아해요.',
+ ARRAY['디자인', '스타트업', '테크', '영화'],
+ 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+ 78, 'Hard', ARRAY['창의적', '논리적', '도전적']),
+
+('persona-4', '최하늘', 'female', 24, 'ISFP', '감성적이고 예술적인', '일러스트레이터',
+ '그림 그리는 걸 좋아하는 프리랜서 일러스트레이터예요. 조용하지만 깊은 대화를 즐겨요.',
+ ARRAY['그림', '전시회', '인디음악', '사진'],
+ 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400',
+ 65, 'Medium', ARRAY['예술적', '섬세함', '진솔함']),
+
+('persona-5', '정민지', 'female', 27, 'ESTJ', '자신감 있고 주도적인', '변호사',
+ '일에 대한 열정이 넘치는 변호사예요. 운동을 좋아하고 목표 지향적인 성격이에요.',
+ ARRAY['피트니스', '와인', '경제', '자기계발'],
+ 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
+ 70, 'Hard', ARRAY['리더십', '목표지향', '직설적']),
+
+('persona-6', '강준호', 'male', 29, 'INTJ', '분석적이고 전략적인', '소프트웨어 엔지니어',
+ '기술과 혁신을 좋아하는 개발자입니다. 복잡한 문제를 해결하는 것을 즐깁니다.',
+ ARRAY['프로그래밍', '체스', 'SF소설', '하이킹'],
+ 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+ 75, 'Hard', ARRAY['논리적', '전략적', '독립적']),
+
+('persona-7', '이도현', 'male', 26, 'ESFP', '유머러스하고 사교적인', '광고 PD',
+ '재미있는 것을 좋아하고 사람들과 어울리는 것을 즐깁니다. 파티의 분위기 메이커예요!',
+ ARRAY['파티', '음악', '스포츠', '게임'],
+ 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
+ 80, 'Easy', ARRAY['유머', '사교적', '즉흥적']),
+
+('persona-8', '박서준', 'male', 31, 'INFP', '로맨틱하고 이상주의적인', '작가',
+ '감성적인 글을 쓰는 작가입니다. 깊은 대화와 의미 있는 관계를 추구합니다.',
+ ARRAY['문학', '영화', '커피', '여행'],
+ 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400',
+ 68, 'Medium', ARRAY['로맨틱', '창의적', '공감능력'])
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  gender = EXCLUDED.gender,
+  age = EXCLUDED.age,
+  mbti = EXCLUDED.mbti,
+  personality = EXCLUDED.personality,
+  occupation = EXCLUDED.occupation,
+  bio = EXCLUDED.bio,
+  interests = EXCLUDED.interests,
+  avatar = EXCLUDED.avatar,
+  match_rate = EXCLUDED.match_rate,
+  difficulty = EXCLUDED.difficulty,
+  tags = EXCLUDED.tags;
+
+-- =====================================================
+-- 2. AI COACHES (코치 데이터)
+-- =====================================================
+
+INSERT INTO public.coaches (id, name, specialty, tagline, bio, avatar, expertise_areas, coaching_style) VALUES
+('coach-1', '민서', '공감력', '상대방의 마음을 읽는 공감 전문가',
+ '10년간 심리상담사로 일하며 수많은 연애 상담을 진행했어요. 상대방의 감정을 이해하고 공감하는 방법을 알려드릴게요.',
+ 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+ ARRAY['감정 읽기', '공감 표현', '경청 스킬'],
+ '따뜻하고 이해심 많은 상담 스타일'),
+
+('coach-2', '준영', '대화 스킬', '자연스러운 대화를 이끄는 커뮤니케이션 전문가',
+ '방송작가 출신으로 스토리텔링과 대화 기술에 전문성을 가지고 있어요. 어색한 침묵 없이 대화를 이어가는 비법을 전수해드려요.',
+ 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400',
+ ARRAY['대화 시작', '주제 전환', '스토리텔링'],
+ '실용적이고 즉시 적용 가능한 팁 제공'),
+
+('coach-3', '하은', '매력 어필', '자신의 매력을 200% 발산하는 방법',
+ '이미지 컨설턴트로 활동하며 많은 사람들의 숨겨진 매력을 찾아드렸어요. 당신만의 특별한 매력 포인트를 발견하고 어필하는 방법을 코칭해드려요.',
+ 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400',
+ ARRAY['첫인상 관리', '매력 포인트 발굴', '자신감 향상'],
+ '긍정적이고 동기부여가 되는 코칭')
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  specialty = EXCLUDED.specialty,
+  tagline = EXCLUDED.tagline,
+  bio = EXCLUDED.bio,
+  avatar = EXCLUDED.avatar,
+  expertise_areas = EXCLUDED.expertise_areas,
+  coaching_style = EXCLUDED.coaching_style;
+
+-- =====================================================
+-- 3. BADGES (뱃지 정의)
+-- =====================================================
+
+INSERT INTO public.badges (id, name, icon, description, category, rarity, requirement_type, requirement_value) VALUES
+('badge-1', '대화 초보자', '🌱', '첫 대화 완료', '대화', 'Common', 'conversations', 1),
+('badge-2', '대화 중급자', '🌿', '10회 대화 완료', '대화', 'Common', 'conversations', 10),
+('badge-3', '대화 마스터', '🌳', '50회 대화 완료', '대화', 'Rare', 'conversations', 50),
+('badge-4', '호감도 마스터', '💖', '호감도 80% 달성', '성과', 'Rare', 'affinity_score', 80),
+('badge-5', '연속 대화왕', '🔥', '7일 연속 대화', '성장', 'Epic', 'streak_days', 7),
+('badge-6', '완벽주의자', '💯', '분석 점수 100점 달성', '성과', 'Epic', 'perfect_score', 100),
+('badge-7', '탐험가', '🗺️', '모든 페르소나와 대화', '탐험', 'Legendary', 'all_personas', 1),
+('badge-8', '성장왕', '📈', '주간 성장률 50% 이상', '성장', 'Rare', 'weekly_growth', 50),
+('badge-9', '인기스타', '⭐', '5명 이상 즐겨찾기', '소셜', 'Common', 'favorites', 5),
+('badge-10', '학습왕', '🎓', '모든 코치와 상담 완료', '학습', 'Epic', 'all_coaches', 1)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  icon = EXCLUDED.icon,
+  description = EXCLUDED.description,
+  category = EXCLUDED.category,
+  rarity = EXCLUDED.rarity,
+  requirement_type = EXCLUDED.requirement_type,
+  requirement_value = EXCLUDED.requirement_value;
+
+-- =====================================================
+-- 4. 테스트 사용자 (개발용)
+-- =====================================================
+
+INSERT INTO public.users (id, name, user_gender, partner_gender, experience, confidence, difficulty, interests, is_tutorial_completed)
+VALUES 
+-- 남성 테스트 사용자 (여성 AI와 대화)
+('test-user-1', '김민수', 'male', 'female', '1-2번 정도', 3, 2, 
+ ARRAY['게임', '영화', '음악', '운동'], true),
+ 
+-- 여성 테스트 사용자 (남성 AI와 대화) 
+('test-user-2', '이수진', 'female', 'male', '몇 번 있어요', 4, 3,
+ ARRAY['여행', '요리', '독서', '요가'], true),
+
+-- 튜토리얼 미완료 사용자
+('test-user-3', '박준영', 'male', 'female', '전혀 없어요', 2, 1,
+ ARRAY['게임', '애니메이션'], false)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  user_gender = EXCLUDED.user_gender,
+  partner_gender = EXCLUDED.partner_gender,
+  experience = EXCLUDED.experience,
+  confidence = EXCLUDED.confidence,
+  difficulty = EXCLUDED.difficulty,
+  interests = EXCLUDED.interests,
+  is_tutorial_completed = EXCLUDED.is_tutorial_completed;
+
+-- =====================================================
+-- 5. 샘플 성과 데이터 (테스트용)
+-- =====================================================
+
+INSERT INTO public.performance_metrics (user_id, week_start, weekly_score, daily_scores, category_scores, total_time_minutes, session_count)
+VALUES 
+-- 김민수의 이번 주 성과
+('test-user-1', date_trunc('week', CURRENT_DATE)::date, 78, ARRAY[60, 65, 70, 68, 75, 72, 78],
+ '{"친근함": 85, "호기심": 92, "공감력": 58, "유머": 60, "배려": 75, "적극성": 70}'::jsonb,
+ 135, 8),
+ 
+-- 김민수의 지난 주 성과
+('test-user-1', date_trunc('week', CURRENT_DATE - INTERVAL '7 days')::date, 65, ARRAY[55, 58, 60, 62, 65, 63, 65],
+ '{"친근함": 72, "호기심": 78, "공감력": 45, "유머": 52, "배려": 68, "적극성": 60}'::jsonb,
+ 95, 6),
+
+-- 이수진의 이번 주 성과
+('test-user-2', date_trunc('week', CURRENT_DATE)::date, 85, ARRAY[75, 78, 80, 82, 85, 83, 85],
+ '{"친근함": 90, "호기심": 88, "공감력": 82, "유머": 75, "배려": 88, "적극성": 80}'::jsonb,
+ 180, 10)
+ON CONFLICT (user_id, week_start) DO UPDATE SET
+  weekly_score = EXCLUDED.weekly_score,
+  daily_scores = EXCLUDED.daily_scores,
+  category_scores = EXCLUDED.category_scores,
+  total_time_minutes = EXCLUDED.total_time_minutes,
+  session_count = EXCLUDED.session_count;
+
+-- =====================================================
+-- 6. 테스트 사용자 뱃지 및 즐겨찾기
+-- =====================================================
+
+-- 김민수의 뱃지
+INSERT INTO public.user_badges (user_id, badge_id, progress_current, progress_total, featured)
+VALUES 
+('test-user-1', 'badge-1', 1, 1, false),  -- 대화 초보자 (획득)
+('test-user-1', 'badge-2', 8, 10, true),   -- 대화 중급자 (진행중, 대표 뱃지)
+('test-user-1', 'badge-4', 78, 80, false), -- 호감도 마스터 (진행중)
+('test-user-1', 'badge-5', 3, 7, false)   -- 연속 대화왕 (진행중)
+ON CONFLICT (user_id, badge_id) DO UPDATE SET
+  progress_current = EXCLUDED.progress_current,
+  progress_total = EXCLUDED.progress_total,
+  featured = EXCLUDED.featured;
+
+-- 이수진의 뱃지  
+INSERT INTO public.user_badges (user_id, badge_id, progress_current, progress_total, featured)
+VALUES
+('test-user-2', 'badge-1', 1, 1, false),   -- 대화 초보자 (획득)
+('test-user-2', 'badge-2', 10, 10, false), -- 대화 중급자 (획득)
+('test-user-2', 'badge-4', 85, 80, true),  -- 호감도 마스터 (획득, 대표 뱃지)
+('test-user-2', 'badge-8', 30, 50, false) -- 성장왕 (진행중)
+ON CONFLICT (user_id, badge_id) DO UPDATE SET
+  progress_current = EXCLUDED.progress_current,
+  progress_total = EXCLUDED.progress_total,
+  featured = EXCLUDED.featured;
+
+-- 김민수의 즐겨찾기
+INSERT INTO public.favorites (user_id, persona_id)
+VALUES 
+('test-user-1', 'persona-1'),  -- 김소연
+('test-user-1', 'persona-3')  -- 박서윤
+ON CONFLICT (user_id, persona_id) DO NOTHING;
+
+-- 이수진의 즐겨찾기
+INSERT INTO public.favorites (user_id, persona_id)
+VALUES
+('test-user-2', 'persona-6'),  -- 강준호
+('test-user-2', 'persona-7'),  -- 이도현
+('test-user-2', 'persona-8')  -- 박서준
+ON CONFLICT (user_id, persona_id) DO NOTHING;
+
+-- =====================================================
+-- 7. 테스트 대화 기록
+-- =====================================================
+
+-- 김민수의 최근 대화
+INSERT INTO public.conversations (id, user_id, partner_type, partner_id, is_tutorial, status)
+VALUES
+('conv-1', 'test-user-1', 'persona', 'persona-1', false, 'completed'),
+('conv-2', 'test-user-1', 'persona', 'persona-3', false, 'active'),
+('conv-3', 'test-user-1', 'coach', 'coach-1', false, 'completed')
+ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
+  partner_type = EXCLUDED.partner_type,
+  partner_id = EXCLUDED.partner_id,
+  is_tutorial = EXCLUDED.is_tutorial,
+  status = EXCLUDED.status;
+
+-- 대화 메시지 샘플 (중복 시 새로 추가)
+INSERT INTO public.messages (conversation_id, sender_type, content)
+VALUES
+('conv-1', 'user', '안녕하세요! 처음 뵙겠습니다.'),
+('conv-1', 'ai', '안녕하세요! 만나서 반가워요 😊 저는 소연이에요. 마케팅 일을 하고 있어요.'),
+('conv-1', 'user', '오, 마케팅이요? 재미있으실 것 같아요!'),
+('conv-1', 'ai', '네, 정말 재미있어요! 특히 사람들의 마음을 움직이는 캠페인을 만들 때 보람을 느껴요. 혹시 어떤 일 하세요?');
+-- messages 테이블은 id가 자동생성되므로 중복 체크 불필요
+
+-- 대화 분석 결과
+INSERT INTO public.conversation_analysis (conversation_id, overall_score, affinity_score, improvements, achievements, tips)
+VALUES
+('conv-1', 75, 78, 
+ ARRAY['더 구체적인 질문하기', '감정 표현 늘리기'],
+ ARRAY['자연스러운 인사', '적절한 리액션'],
+ ARRAY['상대방의 관심사에 대해 더 깊이 물어보세요', '자신의 경험을 공유하면 대화가 풍성해져요'])
+ON CONFLICT (conversation_id) DO UPDATE SET
+  overall_score = EXCLUDED.overall_score,
+  affinity_score = EXCLUDED.affinity_score,
+  improvements = EXCLUDED.improvements,
+  achievements = EXCLUDED.achievements,
+  tips = EXCLUDED.tips;
+
+-- =====================================================
+-- 8. 기본 설정 함수 (중복 체크)
+-- =====================================================
+
+-- 함수가 이미 존재할 수 있으므로 CREATE OR REPLACE 사용
+CREATE OR REPLACE FUNCTION create_default_notification_settings()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.notification_settings (user_id)
+    VALUES (NEW.id)
+    ON CONFLICT (user_id) DO NOTHING;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 트리거가 이미 존재할 수 있으므로 먼저 삭제
+DROP TRIGGER IF EXISTS create_user_notification_settings ON public.users;
+
+CREATE TRIGGER create_user_notification_settings
+AFTER INSERT ON public.users
+FOR EACH ROW EXECUTE FUNCTION create_default_notification_settings();
+
+-- =====================================================
+-- 9. 성과 데이터 자동 생성 함수
+-- =====================================================
+
+CREATE OR REPLACE FUNCTION create_weekly_performance_metrics()
+RETURNS void AS $$
+DECLARE
+    user_record RECORD;
+    current_week_start DATE := date_trunc('week', CURRENT_DATE)::date;
+BEGIN
+    FOR user_record IN SELECT id FROM public.users
+    LOOP
+        INSERT INTO public.performance_metrics (user_id, week_start, daily_scores)
+        VALUES (user_record.id, current_week_start, ARRAY[0,0,0,0,0,0,0])
+        ON CONFLICT (user_id, week_start) DO NOTHING;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =====================================================
+-- 완료 메시지
+-- =====================================================
+-- 시드 데이터 삽입 완료!
+-- 이 스크립트는 여러 번 실행해도 안전합니다.
