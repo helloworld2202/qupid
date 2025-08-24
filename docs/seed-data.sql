@@ -1,13 +1,100 @@
--- Qupid Seed Data (하드코딩 데이터와 동일)
--- 이 스크립트는 여러 번 실행해도 안전합니다
--- ON CONFLICT 구문으로 중복 데이터를 처리합니다
+-- Qupid Seed Data (Supabase Auth 사용자 생성 포함)
+-- 이 스크립트는 auth.users와 public.users를 모두 생성합니다
+-- ⚠️ 주의: 개발/테스트 환경에서만 사용하세요!
 
 -- =====================================================
--- 1. AI PERSONAS (하드코딩된 PREDEFINED_PERSONAS와 동일)
+-- 0. AUTH USERS 생성 (테스트용)
+-- =====================================================
+-- Supabase Auth에 테스트 사용자 생성
+-- 비밀번호는 모두 'test1234'로 설정
+
+-- 테스트 사용자 1
+INSERT INTO auth.users (
+    id,
+    email,
+    encrypted_password,
+    email_confirmed_at,
+    created_at,
+    updated_at,
+    raw_app_meta_data,
+    raw_user_meta_data,
+    aud,
+    role
+) VALUES (
+    '11111111-1111-1111-1111-111111111111'::uuid,
+    'test1@example.com',
+    crypt('test1234', gen_salt('bf')),
+    NOW(),
+    NOW(),
+    NOW(),
+    '{"provider": "email", "providers": ["email"]}'::jsonb,
+    '{"name": "테스트 사용자"}'::jsonb,
+    'authenticated',
+    'authenticated'
+) ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    raw_user_meta_data = EXCLUDED.raw_user_meta_data;
+
+-- 테스트 사용자 2
+INSERT INTO auth.users (
+    id,
+    email,
+    encrypted_password,
+    email_confirmed_at,
+    created_at,
+    updated_at,
+    raw_app_meta_data,
+    raw_user_meta_data,
+    aud,
+    role
+) VALUES (
+    '22222222-2222-2222-2222-222222222222'::uuid,
+    'test2@example.com',
+    crypt('test1234', gen_salt('bf')),
+    NOW(),
+    NOW(),
+    NOW(),
+    '{"provider": "email", "providers": ["email"]}'::jsonb,
+    '{"name": "테스트 사용자2"}'::jsonb,
+    'authenticated',
+    'authenticated'
+) ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    raw_user_meta_data = EXCLUDED.raw_user_meta_data;
+
+-- 테스트 사용자 3 (튜토리얼 미완료)
+INSERT INTO auth.users (
+    id,
+    email,
+    encrypted_password,
+    email_confirmed_at,
+    created_at,
+    updated_at,
+    raw_app_meta_data,
+    raw_user_meta_data,
+    aud,
+    role
+) VALUES (
+    '33333333-3333-3333-3333-333333333333'::uuid,
+    'test3@example.com',
+    crypt('test1234', gen_salt('bf')),
+    NOW(),
+    NOW(),
+    NOW(),
+    '{"provider": "email", "providers": ["email"]}'::jsonb,
+    '{"name": "튜토리얼 테스트"}'::jsonb,
+    'authenticated',
+    'authenticated'
+) ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    raw_user_meta_data = EXCLUDED.raw_user_meta_data;
+
+-- =====================================================
+-- 이후 기존 seed-data.sql 내용과 동일
 -- =====================================================
 
+-- 1. AI PERSONAS
 INSERT INTO public.personas (id, name, gender, age, mbti, personality, occupation, bio, interests, avatar, match_rate, difficulty, tags) VALUES
--- 여성 페르소나들
 ('persona-1', '김소연', 'female', 23, 'ENFP', '외향적이고 호기심많은', '대학생', 
  '게임하고 영화 보는 걸 좋아해요 ✨ RPG, 어드벤처 장르를 좋아하고, 마블 영화와 로맨스 영화를 즐겨봐요. 예쁜 카페 찾아다니는 것도 좋아해요!',
  ARRAY['게임', '영화', '카페', '음악'],
@@ -38,7 +125,6 @@ INSERT INTO public.personas (id, name, gender, age, mbti, personality, occupatio
  'https://avatar.iran.liara.run/public/girl?username=JiwuKang',
  75, 'Easy', ARRAY['운동', '에너지', '긍정적']),
 
--- 남성 페르소나
 ('persona-6', '이민준', 'male', 28, 'ISTJ', '차분하고 논리적인', '개발자',
  '조용하지만 깊은 대화를 나누는 걸 좋아합니다. 서로의 취미를 존중해 줄 수 있는 분이면 좋겠어요. 최근에 본 SF 영화에 대해 얘기하고 싶어요.',
  ARRAY['영화 감상', '코딩'],
@@ -58,10 +144,7 @@ ON CONFLICT (id) DO UPDATE SET
   difficulty = EXCLUDED.difficulty,
   tags = EXCLUDED.tags;
 
--- =====================================================
--- 2. AI COACHES (하드코딩된 AI_COACHES와 동일)
--- =====================================================
-
+-- 2. AI COACHES
 INSERT INTO public.coaches (id, name, specialty, tagline, bio, avatar, expertise_areas, coaching_style) VALUES
 ('coach-1', '이레나', '첫인상', '성공적인 첫 만남을 위한 대화 시작법',
  '안녕하세요, 첫인상 전문 코치 이레나입니다. 누구나 3분 안에 상대방에게 호감을 줄 수 있도록, 자연스럽고 매력적인 대화 시작법을 알려드릴게요.',
@@ -95,10 +178,7 @@ ON CONFLICT (id) DO UPDATE SET
   expertise_areas = EXCLUDED.expertise_areas,
   coaching_style = EXCLUDED.coaching_style;
 
--- =====================================================
--- 3. BADGES (하드코딩된 MOCK_BADGES와 동일)
--- =====================================================
-
+-- 3. BADGES
 INSERT INTO public.badges (id, name, icon, description, category, rarity, requirement_type, requirement_value) VALUES
 ('badge-1', '꾸준함의 달인', '🏆', '7일 연속 대화 달성', '성장', 'Rare', 'streak_days', 7),
 ('badge-2', '첫인사 마스터', '👋', '첫 대화를 성공적으로 시작했어요.', '대화', 'Common', 'first_conversation', 1),
@@ -117,22 +197,16 @@ ON CONFLICT (id) DO UPDATE SET
   requirement_type = EXCLUDED.requirement_type,
   requirement_value = EXCLUDED.requirement_value;
 
--- =====================================================
--- 4. 테스트 사용자 (개발용)
--- =====================================================
-
+-- 4. PUBLIC USERS (auth.users와 연결)
 INSERT INTO public.users (id, name, user_gender, partner_gender, experience, confidence, difficulty, interests, is_tutorial_completed)
 VALUES 
--- 남성 테스트 사용자 (여성 AI와 대화)
-('test-user-1', '테스트 사용자', 'male', 'female', '1-2번 정도', 3, 2, 
+('11111111-1111-1111-1111-111111111111'::uuid, '테스트 사용자', 'male', 'female', '1-2번 정도', 3, 2, 
  ARRAY['게임', '영화', '음악', '운동'], true),
  
--- 여성 테스트 사용자 (남성 AI와 대화) 
-('test-user-2', '테스트 사용자2', 'female', 'male', '몇 번 있어요', 4, 3,
+('22222222-2222-2222-2222-222222222222'::uuid, '테스트 사용자2', 'female', 'male', '몇 번 있어요', 4, 3,
  ARRAY['여행', '요리', '독서', '요가'], true),
 
--- 튜토리얼 미완료 사용자
-('test-user-3', '튜토리얼 테스트', 'male', 'female', '전혀 없어요', 2, 1,
+('33333333-3333-3333-3333-333333333333'::uuid, '튜토리얼 테스트', 'male', 'female', '전혀 없어요', 2, 1,
  ARRAY['게임', '애니메이션'], false)
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -144,19 +218,14 @@ ON CONFLICT (id) DO UPDATE SET
   interests = EXCLUDED.interests,
   is_tutorial_completed = EXCLUDED.is_tutorial_completed;
 
--- =====================================================
--- 5. 샘플 성과 데이터 (MOCK_PERFORMANCE_DATA와 동일)
--- =====================================================
-
+-- 5. 성과 데이터
 INSERT INTO public.performance_metrics (user_id, week_start, weekly_score, daily_scores, category_scores, total_time_minutes, session_count)
 VALUES 
--- test-user-1의 이번 주 성과 (하드코딩된 데이터와 동일)
-('test-user-1', date_trunc('week', CURRENT_DATE)::date, 78, ARRAY[60, 65, 70, 68, 75, 72, 78],
+('11111111-1111-1111-1111-111111111111'::uuid, date_trunc('week', CURRENT_DATE)::date, 78, ARRAY[60, 65, 70, 68, 75, 72, 78],
  '{"친근함": 85, "호기심": 92, "공감력": 58, "유머": 60, "배려": 75, "적극성": 70}'::jsonb,
- 135, 8),  -- 2시간 15분 = 135분
+ 135, 8),
  
--- test-user-1의 지난 주 성과
-('test-user-1', date_trunc('week', CURRENT_DATE - INTERVAL '7 days')::date, 66, ARRAY[55, 58, 60, 62, 65, 63, 66],
+('11111111-1111-1111-1111-111111111111'::uuid, date_trunc('week', CURRENT_DATE - INTERVAL '7 days')::date, 66, ARRAY[55, 58, 60, 62, 65, 63, 66],
  '{"친근함": 77, "호기심": 77, "공감력": 55, "유머": 55, "배려": 67, "적극성": 60}'::jsonb,
  95, 6)
 ON CONFLICT (user_id, week_start) DO UPDATE SET
@@ -166,53 +235,40 @@ ON CONFLICT (user_id, week_start) DO UPDATE SET
   total_time_minutes = EXCLUDED.total_time_minutes,
   session_count = EXCLUDED.session_count;
 
--- =====================================================
--- 6. 테스트 사용자 뱃지 (하드코딩 기반)
--- =====================================================
-
--- test-user-1의 뱃지 (획득한 것들)
+-- 6. 뱃지 획득
 INSERT INTO public.user_badges (user_id, badge_id, progress_current, progress_total, featured, acquired_at)
 VALUES 
-('test-user-1', 'badge-1', 7, 7, true, NOW()),   -- 꾸준함의 달인 (획득, 대표)
-('test-user-1', 'badge-2', 1, 1, false, NOW()),  -- 첫인사 마스터 (획득)
-('test-user-1', 'badge-3', 10, 10, false, NOW()), -- 질문왕 (획득)
-('test-user-1', 'badge-4', 80, 80, false, NOW()) -- 공감의 달인 (획득)
+('11111111-1111-1111-1111-111111111111'::uuid, 'badge-1', 7, 7, true, NOW()),
+('11111111-1111-1111-1111-111111111111'::uuid, 'badge-2', 1, 1, false, NOW()),
+('11111111-1111-1111-1111-111111111111'::uuid, 'badge-3', 10, 10, false, NOW()),
+('11111111-1111-1111-1111-111111111111'::uuid, 'badge-4', 80, 80, false, NOW())
 ON CONFLICT (user_id, badge_id) DO UPDATE SET
   progress_current = EXCLUDED.progress_current,
   progress_total = EXCLUDED.progress_total,
   featured = EXCLUDED.featured,
   acquired_at = EXCLUDED.acquired_at;
 
--- test-user-1의 진행중 뱃지
 INSERT INTO public.user_badges (user_id, badge_id, progress_current, progress_total, featured)
 VALUES
-('test-user-1', 'badge-5', 1, 3, false),   -- 열정적인 대화가 (진행중)
-('test-user-1', 'badge-6', 25, 50, false)  -- 대화왕 (진행중)
+('11111111-1111-1111-1111-111111111111'::uuid, 'badge-5', 1, 3, false),
+('11111111-1111-1111-1111-111111111111'::uuid, 'badge-6', 25, 50, false)
 ON CONFLICT (user_id, badge_id) DO UPDATE SET
   progress_current = EXCLUDED.progress_current,
   progress_total = EXCLUDED.progress_total,
   featured = EXCLUDED.featured;
 
--- =====================================================
--- 7. 즐겨찾기 (하드코딩에서 자주 사용하는 페르소나)
--- =====================================================
-
--- test-user-1의 즐겨찾기
+-- 7. 즐겨찾기
 INSERT INTO public.favorites (user_id, persona_id)
 VALUES 
-('test-user-1', 'persona-1'),  -- 김소연
-('test-user-1', 'persona-3')   -- 박예린
+('11111111-1111-1111-1111-111111111111'::uuid, 'persona-1'),
+('11111111-1111-1111-1111-111111111111'::uuid, 'persona-3')
 ON CONFLICT (user_id, persona_id) DO NOTHING;
 
--- =====================================================
--- 8. 테스트 대화 기록
--- =====================================================
-
--- test-user-1의 최근 대화
+-- 8. 대화 기록
 INSERT INTO public.conversations (id, user_id, partner_type, partner_id, is_tutorial, status)
 VALUES
-('conv-1', 'test-user-1', 'persona', 'persona-1', false, 'completed'),
-('conv-2', 'test-user-1', 'coach', 'coach-1', false, 'completed')
+('conv-1', '11111111-1111-1111-1111-111111111111'::uuid, 'persona', 'persona-1', false, 'completed'),
+('conv-2', '11111111-1111-1111-1111-111111111111'::uuid, 'coach', 'coach-1', false, 'completed')
 ON CONFLICT (id) DO UPDATE SET
   user_id = EXCLUDED.user_id,
   partner_type = EXCLUDED.partner_type,
@@ -220,16 +276,13 @@ ON CONFLICT (id) DO UPDATE SET
   is_tutorial = EXCLUDED.is_tutorial,
   status = EXCLUDED.status;
 
--- 대화 메시지 샘플
 INSERT INTO public.messages (conversation_id, sender_type, content)
 VALUES
 ('conv-1', 'user', '안녕하세요! 처음 뵙겠습니다'),
 ('conv-1', 'ai', '안녕하세요! 처음 뵙네요 😊'),
 ('conv-1', 'user', '혹시 게임 좋아하세요?'),
 ('conv-1', 'ai', '네! 저는 요즘 발로란트에 빠져있어요! RPG랑 어드벤처 게임도 좋아해요. 어떤 게임 좋아하세요?');
--- messages 테이블은 id가 자동생성되므로 중복 체크 불필요
 
--- 대화 분석 결과 (하드코딩 성과와 연결)
 INSERT INTO public.conversation_analysis (conversation_id, overall_score, affinity_score, improvements, achievements, tips)
 VALUES
 ('conv-1', 78, 85, 
@@ -244,49 +297,8 @@ ON CONFLICT (conversation_id) DO UPDATE SET
   tips = EXCLUDED.tips;
 
 -- =====================================================
--- 9. 기본 설정 함수 (중복 체크)
+-- 테스트 계정 정보
 -- =====================================================
-
--- 함수가 이미 존재할 수 있으므로 CREATE OR REPLACE 사용
-CREATE OR REPLACE FUNCTION create_default_notification_settings()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO public.notification_settings (user_id)
-    VALUES (NEW.id)
-    ON CONFLICT (user_id) DO NOTHING;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- 트리거가 이미 존재할 수 있으므로 먼저 삭제
-DROP TRIGGER IF EXISTS create_user_notification_settings ON public.users;
-
-CREATE TRIGGER create_user_notification_settings
-AFTER INSERT ON public.users
-FOR EACH ROW EXECUTE FUNCTION create_default_notification_settings();
-
--- =====================================================
--- 10. 성과 데이터 자동 생성 함수
--- =====================================================
-
-CREATE OR REPLACE FUNCTION create_weekly_performance_metrics()
-RETURNS void AS $$
-DECLARE
-    user_record RECORD;
-    current_week_start DATE := date_trunc('week', CURRENT_DATE)::date;
-BEGIN
-    FOR user_record IN SELECT id FROM public.users
-    LOOP
-        INSERT INTO public.performance_metrics (user_id, week_start, daily_scores)
-        VALUES (user_record.id, current_week_start, ARRAY[0,0,0,0,0,0,0])
-        ON CONFLICT (user_id, week_start) DO NOTHING;
-    END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-
--- =====================================================
--- 완료 메시지
--- =====================================================
--- 시드 데이터 삽입 완료!
--- 이 스크립트는 여러 번 실행해도 안전합니다.
--- 하드코딩된 데이터(constants.ts)와 동일한 데이터가 생성됩니다.
+-- Email: test1@example.com / Password: test1234 (남성, 튜토리얼 완료)
+-- Email: test2@example.com / Password: test1234 (여성, 튜토리얼 완료)
+-- Email: test3@example.com / Password: test1234 (남성, 튜토리얼 미완료)

@@ -30,8 +30,10 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 #### 옵션 A: SQL 에디터 사용 (권장)
 
 1. Supabase 대시보드 > SQL Editor
-2. `docs/database-schema.sql` 내용 복사하여 실행
-3. `docs/seed-data.sql` 내용 복사하여 실행
+2. 다음 순서대로 SQL 파일 실행:
+   - `docs/database-schema.sql` - 스키마 생성
+   - `docs/fix-rls-policies.sql` - RLS 정책 수정 (개발용)
+   - `docs/seed-data.sql` - 시드 데이터 입력 (auth.users 포함)
 
 #### 옵션 B: 스크립트 사용
 
@@ -124,6 +126,18 @@ pnpm migrate:db
 - **8개 페르소나**: 다양한 MBTI와 성격
 - **3명 코치**: 공감력, 대화 스킬, 매력 어필 전문
 - **10개 뱃지**: Common ~ Legendary 등급
+- **테스트 사용자**: 
+  - ID: `11111111-1111-1111-1111-111111111111`
+  - Email: `test1@example.com`
+  - Password: `test1234`
+
+### 데이터베이스 초기화
+
+필요시 데이터를 완전히 초기화:
+```sql
+-- 1. docs/reset-database.sql 실행 (모든 데이터 삭제)
+-- 2. 위의 마이그레이션 단계 재실행
+```
 
 ## 🛠️ 유용한 SQL 쿼리
 
@@ -173,13 +187,22 @@ ORDER BY conversation_count DESC;
 
 ### 일반적인 문제
 
-1. **RLS 정책 오류**
-   - 해결: Service Role Key 사용 확인
+1. **"permission denied for table" 오류**
+   - 원인: RLS(Row Level Security)가 활성화되어 있음
+   - 해결: 
+     - `docs/fix-rls-policies.sql` 실행하여 RLS 비활성화
+     - 또는 Supabase 대시보드 > Authentication > Policies에서 직접 수정
+   - 참고: Service Role Key를 사용해도 RLS가 활성화되면 접근 제한됨
 
-2. **중복 키 오류**
+2. **데이터가 조회되지 않음**
+   - 원인: 시드 데이터가 입력되지 않음
+   - 해결: `docs/seed-data.sql` 실행 확인
+   - 테스트: `curl http://localhost:4000/api/v1/personas`
+
+3. **중복 키 오류**
    - 해결: UNIQUE 제약 조건 확인
 
-3. **권한 오류**
+4. **권한 오류**
    - 해결: Supabase 대시보드에서 직접 SQL 실행
 
 ## 📚 추가 리소스

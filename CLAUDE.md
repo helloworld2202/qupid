@@ -114,6 +114,23 @@
   - `src/features/analytics/components/PerformanceDetailScreen.tsx` - 성과 데이터
 - **테스트 완료**: 모든 화면 전환 및 데이터 표시 정상 작동
 
+### 2025-08-24 - 데이터베이스 연동 작업
+
+#### 7. 데이터베이스 권한 문제 해결
+- **날짜**: 2025-08-24 10:20
+- **문제/요구사항**: RLS 정책으로 인한 API 접근 권한 오류
+- **해결/구현**:
+  - `docs/fix-rls-policies.sql` 생성 - RLS 비활성화 스크립트
+  - `docs/DATABASE_SETUP.md` 업데이트 - 설정 가이드 개선
+  - 테스트 스크립트 작성 (`apps/api/test-db.js`)
+- **수정 파일**:
+  - `docs/fix-rls-policies.sql` - 개발용 RLS 정책 수정
+  - `docs/DATABASE_SETUP.md` - 트러블슈팅 섹션 추가
+  - `apps/api/src/config/supabase.ts` - 스키마 설정 추가
+- **현재 이슈**: 
+  - Supabase 대시보드에서 RLS 정책 수정 필요
+  - `fix-rls-policies.sql` 실행으로 해결 가능
+
 ---
 
 ## 기술 스택 현황

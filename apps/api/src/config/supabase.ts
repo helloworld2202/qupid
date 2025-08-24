@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { env } from '../shared/config/env.js';
 
-// Supabase 클라이언트 생성
+// Supabase 클라이언트 생성 (Service Role Key로 RLS 우회)
 export const supabase = createClient(
   env.SUPABASE_URL,
   env.SUPABASE_SERVICE_ROLE_KEY,
@@ -9,6 +9,9 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: false,
       persistSession: false
+    },
+    db: {
+      schema: 'public'
     }
   }
 );
