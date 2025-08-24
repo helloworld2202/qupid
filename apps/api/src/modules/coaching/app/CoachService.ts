@@ -1,4 +1,4 @@
-import { db } from '../../../config/supabase';
+import { db } from '../../../config/supabase.js';
 import { AICoach } from '@qupid/core';
 
 export class CoachService {

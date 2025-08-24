@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { getStylingAdvice } from '@/services/openaiService';
+import { apiClient } from '@/services/apiClient';
 import { ArrowLeftIcon, SparklesIcon } from '@qupid/ui';
 
 interface StylingCoachProps {
@@ -21,7 +21,7 @@ const StylingCoach: React.FC<StylingCoachProps> = ({ onBack }) => {
     setError(null);
 
     try {
-      const response = await getStylingAdvice(prompt);
+      const response = await apiClient.getStylingAdvice(prompt);
       if (response.text && response.imageUrl) {
         setResult(response);
       } else {

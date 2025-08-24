@@ -1,4 +1,4 @@
-import { db, DbUser } from '../../../config/supabase';
+import { db, DbUser } from '../../../config/supabase.js';
 import { UserProfile } from '@qupid/core';
 
 export class UserService {

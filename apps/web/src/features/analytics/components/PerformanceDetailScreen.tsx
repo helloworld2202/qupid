@@ -3,6 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import { PerformanceData } from '@qupid/core';
 import { ArrowLeftIcon } from '@qupid/ui';
 import { Chart, registerables } from 'chart.js/auto';
+import { usePerformance } from '../../../shared/hooks/usePerformance';
+import { useAppStore } from '../../../shared/stores/useAppStore';
 
 Chart.register(...registerables);
 
@@ -11,8 +13,11 @@ interface PerformanceDetailScreenProps {
 }
 
 const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBack }) => {
-  // 임시 데이터 - MOCK_PERFORMANCE_DATA 구조와 동일하게
-  const data: PerformanceData = {
+  const { currentUserId } = useAppStore();
+  const { data: performanceData, isLoading, error } = usePerformance(currentUserId);
+  
+  // 기본 데이터 (로딩 중이거나 에러 시 사용)
+  const defaultData: PerformanceData = {
     weeklyScore: 78,
     scoreChange: 12,
     scoreChangePercentage: 18,
@@ -40,6 +45,8 @@ const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBac
       { title: '공감력', emoji: '💬', score: 58, change: 3, goal: 70 },
     ]
   };
+  
+  const data = performanceData || defaultData;
   const lineChartRef = useRef<HTMLCanvasElement>(null);
   const radarChartRef = useRef<HTMLCanvasElement>(null);
 
@@ -97,6 +104,25 @@ const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBac
         radarChart?.destroy();
     };
   }, [data]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-full w-full bg-[#F9FAFB]">
+        <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-[#F2F4F6] bg-white">
+          <div className="w-10">
+            <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-100">
+              <ArrowLeftIcon className="w-6 h-6 text-[#8B95A1]" />
+            </button>
+          </div>
+          <h2 className="text-center text-lg font-bold text-[#191F28]">내 대화 실력 분석</h2>
+          <div className="w-10"></div>
+        </header>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F093B0]"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full w-full bg-[#F9FAFB]">

@@ -181,6 +181,14 @@ pnpm typecheck        # 타입 체크
    - 원인: vite-env.d.ts 누락
    - 해결: 환경 변수 타입 정의 추가
 
+4. **API 서버 연결 문제 (net::ERR_CONNECTION_REFUSED)**
+   - 원인: 필요한 파일(user.api.ts) 삭제 및 Supabase import 오류
+   - 해결: 
+     - user.api.ts 파일 복원
+     - supabase → supabaseAdmin import 수정
+     - 모든 API URL을 환경 변수 사용하도록 통일
+   - 테스트 완료: 회원가입, 로그인, 프로필 조회 모두 정상 작동
+
 ---
 
-*마지막 업데이트: 2025-08-24 18:45*
+*마지막 업데이트: 2025-08-24 15:00*

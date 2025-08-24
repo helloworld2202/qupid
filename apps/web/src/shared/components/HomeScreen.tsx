@@ -5,6 +5,7 @@ import { UserProfile, Persona, Screen, Badge, PerformanceData, PREDEFINED_PERSON
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
 import { usePersonas } from '../hooks/usePersonas';
 import { useBadges } from '../hooks/useBadges';
+import { usePerformance } from '../hooks/usePerformance';
 import { useAppStore } from '../stores/useAppStore';
 
 interface HomeScreenProps {
@@ -17,6 +18,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   // API 데이터 페칭
   const { data: allPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
   const { data: allBadges = [], isLoading: isLoadingBadges } = useBadges();
+  const { data: performanceData, isLoading: isLoadingPerformance } = usePerformance(currentUserId);
   
   // 임시 사용자 프로필 (나중에 실제 API로 교체)
   const userProfile = { 
@@ -34,10 +36,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   
   // 획득한 뱃지만 필터링
   const badges = allBadges.filter(b => b.acquired);
-  const performanceData = {
-    weeklyScore: 78,
-    scoreChange: 12,
-    scoreChangePercentage: 18,
+  
+  // 기본 성과 데이터 (API 로딩 중일 때 사용)
+  const defaultPerformanceData = {
+    weeklyScore: 0,
+    scoreChange: 0,
+    scoreChangePercentage: 0,
     dailyScores: [60, 65, 70, 68, 75, 72, 78],
     radarData: {
       labels: ['친근함', '호기심', '공감력', '유머', '배려', '적극성'],
@@ -62,6 +66,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
       { title: '공감력', emoji: '💬', score: 58, change: 3, goal: 70 },
     ]
   } as PerformanceData;
+  
+  const displayPerformanceData = performanceData || defaultPerformanceData;
   const recentBadge = badges && badges.length > 0 ? badges.find(b => b.featured) : undefined;
   const partnerGender = userProfile.user_gender === 'female' ? 'male' : 'female';
   const recommendedPersonas = personas && personas.length > 0 
@@ -135,8 +141,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                 </div>
             </div>
             <div className="mt-2 flex items-baseline space-x-2">
-                <p className="text-3xl font-bold" style={{color: '#0AC5A8'}}>+{performanceData.scoreChange}점 향상</p>
-                <p className="text-sm font-medium" style={{color: '#8B95A1'}}>지난주 대비 +{performanceData.scoreChangePercentage}%</p>
+                <p className="text-3xl font-bold" style={{color: '#0AC5A8'}}>
+                    {displayPerformanceData.scoreChange > 0 ? '+' : ''}{displayPerformanceData.scoreChange}점 향상
+                </p>
+                <p className="text-sm font-medium" style={{color: '#8B95A1'}}>
+                    지난주 대비 {displayPerformanceData.scoreChangePercentage > 0 ? '+' : ''}{displayPerformanceData.scoreChangePercentage}%
+                </p>
             </div>
         </div>
 

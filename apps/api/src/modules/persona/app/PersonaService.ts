@@ -1,4 +1,4 @@
-import { db } from '../../../config/supabase';
+import { db } from '../../../config/supabase.js';
 import { Persona } from '@qupid/core';
 
 export class PersonaService {

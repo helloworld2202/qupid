@@ -1,32 +1,64 @@
-import { apiClient } from '../lib/api-client';
 import { UserProfile } from '@qupid/core';
 
-export const userApi = {
-  getUserProfile: async (userId: string): Promise<UserProfile> => {
-    const { data } = await apiClient.get(`/users/${userId}`);
-    return data.data;
-  },
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
 
-  createUserProfile: async (profile: Partial<UserProfile>): Promise<UserProfile> => {
-    const { data } = await apiClient.post('/users', profile);
-    return data.data;
-  },
+class UserApi {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      credentials: 'include',
+    });
 
-  updateUserProfile: async (userId: string, updates: Partial<UserProfile>): Promise<UserProfile> => {
-    const { data } = await apiClient.put(`/users/${userId}`, updates);
-    return data.data;
-  },
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
 
-  completeTutorial: async (userId: string): Promise<void> => {
-    await apiClient.post(`/users/${userId}/tutorial/complete`);
-  },
+    const data = await response.json();
+    return data.data || data;
+  }
 
-  getFavorites: async (userId: string): Promise<string[]> => {
-    const { data } = await apiClient.get(`/users/${userId}/favorites`);
-    return data.data;
-  },
+  async getUserProfile(userId: string): Promise<UserProfile> {
+    return this.request<UserProfile>(`/users/${userId}`);
+  }
 
-  toggleFavorite: async (userId: string, personaId: string): Promise<void> => {
-    await apiClient.post(`/users/${userId}/favorites/${personaId}`);
-  },
-};
+  async createUserProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
+    return this.request<UserProfile>('/users', {
+      method: 'POST',
+      body: JSON.stringify(profile),
+    });
+  }
+
+  async updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
+    return this.request<UserProfile>(`/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async completeTutorial(userId: string): Promise<void> {
+    await this.request<void>(`/users/${userId}/tutorial/complete`, {
+      method: 'POST',
+    });
+  }
+
+  async getFavorites(userId: string): Promise<string[]> {
+    return this.request<string[]>(`/users/${userId}/favorites`);
+  }
+
+  async toggleFavorite(userId: string, personaId: string): Promise<boolean> {
+    return this.request<boolean>(`/users/${userId}/favorites/${personaId}`, {
+      method: 'POST',
+    });
+  }
+
+  async getUserBadges(userId: string): Promise<any[]> {
+    return this.request<any[]>(`/users/${userId}/badges`);
+  }
+}
+
+export const userApi = new UserApi();

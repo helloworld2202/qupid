@@ -1,5 +1,5 @@
-import { supabase } from '../../../config/supabase';
-import { AppError } from '../../../shared/errors/AppError';
+import { supabaseAdmin } from '../../../shared/infra/supabase.js';
+import { AppError } from '../../../shared/errors/AppError.js';
 import { UserProfile } from '@qupid/core';
 
 export interface LoginCredentials {
@@ -25,7 +25,7 @@ export class AuthService {
    */
   async signup(data: SignupData): Promise<AuthResponse> {
     // 1. Admin API를 사용하여 사용자 생성 (이메일 확인 건너뛰기)
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: data.password,
       email_confirm: true, // 이메일 자동 확인
@@ -45,7 +45,7 @@ export class AuthService {
     }
 
     // 2. users 테이블에 프로필 생성
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('users')
       .insert({
         id: authData.user.id,
@@ -68,7 +68,7 @@ export class AuthService {
     }
 
     // 3. 자동 로그인을 위해 세션 생성
-    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+    const { data: loginData, error: loginError } = await supabaseAdmin.auth.signInWithPassword({
       email: data.email,
       password: data.password
     });
@@ -84,7 +84,7 @@ export class AuthService {
    * 로그인
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
       email: credentials.email,
       password: credentials.password
     });
@@ -98,7 +98,7 @@ export class AuthService {
     }
 
     // 사용자 프로필 조회
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('id', data.user.id)
@@ -115,7 +115,7 @@ export class AuthService {
    * 로그아웃
    */
   async logout(): Promise<void> {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseAdmin.auth.signOut();
     
     if (error) {
       throw new AppError('Logout failed', 500);
@@ -126,20 +126,20 @@ export class AuthService {
    * 현재 세션 확인
    */
   async getSession(): Promise<AuthResponse | null> {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { session }, error } = await supabaseAdmin.auth.getSession();
     
     if (error || !session) {
       return null;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabaseAdmin.auth.getUser();
     
     if (!user) {
       return null;
     }
 
     // 사용자 프로필 조회
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('id', user.id)
@@ -156,7 +156,7 @@ export class AuthService {
    * 토큰 갱신
    */
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
-    const { data, error } = await supabase.auth.refreshSession({
+    const { data, error } = await supabaseAdmin.auth.refreshSession({
       refresh_token: refreshToken
     });
 
@@ -169,7 +169,7 @@ export class AuthService {
     }
 
     // 사용자 프로필 조회
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('id', data.user.id)
@@ -186,7 +186,7 @@ export class AuthService {
    * 비밀번호 재설정 이메일 발송
    */
   async resetPassword(email: string): Promise<void> {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.FRONTEND_URL}/reset-password`
     });
 
@@ -199,7 +199,7 @@ export class AuthService {
    * 비밀번호 업데이트
    */
   async updatePassword(newPassword: string): Promise<void> {
-    const { error } = await supabase.auth.updateUser({
+    const { error } = await supabaseAdmin.auth.updateUser({
       password: newPassword
     });
 

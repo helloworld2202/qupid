@@ -1,9 +1,9 @@
-import { supabase } from '../../../config/supabase';
+import { supabaseAdmin } from '../../../shared/infra/supabase.js';
 import { Badge } from '@qupid/core';
 
 export class BadgeService {
   async getAllBadges(): Promise<Badge[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('badges')
       .select('*')
       .order('category', { ascending: true })
