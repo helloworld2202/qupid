@@ -18,15 +18,38 @@ DROP POLICY IF EXISTS "Anyone can view badges" ON public.badges;
 DROP POLICY IF EXISTS "Allow public read access to badges" ON public.badges;
 
 -- =====================================================
--- 2. RLS 비활성화 (개발 환경용)
+-- 2. 테이블 확인 후 RLS 비활성화 (개발 환경용)
 -- =====================================================
 
 -- 개발 중에는 RLS를 비활성화하여 테스트를 용이하게 함
 -- 프로덕션에서는 적절한 정책으로 교체 필요
 
-ALTER TABLE public.personas DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.coaches DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.badges DISABLE ROW LEVEL SECURITY;
+-- personas 테이블이 존재하는지 확인 후 RLS 비활성화
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'personas') THEN
+        ALTER TABLE public.personas DISABLE ROW LEVEL SECURITY;
+        RAISE NOTICE 'RLS disabled for personas table';
+    END IF;
+END $$;
+
+-- coaches 테이블이 존재하는지 확인 후 RLS 비활성화
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'coaches') THEN
+        ALTER TABLE public.coaches DISABLE ROW LEVEL SECURITY;
+        RAISE NOTICE 'RLS disabled for coaches table';
+    END IF;
+END $$;
+
+-- badges 테이블이 존재하는지 확인 후 RLS 비활성화
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'badges') THEN
+        ALTER TABLE public.badges DISABLE ROW LEVEL SECURITY;
+        RAISE NOTICE 'RLS disabled for badges table';
+    END IF;
+END $$;
 
 -- 사용자별 데이터는 RLS 유지
 -- ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
