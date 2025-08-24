@@ -39,8 +39,26 @@ app.use(helmet())
 // CORS configuration
 app.use(
   cors({
-    origin: env.ALLOWED_ORIGINS,
-    credentials: true
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or Postman)
+      if (!origin) return callback(null, true);
+      
+      // Check if the origin is in the allowed list
+      if (env.ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+      } else {
+        // In production, reject unknown origins
+        if (env.NODE_ENV === 'production') {
+          callback(new Error('Not allowed by CORS'));
+        } else {
+          // In development, be more permissive
+          callback(null, true);
+        }
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 )
 

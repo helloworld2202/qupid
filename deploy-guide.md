@@ -1,5 +1,14 @@
 # Qupid 배포 가이드
 
+## 🚨 중요: CORS 설정 관련 주의사항
+
+**Railway 환경 변수의 `ALLOWED_ORIGINS`에는 반드시 다음 URL들을 포함해야 합니다:**
+- Vercel 프리뷰 URL: `https://qupid-[hash]-[username].vercel.app`
+- Vercel 프로덕션 URL: `https://qupid.vercel.app` (커스텀 도메인 설정 시)
+- 로컬 개발: `http://localhost:5173`
+
+여러 origin을 쉼표(,)로 구분하여 입력하세요.
+
 ## 🚀 Quick Start (Vercel + Railway)
 
 ### 1. Frontend 배포 (Vercel)
@@ -20,10 +29,11 @@
 1. Vercel Dashboard → Your Project → Settings → Environment Variables
 2. 다음 변수 추가:
    ```
-   VITE_API_URL=https://your-api.railway.app  # Railway 배포 후 URL
-   VITE_SUPABASE_URL=your-supabase-url
-   VITE_SUPABASE_ANON_KEY=your-anon-key
+   VITE_API_URL=https://qupid-production.up.railway.app/api/v1
+   VITE_SUPABASE_URL=https://xxxxx.supabase.co
+   VITE_SUPABASE_ANON_KEY=eyJxxxxx
    ```
+3. **중요**: Production, Preview, Development 모두 체크하여 모든 환경에 적용
 
 #### 1-3. Vercel Token 생성 (CI/CD용)
 1. [Vercel Dashboard](https://vercel.com/account/tokens) → "Create Token"
@@ -55,7 +65,7 @@
    SUPABASE_URL=https://xxxxx.supabase.co
    SUPABASE_ANON_KEY=eyJxxxxx
    SUPABASE_SERVICE_ROLE_KEY=eyJxxxxx
-   ALLOWED_ORIGINS=https://your-app.vercel.app
+   ALLOWED_ORIGINS=https://qupid-805i54i0x-daseul22s-projects.vercel.app,https://qupid.vercel.app,http://localhost:5173
    ```
 
 #### 2-3. Railway Token 생성 (CI/CD용)
