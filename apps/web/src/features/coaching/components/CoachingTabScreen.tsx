@@ -3,7 +3,8 @@
 import React, { useEffect, useRef } from 'react';
 import { PerformanceData, AICoach, Screen } from '@qupid/core';
 import { Chart, registerables } from 'chart.js/auto';
-import { AI_COACHES } from '@qupid/core';
+import { useCoaches } from '../../../shared/hooks/api/useCoaches';
+import { useAppStore } from '../../../shared/stores/useAppStore';
 import {} from '@qupid/ui';
 
 Chart.register(...registerables);
@@ -28,7 +29,10 @@ const CoachCard: React.FC<{ coach: AICoach; onStart: () => void; }> = ({ coach, 
 );
 
 const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onStartCoachChat }) => {
-  // 임시 데이터 - MOCK_PERFORMANCE_DATA 구조와 동일하게
+  const { data: coaches = [], isLoading } = useCoaches();
+  const { currentUserId } = useAppStore();
+  
+  // 임시 데이터 - 나중에 API로 교체
   const data: PerformanceData = {
     weeklyScore: 78,
     scoreChange: 12,
@@ -127,20 +131,26 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onSta
           <h2 className="text-lg font-bold text-[#191F28] px-1">1:1 맞춤 코칭 🎓</h2>
           <p className="text-sm text-[#8B95A1] px-1 mb-3">부족한 부분을 전문 코치와 함께 집중적으로 연습해보세요.</p>
           <div className="space-y-3">
-            {AI_COACHES.map(coach => (
-              <CoachCard 
-                key={coach.id} 
-                coach={coach} 
-                onStart={() => {
-                  if (onStartCoachChat) {
-                    onStartCoachChat(coach);
-                  } else {
-                    // Fallback to navigate to Chat screen
-                    onNavigate(Screen.Chat);
-                  }
-                }} 
-              />
-            ))}
+            {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]"></div>
+              </div>
+            ) : (
+              coaches.map(coach => (
+                <CoachCard 
+                  key={coach.id} 
+                  coach={coach} 
+                  onStart={() => {
+                    if (onStartCoachChat) {
+                      onStartCoachChat(coach);
+                    } else {
+                      // Fallback to navigate to Chat screen
+                      onNavigate(Screen.Chat);
+                    }
+                  }} 
+                />
+              ))
+            )}
           </div>
         </section>
 

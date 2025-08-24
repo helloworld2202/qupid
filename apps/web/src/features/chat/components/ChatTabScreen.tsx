@@ -1,7 +1,10 @@
 
-import React from 'react';
-import { Persona, Screen, UserProfile, PREDEFINED_PERSONAS } from '@qupid/core';
+import React, { useState, useMemo } from 'react';
+import { Persona, Screen, UserProfile } from '@qupid/core';
 import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
+import { usePersonas } from '../../../shared/hooks/api/usePersonas';
+import { useUserProfile, useFavorites } from '../../../shared/hooks/api/useUser';
+import { useAppStore } from '../../../shared/stores/useAppStore';
 
 interface ChatTabScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -37,17 +40,36 @@ const PersonaCard: React.FC<{ persona: Persona; onSelect: () => void; }> = ({ pe
 
 
 const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => {
-  // 임시 데이터 - 실제 PERSONAS 사용
-  const userProfile = { 
-    name: '사용자',
-    user_gender: 'male',
-    interests: ['게임', '영화'],
-    experience: '없음',
-    confidence: 3,
-    difficulty: 2
-  } as UserProfile;
-  const personas: Persona[] = PREDEFINED_PERSONAS.filter(p => p.gender === 'female'); // 이성 페르소나만 표시
-  const favoritePersonas: Persona[] = personas.slice(0, 2); // 처음 2개를 즐겨찾기로
+  const [searchQuery, setSearchQuery] = useState('');
+  const { currentUserId } = useAppStore();
+  
+  // API 호출
+  const { data: personas = [], isLoading: isLoadingPersonas } = usePersonas();
+  const { data: userProfile, isLoading: isLoadingProfile } = useUserProfile(currentUserId || '');
+  const { data: favoriteIds = [], isLoading: isLoadingFavorites } = useFavorites(currentUserId || '');
+  
+  // 즐겨찾기 페르소나 필터링
+  const favoritePersonas = useMemo(() => {
+    return personas.filter(p => favoriteIds.includes(p.id));
+  }, [personas, favoriteIds]);
+  
+  // 이성 페르소나만 필터링
+  const filteredPersonas = useMemo(() => {
+    if (!userProfile) return personas;
+    const oppositeGender = userProfile.partner_gender || (userProfile.user_gender === 'male' ? 'female' : 'male');
+    return personas.filter(p => p.gender === oppositeGender);
+  }, [personas, userProfile]);
+  
+  // 검색 필터링
+  const searchedPersonas = useMemo(() => {
+    if (!searchQuery) return filteredPersonas;
+    const query = searchQuery.toLowerCase();
+    return filteredPersonas.filter(p => 
+      p.name.toLowerCase().includes(query) ||
+      p.job?.toLowerCase().includes(query) ||
+      p.tags.some(tag => tag.toLowerCase().includes(query))
+    );
+  }, [filteredPersonas, searchQuery]);
   const onSelectPersona = (persona: Persona) => {
     if (onSelectPersonaProp) {
       onSelectPersonaProp(persona);
@@ -110,11 +132,17 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                     {considerations.map(c => <li key={c}>{c}</li>)}
                  </ul>
             </div>
-          {personas.map((persona, i) => (
-            <div key={persona.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 80}ms` }}>
-              <PersonaCard persona={persona} onSelect={() => onSelectPersona(persona)} />
+          {isLoadingPersonas ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]"></div>
             </div>
-          ))}
+          ) : (
+            searchedPersonas.map((persona, i) => (
+              <div key={persona.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 80}ms` }}>
+                <PersonaCard persona={persona} onSelect={() => onSelectPersona(persona)} />
+              </div>
+            ))
+          )}
         </section>
 
         <section>

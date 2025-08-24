@@ -1,8 +1,20 @@
 import React, { useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Providers } from './app/providers';
 import { useUserStore } from './shared/stores/userStore';
 import { useNavigationStore } from './shared/stores/navigationStore';
+import { useAppStore } from './shared/stores/useAppStore';
 import { Screen, PREDEFINED_PERSONAS, Badge } from '@qupid/core';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Shared Components
 import { BottomNavBar } from './shared/components/BottomNavBar';
@@ -366,9 +378,12 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Providers>
-      <AppContent />
-    </Providers>
+    <QueryClientProvider client={queryClient}>
+      <Providers>
+        <AppContent />
+      </Providers>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 };
 

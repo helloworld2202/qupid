@@ -3,6 +3,8 @@
 import React, { useState, useCallback } from 'react';
 import { ArrowLeftIcon, CheckIcon } from '@qupid/ui';
 import { UserProfile } from '@qupid/core';
+import { useCreateUserProfile } from '../../../shared/hooks/api/useUser';
+import { useAppStore } from '../../../shared/stores/useAppStore';
 
 const TOTAL_ONBOARDING_STEPS = 4;
 
@@ -208,11 +210,40 @@ const CompletionScreen: React.FC<{ onComplete: () => void; profile: NewUserProfi
 export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile) => void }> = ({ onComplete }) => {
   const [step, setStep] = useState(0);
   const [profile, setProfile] = useState<NewUserProfile>(initialProfile);
+  const createUser = useCreateUserProfile();
+  const { setCurrentUserId } = useAppStore();
 
   const nextStep = useCallback(() => setStep(s => s + 1), []);
   const prevStep = useCallback(() => setStep(s => s > 0 ? s - 1 : 0), []);
   
-  const handleFinalComplete = useCallback(() => onComplete(profile), [onComplete, profile]);
+  const handleFinalComplete = useCallback(async () => {
+    try {
+      // Create user in database
+      const userProfile: Partial<UserProfile> = {
+        name: '사용자',
+        user_gender: profile.user_gender,
+        partner_gender: profile.user_gender === 'male' ? 'female' : 'male',
+        experience: profile.experience,
+        confidence: profile.experience === '전혈 없어요' ? 2 : 
+                    profile.experience === '1-2번 정도' ? 3 :
+                    profile.experience === '몇 번 있어요' ? 4 : 5,
+        difficulty: profile.experience === '전혈 없어요' ? 1 : 
+                   profile.experience === '1-2번 정도' ? 2 :
+                   profile.experience === '몇 번 있어요' ? 3 : 4,
+        interests: profile.interests.map(i => i.split(' ')[1] || i),
+        is_tutorial_completed: false
+      };
+      
+      const result = await createUser.mutateAsync(userProfile);
+      if (result?.id) {
+        setCurrentUserId(result.id);
+      }
+    } catch (error) {
+      console.error('Failed to create user profile:', error);
+    }
+    
+    onComplete(profile);
+  }, [createUser, onComplete, profile, setCurrentUserId]);
 
   const handleGenderSelect = (gender: 'male' | 'female') => {
     setProfile(p => ({ ...p, user_gender: gender }));

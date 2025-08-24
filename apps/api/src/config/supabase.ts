@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
-import { config } from './index';
+import { env } from '../shared/config/env.js';
 
 // Supabase 클라이언트 생성
 export const supabase = createClient(
-  config.supabase.url,
-  config.supabase.serviceRoleKey,
+  env.SUPABASE_URL,
+  env.SUPABASE_SERVICE_ROLE_KEY,
   {
     auth: {
       autoRefreshToken: false,
