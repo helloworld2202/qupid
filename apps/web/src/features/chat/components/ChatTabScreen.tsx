@@ -2,8 +2,9 @@
 import React, { useState, useMemo } from 'react';
 import { Persona, Screen, UserProfile } from '@qupid/core';
 import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
-import { usePersonas } from '../../../shared/hooks/api/usePersonas';
-import { useUserProfile, useFavorites } from '../../../shared/hooks/api/useUser';
+import { usePersonas } from '../../../shared/hooks/usePersonas';
+// 일단 하드코딩 데이터 사용 (추후 구현)
+// import { useUserProfile, useFavorites } from '../../../shared/hooks/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
 
 interface ChatTabScreenProps {
@@ -45,20 +46,26 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
   
   // API 호출
   const { data: personas = [], isLoading: isLoadingPersonas } = usePersonas();
-  const { data: userProfile, isLoading: isLoadingProfile } = useUserProfile(currentUserId || '');
-  const { data: favoriteIds = [], isLoading: isLoadingFavorites } = useFavorites(currentUserId || '');
+  
+  // 임시 하드코딩 데이터 (추후 API 구현)
+  const userProfile = {
+    user_gender: 'male' as const,
+    partner_gender: 'female' as const
+  };
+  const favoriteIds = ['persona-1', 'persona-3'];
+  const isLoadingProfile = false;
+  const isLoadingFavorites = false;
   
   // 즐겨찾기 페르소나 필터링
   const favoritePersonas = useMemo(() => {
     return personas.filter(p => favoriteIds.includes(p.id));
-  }, [personas, favoriteIds]);
+  }, [personas]);
   
   // 이성 페르소나만 필터링
   const filteredPersonas = useMemo(() => {
-    if (!userProfile) return personas;
     const oppositeGender = userProfile.partner_gender || (userProfile.user_gender === 'male' ? 'female' : 'male');
     return personas.filter(p => p.gender === oppositeGender);
-  }, [personas, userProfile]);
+  }, [personas]);
   
   // 검색 필터링
   const searchedPersonas = useMemo(() => {

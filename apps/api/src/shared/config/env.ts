@@ -7,10 +7,12 @@ const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('4000').transform(Number),
   
-  // Supabase
+  // Supabase (레거시 키 이름 지원)
   SUPABASE_URL: z.string().url(),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  SUPABASE_ANON_KEY: z.string().min(1),
+  SUPABASE_SECRET_KEY: z.string().min(1).optional().or(z.undefined()),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional().or(z.undefined()),
+  SUPABASE_PUBLISHABLE_KEY: z.string().min(1).optional().or(z.undefined()),
+  SUPABASE_ANON_KEY: z.string().min(1).optional().or(z.undefined()),
   
   // OpenAI
   OPENAI_API_KEY: z.string().min(1),

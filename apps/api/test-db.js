@@ -4,13 +4,27 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// 새로운 키 이름 사용
+const secretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+console.log('Using Secret/Service Key:', secretKey?.substring(0, 20) + '...');
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  secretKey,
   {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
+      persistSession: false,
+      detectSessionInUrl: false
+    },
+    db: {
+      schema: 'public'
+    },
+    global: {
+      headers: {
+        'apikey': secretKey,
+        'Authorization': `Bearer ${secretKey}`
+      }
     }
   }
 );

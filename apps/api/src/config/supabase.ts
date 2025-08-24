@@ -1,10 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { env } from '../shared/config/env.js';
 
-// Supabase 클라이언트 생성 (Service Role Key로 RLS 우회)
+// Supabase 클라이언트 생성 (Secret/Service Role Key로 RLS 우회)
+// 새로운 키 이름과 레거시 키 이름 모두 지원
+const secretKey = env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!secretKey) {
+  throw new Error('SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY is required');
+}
+
 export const supabase = createClient(
   env.SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY,
+  secretKey,
   {
     auth: {
       autoRefreshToken: false,

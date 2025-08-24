@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { PerformanceData, AICoach, Screen } from '@qupid/core';
 import { Chart, registerables } from 'chart.js/auto';
-import { useCoaches } from '../../../shared/hooks/api/useCoaches';
+import { useCoaches } from '../../../shared/hooks/useCoaches';
 import { useAppStore } from '../../../shared/stores/useAppStore';
 import {} from '@qupid/ui';
 
