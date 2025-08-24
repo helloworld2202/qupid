@@ -9,13 +9,17 @@ interface SignupScreenProps {
 
 const SignupScreen: React.FC<SignupScreenProps> = ({ onNavigate, onSignupSuccess }) => {
   const [step, setStep] = useState(1); // 1: 기본정보, 2: 성별선택
+  // 게스트 데이터가 있으면 가져오기
+  const guestGender = localStorage.getItem('guestGender') || '';
+  const guestPartnerGender = localStorage.getItem('guestPartnerGender') || '';
+  
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     passwordConfirm: '',
     name: '',
-    user_gender: '' as 'male' | 'female' | '',
-    partner_gender: '' as 'male' | 'female' | '',
+    user_gender: (guestGender as 'male' | 'female') || ('' as 'male' | 'female' | ''),
+    partner_gender: (guestPartnerGender as 'male' | 'female') || ('' as 'male' | 'female' | ''),
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -77,13 +81,26 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ onNavigate, onSignupSuccess
       if (data.data.profile) {
         localStorage.setItem('userProfile', JSON.stringify(data.data.profile));
         
-        // 튜토리얼 완료 여부 확인
-        if (data.data.profile.is_tutorial_completed) {
+        // 게스트 데이터 정리
+        localStorage.removeItem('guestId');
+        localStorage.removeItem('guestGender');
+        localStorage.removeItem('guestPartnerGender');
+        localStorage.removeItem('guestExperience');
+        localStorage.removeItem('guestConfidence');
+        localStorage.removeItem('guestDifficulty');
+        localStorage.removeItem('guestInterests');
+        localStorage.removeItem('guestTutorialCompleted');
+        localStorage.removeItem('guestChatCount');
+        localStorage.removeItem('hasCompletedOnboarding');
+        
+        // 게스트가 이미 튜토리얼을 완료했다면 홈으로
+        const guestTutorialCompleted = localStorage.getItem('guestTutorialCompleted') === 'true';
+        if (data.data.profile.is_tutorial_completed || guestTutorialCompleted) {
           onSignupSuccess(data.data);
           onNavigate('HOME');
         } else {
           onSignupSuccess(data.data);
-          onNavigate('ONBOARDING'); // 온보딩으로 이동
+          onNavigate(Screen.TutorialIntro);
         }
       } else {
         onSignupSuccess(data.data);

@@ -8,6 +8,7 @@ import { useAppStore } from '../../../shared/stores/useAppStore';
 interface MyTabScreenProps {
   onNavigate: (screen: Screen) => void;
   onLogout?: () => void;
+  isGuest?: boolean;
 }
 
 const TossToggle: React.FC<{ value: boolean; onToggle: () => void; }> = ({ value, onToggle }) => (
@@ -66,7 +67,7 @@ const SectionContainer: React.FC<{ title?: string, children: React.ReactNode, cl
     </div>
 );
 
-const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate, onLogout }) => {
+const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate, onLogout, isGuest }) => {
     const { currentUserId } = useAppStore();
     const { data: userProfile, isLoading } = useUserProfile(currentUserId || '');
     
@@ -95,16 +96,46 @@ const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate, onLogout }) => {
                         {initial}
                     </div>
                     <div className="ml-4 flex-1">
-                        <p className="font-bold text-xl text-[#191F28]">{profile.name}</p>
-                        <p className="font-medium text-sm text-[#8B95A1]">Level 3 · 대화 중급자</p>
-                        <div className="mt-1.5 h-1 w-full bg-white/30 rounded-full">
-                            <div className="h-1 rounded-full bg-[#F093B0]" style={{ width: '75%' }}></div>
-                        </div>
+                        <p className="font-bold text-xl text-[#191F28]">
+                            {isGuest ? '게스트' : profile.name}
+                            {isGuest && <span className="ml-2 text-xs text-[#F093B0]">(임시)</span>}
+                        </p>
+                        <p className="font-medium text-sm text-[#8B95A1]">
+                            {isGuest ? '체험 중' : 'Level 3 · 대화 중급자'}
+                        </p>
+                        {!isGuest && (
+                            <div className="mt-1.5 h-1 w-full bg-white/30 rounded-full">
+                                <div className="h-1 rounded-full bg-[#F093B0]" style={{ width: '75%' }}></div>
+                            </div>
+                        )}
                     </div>
-                    <button onClick={() => onNavigate(Screen.ProfileEdit)} className="h-8 px-4 rounded-lg bg-white/20 border border-white/30 text-[#4F7ABA] text-sm font-bold">
-                        편집
-                    </button>
+                    {!isGuest && (
+                        <button onClick={() => onNavigate(Screen.ProfileEdit)} className="h-8 px-4 rounded-lg bg-white/20 border border-white/30 text-[#4F7ABA] text-sm font-bold">
+                            편집
+                        </button>
+                    )}
+                    {isGuest && (
+                        <button onClick={() => onNavigate('SIGNUP' as any)} className="h-8 px-4 rounded-lg bg-[#F093B0] text-white text-sm font-bold">
+                            회원가입
+                        </button>
+                    )}
                 </div>
+
+                {/* Guest Limit Info */}
+                {isGuest && (
+                    <div className="bg-[#FFF5F7] border border-[#FFE0E6] rounded-2xl p-4">
+                        <p className="text-sm font-bold text-[#F093B0] mb-2">🎁 게스트 체험 중</p>
+                        <p className="text-xs text-[#8B95A1] mb-3">
+                            남은 대화 횟수: {Math.max(0, 3 - parseInt(localStorage.getItem('guestChatCount') || '0'))}/3회
+                        </p>
+                        <button 
+                            onClick={() => onNavigate('SIGNUP' as any)}
+                            className="w-full h-10 bg-[#F093B0] text-white rounded-lg font-bold text-sm"
+                        >
+                            회원가입하고 모든 기능 사용하기
+                        </button>
+                    </div>
+                )}
 
                 {/* Learning Settings */}
                 <SectionContainer title="학습 설정">

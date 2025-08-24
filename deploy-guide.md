@@ -43,6 +43,7 @@
 1. [Railway](https://railway.app) 가입 (GitHub 로그인 추천)
 2. "New Project" → "Deploy from GitHub repo"
 3. 레포지토리 선택 및 권한 부여
+4. **중요**: 서비스 이름을 "qupid-api"로 설정 (모노레포 구조이므로 필수)
 
 #### 2-2. Railway 환경 변수 설정
 1. Railway Dashboard → Your Project → Variables
@@ -273,6 +274,18 @@ const allowedOrigins = [
    ```bash
    docker build -f apps/api/Dockerfile .
    ```
+
+### 6. Railway "Multiple services found" 에러
+
+**증상**: CLI에서 "Multiple services found. Please specify a service via the `--service` flag"
+
+**해결**:
+1. Railway Dashboard에서 서비스 이름을 "qupid-api"로 설정
+2. CLI 명령에 `--service qupid-api` 추가:
+   ```bash
+   railway up --service qupid-api
+   ```
+3. GitHub Actions에서도 동일하게 적용 (이미 수정됨)
 
 ---
 

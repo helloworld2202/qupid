@@ -66,10 +66,11 @@ const BadgesContainer: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 const AppContent: React.FC = () => {
   const { user, setUser } = useUserStore();
   const { currentScreen, navigateTo: originalNavigateTo } = useNavigationStore();
-  const [appState, setAppState] = React.useState<'loading' | 'auth' | 'onboarding' | 'main'>('loading');
+  const [appState, setAppState] = React.useState<'loading' | 'guest' | 'auth' | 'onboarding' | 'main'>('loading');
   const [sessionData, setSessionData] = React.useState<any>(null);
   const [favoriteIds, setFavoriteIds] = React.useState<string[]>(['persona-1', 'persona-3']);
   const [previousScreen, setPreviousScreen] = React.useState<Screen | string>('HOME');
+  const [isGuest, setIsGuest] = React.useState(false);
 
   // 네비게이션 래퍼 - 이전 화면 추적
   const navigateTo = React.useCallback((screen: Screen | string) => {
@@ -81,6 +82,8 @@ const AppContent: React.FC = () => {
     // Check for auth token first
     const authToken = localStorage.getItem('authToken');
     const storedProfile = localStorage.getItem('userProfile');
+    const guestId = localStorage.getItem('guestId');
+    const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding');
     
     if (authToken && storedProfile) {
       // Logged in with profile
@@ -90,23 +93,75 @@ const AppContent: React.FC = () => {
     } else if (authToken) {
       // Logged in but no profile yet
       setAppState('onboarding');
+    } else if (hasCompletedOnboarding && guestId) {
+      // Guest user who completed onboarding
+      const guestProfile = {
+        id: guestId,
+        name: '게스트',
+        user_gender: localStorage.getItem('guestGender') || 'male',
+        partner_gender: localStorage.getItem('guestPartnerGender') || 'female',
+        experience: localStorage.getItem('guestExperience') || '없음',
+        confidence: parseInt(localStorage.getItem('guestConfidence') || '3'),
+        difficulty: parseInt(localStorage.getItem('guestDifficulty') || '2'),
+        interests: JSON.parse(localStorage.getItem('guestInterests') || '[]'),
+        isTutorialCompleted: localStorage.getItem('guestTutorialCompleted') === 'true',
+        isGuest: true
+      };
+      setUser(guestProfile);
+      setIsGuest(true);
+      setAppState('main');
     } else {
-      // Not logged in
-      setAppState('auth');
+      // New user - start with onboarding
+      setAppState('onboarding');
+      navigateTo('ONBOARDING');
     }
-  }, [setUser]);
+  }, [setUser, navigateTo]);
 
   const handleOnboardingComplete = (profile: any) => {
+    // 게스트 프로필 생성
+    const guestId = `guest_${new Date().getTime()}`;
     const newProfile = {
       ...profile,
-      id: `user_${new Date().getTime()}`,
+      id: guestId,
+      name: '게스트',
       created_at: new Date().toISOString(),
       isTutorialCompleted: false,
+      isGuest: true
     };
+    
+    // 게스트 정보를 localStorage에 저장
+    localStorage.setItem('guestId', guestId);
+    localStorage.setItem('guestGender', profile.user_gender);
+    localStorage.setItem('guestPartnerGender', profile.partner_gender);
+    localStorage.setItem('guestExperience', profile.experience);
+    localStorage.setItem('guestConfidence', profile.confidence.toString());
+    localStorage.setItem('guestDifficulty', profile.difficulty.toString());
+    localStorage.setItem('guestInterests', JSON.stringify(profile.interests || []));
+    localStorage.setItem('hasCompletedOnboarding', 'true');
+    
     setUser(newProfile);
-    localStorage.setItem('userProfile', JSON.stringify(newProfile));
+    setIsGuest(true);
     setAppState('main');
     navigateTo(Screen.TutorialIntro); // 튜토리얼 소개 화면으로 이동
+  };
+  
+  // 회원가입/로그인 유도 함수
+  const requireAuth = (callback?: () => void) => {
+    if (isGuest) {
+      // 게스트 사용자일 경우 회원가입 유도
+      const confirmSignup = window.confirm('이 기능을 사용하려면 회원가입이 필요합니다. 회원가입 하시겠습니까?');
+      if (confirmSignup) {
+        navigateTo('SIGNUP');
+      }
+      return false;
+    } else if (!user) {
+      // 로그인되지 않은 경우
+      navigateTo('LOGIN');
+      return false;
+    }
+    // 인증된 사용자
+    if (callback) callback();
+    return true;
   };
 
   const renderScreen = () => {
@@ -119,6 +174,14 @@ const AppContent: React.FC = () => {
           <ChatTabScreen 
             onNavigate={navigateTo}
             onSelectPersona={(persona) => {
+              // 게스트는 최대 3번의 대화만 가능
+              if (isGuest) {
+                const guestChatCount = parseInt(localStorage.getItem('guestChatCount') || '0');
+                if (guestChatCount >= 3) {
+                  requireAuth();
+                  return;
+                }
+              }
               setSessionData({ persona });
               navigateTo(Screen.PersonaDetail);
             }}
@@ -144,21 +207,26 @@ const AppContent: React.FC = () => {
                 // 튜토리얼 완료 시 처리
                 const updatedProfile = { ...user, isTutorialCompleted: true };
                 setUser(updatedProfile);
-                localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
                 
-                // 서버에 튜토리얼 완료 상태 업데이트
-                const userId = localStorage.getItem('userId');
-                if (userId) {
-                  try {
-                    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
-                    await fetch(`${API_URL}/users/${userId}/tutorial/complete`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                    });
-                  } catch (error) {
-                    console.error('Failed to update tutorial status:', error);
+                if (isGuest) {
+                  // 게스트 사용자의 튜토리얼 완료 상태 저장
+                  localStorage.setItem('guestTutorialCompleted', 'true');
+                } else {
+                  // 일반 사용자는 서버에 업데이트
+                  localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+                  const userId = localStorage.getItem('userId');
+                  if (userId) {
+                    try {
+                      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+                      await fetch(`${API_URL}/users/${userId}/tutorial/complete`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                      });
+                    } catch (error) {
+                      console.error('Failed to update tutorial status:', error);
+                    }
                   }
                 }
                 
@@ -166,6 +234,12 @@ const AppContent: React.FC = () => {
                 setSessionData(null);
                 navigateTo('HOME');
               } else {
+                // 일반 대화 완료 시
+                if (isGuest && !sessionData?.isTutorial) {
+                  // 게스트 채팅 횟수 증가
+                  const currentCount = parseInt(localStorage.getItem('guestChatCount') || '0');
+                  localStorage.setItem('guestChatCount', (currentCount + 1).toString());
+                }
                 // 일반 대화 완료 시 분석 화면으로
                 setSessionData({ ...sessionData, analysis, tutorialCompleted });
                 navigateTo(Screen.ConversationAnalysis);
@@ -251,6 +325,11 @@ const AppContent: React.FC = () => {
           <CoachingTabScreen 
             onNavigate={navigateTo}
             onStartCoachChat={(coach) => {
+              // 게스트는 코칭 기능 사용 불가
+              if (isGuest) {
+                requireAuth();
+                return;
+              }
               setSessionData({ partner: coach, isTutorial: false });
               navigateTo(Screen.Chat);
             }}
@@ -274,17 +353,44 @@ const AppContent: React.FC = () => {
       case 'MY_TAB':
         return (
           <MyTabScreen 
-            onNavigate={navigateTo}
-            onLogout={() => {
-              // 로그아웃 처리
-              localStorage.removeItem('authToken');
-              localStorage.removeItem('refreshToken');
-              localStorage.removeItem('userId');
-              localStorage.removeItem('userProfile');
-              setUser(null);
-              setAppState('auth');
-              navigateTo('LOGIN');
+            onNavigate={(screen) => {
+              // 게스트 사용자가 특정 기능에 접근하려 할 때 회원가입 유도
+              const restrictedScreens = [Screen.Badges, Screen.Favorites, Screen.LearningGoals];
+              if (isGuest && restrictedScreens.includes(screen)) {
+                requireAuth();
+                return;
+              }
+              navigateTo(screen);
             }}
+            onLogout={() => {
+              if (isGuest) {
+                // 게스트 데이터 초기화
+                localStorage.removeItem('guestId');
+                localStorage.removeItem('guestGender');
+                localStorage.removeItem('guestPartnerGender');
+                localStorage.removeItem('guestExperience');
+                localStorage.removeItem('guestConfidence');
+                localStorage.removeItem('guestDifficulty');
+                localStorage.removeItem('guestInterests');
+                localStorage.removeItem('guestTutorialCompleted');
+                localStorage.removeItem('guestChatCount');
+                localStorage.removeItem('hasCompletedOnboarding');
+                setUser(null);
+                setIsGuest(false);
+                setAppState('onboarding');
+                navigateTo('ONBOARDING');
+              } else {
+                // 일반 사용자 로그아웃
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userProfile');
+                setUser(null);
+                setAppState('auth');
+                navigateTo('LOGIN');
+              }
+            }}
+            isGuest={isGuest}
           />
         );
       
