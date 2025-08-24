@@ -1,7 +1,7 @@
 
 
 import React from 'react';
-import { UserProfile, Persona, Screen, Badge, PerformanceData, PREDEFINED_PERSONAS } from '@qupid/core';
+import { UserProfile, Screen, PerformanceData } from '@qupid/core';
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
 import { usePersonas } from '../hooks/usePersonas';
 import { useBadges } from '../hooks/useBadges';
@@ -19,8 +19,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   // API 데이터 페칭
   const { data: allPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
   const { data: allBadges = [], isLoading: isLoadingBadges } = useBadges();
-  const { data: performanceData, isLoading: isLoadingPerformance } = usePerformance(currentUserId);
-  const { data: userProfile, isLoading: isLoadingUser } = useUserProfile(currentUserId || '');
+  const { data: performanceData } = usePerformance(currentUserId || '');
+  const { data: userProfile } = useUserProfile(currentUserId || '');
   
   // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
   const defaultUserProfile = { 
@@ -36,7 +36,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const currentUser = userProfile || defaultUserProfile;
   
   // 이성 페르소나만 필터링
-  const personas = allPersonas.filter(p => p.gender === currentUser.partner_gender);
+  const personas = allPersonas.filter(p => p.gender === (currentUser.partner_gender || 'female'));
   
   // 획득한 뱃지만 필터링
   const badges = allBadges.filter(b => b.acquired);

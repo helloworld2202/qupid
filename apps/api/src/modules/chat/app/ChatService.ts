@@ -59,7 +59,7 @@ export class ChatService {
     const userMessage = {
       sender: 'user' as const,
       text: message,
-      timestamp: new Date()
+      timestamp: Date.now()
     };
     session.addMessage(userMessage);
 
@@ -92,7 +92,7 @@ export class ChatService {
       const aiMessage = {
         sender: 'ai' as const,
         text: aiResponse,
-        timestamp: new Date()
+        timestamp: Date.now()
       };
       session.addMessage(aiMessage);
 
@@ -267,7 +267,7 @@ export class ChatService {
         conversation_id: conversationId,
         sender_type: message.sender === 'user' ? 'user' : 'ai',
         content: message.text,
-        timestamp: message.timestamp?.toISOString() || new Date().toISOString()
+        timestamp: (message as any).timestamp ? new Date((message as any).timestamp).toISOString() : new Date().toISOString()
       });
 
     if (error) {
@@ -292,7 +292,7 @@ export class ChatService {
     return data?.map(msg => ({
       sender: msg.sender_type as 'user' | 'ai',
       text: msg.content,
-      timestamp: new Date(msg.timestamp)
+      timestamp: typeof msg.timestamp === 'number' ? msg.timestamp : Date.now()
     })) || [];
   }
 

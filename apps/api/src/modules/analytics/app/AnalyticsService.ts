@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '../../../shared/infra/supabase';
-import { AppError } from '../../../shared/errors/AppError';
+import { supabaseAdmin } from '../../../shared/infra/supabase.js';
+import { AppError } from '../../../shared/errors/AppError.js';
 
 export class AnalyticsService {
   async getUserPerformanceData(userId: string) {
@@ -32,7 +32,7 @@ export class AnalyticsService {
       if (analysisError) throw analysisError;
 
       // 2. 이번 주 성과 메트릭 가져오기
-      const { data: weekMetrics, error: metricsError } = await supabaseAdmin
+      const { data: weekMetrics, error: metricsError } = await (supabaseAdmin as any)
         .from('performance_metrics')
         .select('*')
         .eq('user_id', userId)
@@ -71,7 +71,7 @@ export class AnalyticsService {
         .lte('analyzed_at', lastWeekEnd.toISOString());
 
       const lastWeekAvg = lastWeekAnalysis && lastWeekAnalysis.length > 0
-        ? Math.round(lastWeekAnalysis.reduce((sum, a) => sum + a.overall_score, 0) / lastWeekAnalysis.length)
+        ? Math.round(lastWeekAnalysis.reduce((sum: number, a: any) => sum + a.overall_score, 0) / lastWeekAnalysis.length)
         : 0;
 
       const scoreChange = weeklyScore - lastWeekAvg;
@@ -88,7 +88,7 @@ export class AnalyticsService {
         .lte('started_at', weekEnd.toISOString());
 
       const sessionCount = conversations?.length || 0;
-      const totalMessages = conversations?.reduce((sum, conv: any) => sum + (conv.messages?.[0]?.count || 0), 0) || 0;
+      const totalMessages = conversations?.reduce((sum: number, conv: any) => sum + (conv.messages?.[0]?.count || 0), 0) || 0;
       const avgMessagesPerSession = sessionCount > 0 ? Math.round(totalMessages / sessionCount) : 0;
 
       // 8. 가장 긴 대화 세션 찾기
@@ -159,7 +159,7 @@ export class AnalyticsService {
       };
     } catch (error) {
       console.error('Error fetching performance data:', error);
-      throw new AppError('성과 데이터를 가져오는데 실패했습니다', 500);
+      throw AppError.internal('성과 데이터를 가져오는데 실패했습니다');
     }
   }
 
@@ -250,7 +250,7 @@ export class AnalyticsService {
   async updatePerformanceMetrics(userId: string, conversationId: string) {
     try {
       // 대화 정보 가져오기
-      const { data: conversation } = await supabaseAdmin
+      const { data: conversation } = await (supabaseAdmin as any)
         .from('conversations')
         .select('started_at, ended_at')
         .eq('id', conversationId)
@@ -271,7 +271,7 @@ export class AnalyticsService {
       const weekStartStr = weekStart.toISOString().split('T')[0];
 
       // 현재 주 메트릭 가져오기
-      const { data: currentMetrics } = await supabaseAdmin
+      const { data: currentMetrics } = await (supabaseAdmin as any)
         .from('performance_metrics')
         .select('*')
         .eq('user_id', userId)
@@ -280,7 +280,7 @@ export class AnalyticsService {
 
       if (currentMetrics) {
         // 업데이트
-        await supabaseAdmin
+        await (supabaseAdmin as any)
           .from('performance_metrics')
           .update({
             session_count: (currentMetrics.session_count || 0) + 1,
@@ -290,7 +290,7 @@ export class AnalyticsService {
           .eq('week_start', weekStartStr);
       } else {
         // 새로 생성
-        await supabaseAdmin
+        await (supabaseAdmin as any)
           .from('performance_metrics')
           .insert({
             user_id: userId,

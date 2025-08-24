@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { PerformanceData, AICoach, Screen } from '@qupid/core';
 import { Chart, registerables } from 'chart.js/auto';
 import { useCoaches } from '../../../shared/hooks/useCoaches';
-import { useAppStore } from '../../../shared/stores/useAppStore';
+// import { useAppStore } from '../../../shared/stores/useAppStore';
 import {} from '@qupid/ui';
 
 Chart.register(...registerables);
@@ -30,7 +30,7 @@ const CoachCard: React.FC<{ coach: AICoach; onStart: () => void; }> = ({ coach, 
 
 const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onStartCoachChat }) => {
   const { data: coaches = [], isLoading } = useCoaches();
-  const { currentUserId } = useAppStore();
+  // const { currentUserId } = useAppStore();
   
   // 임시 데이터 - 나중에 API로 교체
   const data: PerformanceData = {

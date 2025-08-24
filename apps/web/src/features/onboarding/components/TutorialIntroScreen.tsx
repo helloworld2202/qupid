@@ -5,12 +5,13 @@ import { ArrowLeftIcon, CoachKeyIcon } from '@qupid/ui';
 import { TUTORIAL_STEPS } from '@qupid/core';
 
 interface TutorialIntroScreenProps {
-  persona: Persona;
-  onStart: () => void;
+  persona?: Persona;
+  onStart?: () => void;
   onBack: () => void;
+  onComplete?: () => void;
 }
 
-const TutorialIntroScreen: React.FC<TutorialIntroScreenProps> = ({ persona, onStart, onBack }) => {
+const TutorialIntroScreen: React.FC<TutorialIntroScreenProps> = ({ persona, onStart, onBack, onComplete }) => {
   const tutorialGoals = TUTORIAL_STEPS.slice(0, 4).map(step => step.title.split(': ')[1]);
 
   return (
@@ -22,9 +23,9 @@ const TutorialIntroScreen: React.FC<TutorialIntroScreenProps> = ({ persona, onSt
       </header>
 
       <main className="flex-1 px-6 text-center">
-        <img src={persona.avatar} alt={persona.name} className="w-24 h-24 rounded-full mx-auto shadow-lg" />
+        <img src={persona?.avatar || '/default-avatar.png'} alt={persona?.name || 'AI 친구'} className="w-24 h-24 rounded-full mx-auto shadow-lg" />
         <h1 className="mt-4 text-2xl font-bold text-[#191F28]">첫 대화 튜토리얼</h1>
-        <p className="text-base text-[#8B95A1] mt-2">첫 대화는 AI 친구 <span className="font-bold text-[#F093B0]">{persona.name}</span>님과 함께해요.</p>
+        <p className="text-base text-[#8B95A1] mt-2">첫 대화는 AI 친구 <span className="font-bold text-[#F093B0]">{persona?.name || 'AI 친구'}</span>님과 함께해요.</p>
         
         <div className="mt-8 p-6 bg-[#F9FAFB] border border-[#E5E8EB] rounded-2xl text-left">
             <h2 className="text-lg font-bold text-[#191F28]">튜토리얼 목표 🎯</h2>
@@ -53,7 +54,7 @@ const TutorialIntroScreen: React.FC<TutorialIntroScreenProps> = ({ persona, onSt
 
       <footer className="flex-shrink-0 p-4">
         <button
-          onClick={onStart}
+          onClick={onStart || onComplete}
           className="w-full h-14 bg-[#F093B0] text-white text-lg font-bold rounded-xl"
         >
           튜토리얼 시작하기

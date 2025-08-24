@@ -37,15 +37,15 @@ export class AuthService {
     });
 
     if (authError) {
-      throw new AppError(authError.message, 400);
+      throw AppError.badRequest(authError.message);
     }
 
     if (!authData.user) {
-      throw new AppError('Failed to create user', 500);
+      throw AppError.internal('Failed to create user');
     }
 
     // 2. users 테이블에 프로필 생성
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const { data: profile, error: profileError } = await (supabaseAdmin as any)
       .from('users')
       .insert({
         id: authData.user.id,
@@ -90,11 +90,11 @@ export class AuthService {
     });
 
     if (error) {
-      throw new AppError('Invalid email or password', 401);
+      throw AppError.unauthorized('Invalid email or password');
     }
 
     if (!data.user) {
-      throw new AppError('Login failed', 500);
+      throw AppError.internal('Login failed');
     }
 
     // 사용자 프로필 조회
@@ -118,7 +118,7 @@ export class AuthService {
     const { error } = await supabaseAdmin.auth.signOut();
     
     if (error) {
-      throw new AppError('Logout failed', 500);
+      throw AppError.internal('Logout failed');
     }
   }
 
@@ -161,11 +161,11 @@ export class AuthService {
     });
 
     if (error) {
-      throw new AppError('Token refresh failed', 401);
+      throw AppError.unauthorized('Token refresh failed');
     }
 
     if (!data.user || !data.session) {
-      throw new AppError('Invalid refresh token', 401);
+      throw AppError.unauthorized('Invalid refresh token');
     }
 
     // 사용자 프로필 조회
@@ -191,7 +191,7 @@ export class AuthService {
     });
 
     if (error) {
-      throw new AppError('Failed to send reset email', 500);
+      throw AppError.internal('Failed to send reset email');
     }
   }
 
@@ -204,7 +204,7 @@ export class AuthService {
     });
 
     if (error) {
-      throw new AppError('Failed to update password', 500);
+      throw AppError.internal('Failed to update password');
     }
   }
 }

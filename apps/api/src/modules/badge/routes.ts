@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { BadgeController } from './controller';
+import { BadgeController } from './controller.js';
 
 const router = Router();
 const controller = new BadgeController();

@@ -10,7 +10,7 @@ export const analyticsController = {
       const userId = req.params.userId;
       
       if (!userId) {
-        throw new AppError('사용자 ID가 필요합니다', 400);
+        throw AppError.badRequest('사용자 ID가 필요합니다');
       }
 
       const performanceData = await analyticsService.getUserPerformanceData(userId);
@@ -41,7 +41,7 @@ export const analyticsController = {
       const { startDate, endDate } = req.query;
 
       if (!userId) {
-        throw new AppError('사용자 ID가 필요합니다', 400);
+        throw AppError.badRequest('사용자 ID가 필요합니다');
       }
 
       // 주간 통계 로직 (추후 구현)
@@ -71,7 +71,7 @@ export const analyticsController = {
       const { month, year } = req.query;
 
       if (!userId) {
-        throw new AppError('사용자 ID가 필요합니다', 400);
+        throw AppError.badRequest('사용자 ID가 필요합니다');
       }
 
       // 월간 통계 로직 (추후 구현)

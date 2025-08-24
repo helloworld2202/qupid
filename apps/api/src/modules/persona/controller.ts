@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { PersonaService } from './app/PersonaService';
-import { AppError } from '../../shared/errors/AppError';
+import { PersonaService } from './app/PersonaService.js';
+import { AppError } from '../../shared/errors/AppError.js';
 
 const personaService = new PersonaService();
 
@@ -17,7 +17,7 @@ export class PersonaController {
         data: personas
       });
     } catch (error) {
-      next(new AppError('Failed to fetch personas', 500));
+      next(AppError.internal('Failed to fetch personas'));
     }
   }
 
@@ -31,7 +31,7 @@ export class PersonaController {
       const persona = await personaService.getPersonaById(id);
       
       if (!persona) {
-        return next(new AppError('Persona not found', 404));
+        return next(AppError.notFound('Persona'));
       }
 
       res.json({
@@ -39,7 +39,7 @@ export class PersonaController {
         data: persona
       });
     } catch (error) {
-      next(new AppError('Failed to fetch persona', 500));
+      next(AppError.internal('Failed to fetch persona'));
     }
   }
 
@@ -52,7 +52,7 @@ export class PersonaController {
       const { gender } = req.params;
       
       if (gender !== 'male' && gender !== 'female') {
-        return next(new AppError('Invalid gender parameter', 400));
+        return next(AppError.badRequest('Invalid gender parameter'));
       }
 
       const personas = await personaService.getPersonasByGender(gender as 'male' | 'female');
@@ -61,7 +61,7 @@ export class PersonaController {
         data: personas
       });
     } catch (error) {
-      next(new AppError('Failed to fetch personas', 500));
+      next(AppError.internal('Failed to fetch personas'));
     }
   }
 
@@ -82,7 +82,7 @@ export class PersonaController {
         data: personas
       });
     } catch (error) {
-      next(new AppError('Failed to fetch recommended personas', 500));
+      next(AppError.internal('Failed to fetch recommended personas'));
     }
   }
 }

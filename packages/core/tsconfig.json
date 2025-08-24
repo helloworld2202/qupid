@@ -1,14 +1,22 @@
 {
-  "extends": "@qupid/config/tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "Node16",
+    "moduleResolution": "node16",
     "baseUrl": ".",
     "rootDir": "./src",
+    "outDir": "./dist",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./dist",
+    "skipLibCheck": true,
+    "strict": true,
     "noEmit": false,
-    "emitDeclarationOnly": true
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

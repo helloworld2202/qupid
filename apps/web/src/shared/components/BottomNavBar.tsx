@@ -55,7 +55,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, onTabChange, not
             label={tab.label}
             icon={tab.icon}
             isActive={activeTab === tab.id}
-            hasNotification={tab.notification}
+            {...(tab.notification !== undefined ? { hasNotification: tab.notification } : {})}
             onClick={() => onTabChange(tab.id)}
           />
         ))}

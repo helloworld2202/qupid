@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Persona, Screen, UserProfile } from '@qupid/core';
+import { Persona, Screen } from '@qupid/core';
 import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
 import { usePersonas } from '../../../shared/hooks/usePersonas';
 import { useFavorites } from '../../../shared/hooks/useUser';
@@ -40,19 +40,21 @@ const PersonaCard: React.FC<{ persona: Persona; onSelect: () => void; }> = ({ pe
 
 
 const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery] = useState('');
   const { currentUserId } = useAppStore();
   
   // API 호출
   const { data: personas = [], isLoading: isLoadingPersonas } = usePersonas();
-  const { data: favoriteIds = [], isLoading: isLoadingFavorites } = useFavorites(currentUserId);
+  const { data: favoriteIds = [] } = useFavorites(currentUserId || '');
   
   // 임시 하드코딩 사용자 프로필 (추후 API 구현)
   const userProfile = {
     user_gender: 'male' as const,
-    partner_gender: 'female' as const
+    partner_gender: 'female' as const,
+    experience: 'beginner',
+    interests: ['영화', '음악']
   };
-  const isLoadingProfile = false;
+  // const isLoadingProfile = false;
   
   // 즐겨찾기 페르소나 필터링
   const favoritePersonas = useMemo(() => {

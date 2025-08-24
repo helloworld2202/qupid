@@ -13,10 +13,9 @@ export class CoachService {
       name: c.name,
       specialty: c.specialty,
       tagline: c.tagline,
-      bio: c.bio,
+      intro: c.bio,
       avatar: c.avatar,
-      expertise_areas: c.expertise_areas,
-      coaching_style: c.coaching_style
+      system_instruction: `You are ${c.name}, an AI coach specializing in ${c.specialty}. ${c.bio}`
     }));
   }
 

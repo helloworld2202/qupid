@@ -39,7 +39,7 @@ export class StylingService {
           style: 'natural'
         });
 
-        imageUrl = imageResponse.data[0]?.url || null;
+        imageUrl = imageResponse.data?.[0]?.url || null;
       } catch (imageError) {
         console.error('Error generating image:', imageError);
         // Return text advice even if image generation fails

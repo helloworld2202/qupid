@@ -18,7 +18,7 @@ export const useCreateUserProfile = () => {
     onSuccess: (data) => {
       queryClient.setQueryData(['user', data.id], data);
       // 사용자 ID를 로컬스토리지에 저장
-      localStorage.setItem('userId', data.id);
+      localStorage.setItem('userId', data.id || '');
     },
   });
 };

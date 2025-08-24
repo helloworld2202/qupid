@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { CoachService } from './app/CoachService';
-import { AppError } from '../../shared/errors/AppError';
+import { CoachService } from './app/CoachService.js';
+import { AppError } from '../../shared/errors/AppError.js';
 
 const coachService = new CoachService();
 
@@ -17,7 +17,7 @@ export class CoachingController {
         data: coaches
       });
     } catch (error) {
-      next(new AppError('Failed to fetch coaches', 500));
+      next(AppError.internal('Failed to fetch coaches'));
     }
   }
 
@@ -31,7 +31,7 @@ export class CoachingController {
       const coach = await coachService.getCoachById(id);
       
       if (!coach) {
-        return next(new AppError('Coach not found', 404));
+        return next(AppError.notFound('Coach'));
       }
 
       res.json({
@@ -39,7 +39,7 @@ export class CoachingController {
         data: coach
       });
     } catch (error) {
-      next(new AppError('Failed to fetch coach', 500));
+      next(AppError.internal('Failed to fetch coach'));
     }
   }
 
@@ -57,7 +57,7 @@ export class CoachingController {
         data: coaches
       });
     } catch (error) {
-      next(new AppError('Failed to fetch coaches', 500));
+      next(AppError.internal('Failed to fetch coaches'));
     }
   }
 }

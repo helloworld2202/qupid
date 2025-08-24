@@ -4,8 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Providers } from './app/providers';
 import { useUserStore } from './shared/stores/userStore';
 import { useNavigationStore } from './shared/stores/navigationStore';
-import { useAppStore } from './shared/stores/useAppStore';
-import { Screen, PREDEFINED_PERSONAS, Badge } from '@qupid/core';
+import { Screen, NavigationScreen } from '@qupid/core';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,7 +37,7 @@ import { MyTabScreen } from './features/profile/components/MyTabScreen';
 import { ProfileEditScreen } from './features/profile/components/ProfileEditScreen';
 import { SettingsScreen } from './features/profile/components/SettingsScreen';
 import { BadgesScreen } from './features/profile/components/BadgesScreen';
-import { useBadges, useUserBadges } from './shared/hooks/useBadges';
+import { useBadges } from './shared/hooks/useBadges';
 import { FavoritesScreen } from './features/profile/components/FavoritesScreen';
 import { NotificationSettingsScreen } from './features/profile/components/NotificationSettingsScreen';
 import { DeleteAccountScreen } from './features/profile/components/DeleteAccountScreen';
@@ -68,14 +67,14 @@ const AppContent: React.FC = () => {
   const { currentScreen, navigateTo: originalNavigateTo } = useNavigationStore();
   const [appState, setAppState] = React.useState<'loading' | 'guest' | 'auth' | 'onboarding' | 'main'>('loading');
   const [sessionData, setSessionData] = React.useState<any>(null);
-  const [favoriteIds, setFavoriteIds] = React.useState<string[]>(['persona-1', 'persona-3']);
-  const [previousScreen, setPreviousScreen] = React.useState<Screen | string>('HOME');
+  // const [favoriteIds] = React.useState<string[]>(['persona-1', 'persona-3']);
+  const [previousScreen, setPreviousScreen] = React.useState<NavigationScreen>('HOME');
   const [isGuest, setIsGuest] = React.useState(false);
 
   // 네비게이션 래퍼 - 이전 화면 추적
-  const navigateTo = React.useCallback((screen: Screen | string) => {
+  const navigateTo = React.useCallback((screen: NavigationScreen) => {
     setPreviousScreen(currentScreen);
-    originalNavigateTo(screen);
+    originalNavigateTo(screen as any);
   }, [currentScreen, originalNavigateTo]);
 
   useEffect(() => {
@@ -98,8 +97,8 @@ const AppContent: React.FC = () => {
       const guestProfile = {
         id: guestId,
         name: '게스트',
-        user_gender: localStorage.getItem('guestGender') || 'male',
-        partner_gender: localStorage.getItem('guestPartnerGender') || 'female',
+        user_gender: (localStorage.getItem('guestGender') || 'male') as 'male' | 'female',
+        partner_gender: (localStorage.getItem('guestPartnerGender') || 'female') as 'male' | 'female',
         experience: localStorage.getItem('guestExperience') || '없음',
         confidence: parseInt(localStorage.getItem('guestConfidence') || '3'),
         difficulty: parseInt(localStorage.getItem('guestDifficulty') || '2'),
@@ -151,12 +150,12 @@ const AppContent: React.FC = () => {
       // 게스트 사용자일 경우 회원가입 유도
       const confirmSignup = window.confirm('이 기능을 사용하려면 회원가입이 필요합니다. 회원가입 하시겠습니까?');
       if (confirmSignup) {
-        navigateTo('SIGNUP');
+        navigateTo(Screen.SIGNUP);
       }
       return false;
     } else if (!user) {
       // 로그인되지 않은 경우
-      navigateTo('LOGIN');
+      navigateTo(Screen.LOGIN);
       return false;
     }
     // 인증된 사용자
@@ -275,37 +274,26 @@ const AppContent: React.FC = () => {
       case Screen.CustomPersona:
         return (
           <CustomPersonaForm
-            onSave={(persona) => {
-              // Handle custom persona save
-              navigateTo('CHAT_TAB');
-            }}
             onCancel={() => navigateTo('CHAT_TAB')}
           />
         );
       
       case Screen.TutorialIntro:
-        const tutorialPersona = PREDEFINED_PERSONAS.find(p => p.id === 'persona-1');
-        if (!tutorialPersona) {
-          return <div>Loading...</div>;
-        }
         return (
           <TutorialIntroScreen
-            persona={tutorialPersona}
-            onStart={() => {
-              setSessionData({ 
-                partner: tutorialPersona, 
-                isTutorial: true 
-              });
+            onBack={() => navigateTo('HOME')}
+            onComplete={() => {
               navigateTo(Screen.ConversationPrep);
             }}
-            onBack={() => navigateTo('HOME')}
           />
         );
       
       case 'PERSONA_SELECTION':
         return (
           <PersonaSelection
-            onSelect={(type) => {
+            personas={[]}
+            userProfile={user!}
+            onSelect={() => {
               // Handle persona selection
               navigateTo('CHAT_TAB');
             }}
@@ -343,10 +331,6 @@ const AppContent: React.FC = () => {
         return (
           <LearningGoalsScreen
             onBack={() => navigateTo('MY_TAB')}
-            onSave={(goals) => {
-              // Handle goals save
-              navigateTo('MY_TAB');
-            }}
           />
         );
       
@@ -387,7 +371,7 @@ const AppContent: React.FC = () => {
                 localStorage.removeItem('userProfile');
                 setUser(null);
                 setAppState('auth');
-                navigateTo('LOGIN');
+                navigateTo(Screen.LOGIN);
               }
             }}
             isGuest={isGuest}
@@ -397,7 +381,7 @@ const AppContent: React.FC = () => {
       case Screen.ProfileEdit:
         return (
           <ProfileEditScreen
-            userProfile={user}
+            userProfile={user!}
             onBack={() => navigateTo('MY_TAB')}
             onSave={(profile) => {
               setUser(profile);
@@ -419,7 +403,7 @@ const AppContent: React.FC = () => {
               localStorage.removeItem('userProfile');
               setUser(null);
               setAppState('auth');
-              navigateTo('LOGIN');
+              navigateTo(Screen.LOGIN);
             }}
           />
         );
@@ -428,7 +412,7 @@ const AppContent: React.FC = () => {
         return <BadgesContainer onBack={() => navigateTo(previousScreen)} />;
       
       case Screen.Favorites:
-        const favoritePersonas = PREDEFINED_PERSONAS.filter(p => favoriteIds.includes(p.id));
+        const favoritePersonas: any[] = []; // TODO: Load from API
         return (
           <FavoritesScreen
             personas={favoritePersonas}
@@ -451,7 +435,7 @@ const AppContent: React.FC = () => {
         return (
           <DeleteAccountScreen
             onBack={() => navigateTo('SETTINGS')}
-            onConfirm={() => {
+            onComplete={() => {
               localStorage.clear();
               setUser(null);
               setAppState('onboarding');
@@ -460,34 +444,6 @@ const AppContent: React.FC = () => {
         );
       
       case Screen.PerformanceDetail:
-        const performanceData = {
-          weeklyScore: 78,
-          scoreChange: 5,
-          scoreChangePercentage: 6.8,
-          dailyScores: [65, 70, 72, 68, 75, 78, 78],
-          radarData: {
-            labels: ['친근함', '호기심', '공감', '유머', '표현력'],
-            datasets: [{
-              label: '내 점수',
-              data: [80, 65, 75, 70, 85],
-              backgroundColor: 'rgba(240, 147, 176, 0.2)',
-              borderColor: '#F093B0',
-              borderWidth: 2,
-            }]
-          },
-          stats: {
-            totalTime: '12시간 30분',
-            sessionCount: 42,
-            avgTime: '18분',
-            longestSession: { time: '45분', persona: '김소연' },
-            preferredType: '친근한 대화',
-          },
-          categoryScores: [
-            { title: '친근함', emoji: '😊', score: 80, change: 5, goal: 85 },
-            { title: '호기심', emoji: '🤔', score: 65, change: -2, goal: 70 },
-            { title: '공감', emoji: '💝', score: 75, change: 8, goal: 80 },
-          ]
-        };
         return (
           <PerformanceDetailScreen
             onBack={() => navigateTo('HOME')}
@@ -519,7 +475,7 @@ const AppContent: React.FC = () => {
   // 인증 화면
   if (appState === 'auth') {
     switch (currentScreen) {
-      case 'SIGNUP':
+      case Screen.SIGNUP:
         return (
           <SignupScreen
             onNavigate={navigateTo}
@@ -542,7 +498,7 @@ const AppContent: React.FC = () => {
           />
         );
       
-      case 'LOGIN':
+      case Screen.LOGIN:
       default:
         return (
           <LoginScreen
@@ -586,7 +542,7 @@ const AppContent: React.FC = () => {
       </div>
       {showBottomNav && (
         <BottomNavBar
-          activeTab={currentScreen}
+          activeTab={String(currentScreen)}
           onTabChange={navigateTo}
         />
       )}

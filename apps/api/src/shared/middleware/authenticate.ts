@@ -3,7 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import { AppError } from '../errors/AppError.js';
 import { env } from '../config/env.js';
 
-const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+const anonKey = env.SUPABASE_ANON_KEY || env.SUPABASE_PUBLISHABLE_KEY;
+if (!anonKey) {
+  throw new Error('Missing Supabase anon key');
+}
+
+const supabase = createClient(env.SUPABASE_URL, anonKey);
 
 export interface AuthenticatedRequest extends Request {
   user?: {

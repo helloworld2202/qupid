@@ -1,6 +1,6 @@
 
 
-import { Persona, Badge, PerformanceData, TutorialStep, AICoach } from './types';
+import { Persona, Badge, PerformanceData, TutorialStep, AICoach } from './types.js';
 
 export const AI_COACHES: AICoach[] = [
   {
@@ -220,7 +220,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     title: "1단계: 자연스럽게 인사해보세요",
     description: "예시: '안녕하세요!', '처음 뵙겠습니다' 등",
     quickReplies: ["안녕하세요!", "반갑습니다", "처음 뵙겠습니다"],
-    successCriteria: (message) => {
+    successCriteria: (message: string) => {
         const greetings = ["안녕", "반갑", "뵙겠습"];
         return greetings.some(word => message.includes(word));
     }
@@ -230,7 +230,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     title: "2단계: 공통 관심사를 찾아보세요",
     description: "게임이나 영화 이야기를 해보세요",
     quickReplies: ["게임 좋아하세요?", "어떤 영화 좋아하세요?", "취미가 뭐예요?"],
-    successCriteria: (message) => {
+    successCriteria: (message: string) => {
         return message.includes("?");
     }
   },
@@ -239,7 +239,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     title: "3단계: 상대방의 말에 공감하고 반응해주세요",
     description: "상대의 답변에 리액션을 보여주며 대화를 이어가세요.",
     quickReplies: ["오, 정말요? 대단하네요!", "아 그랬구나, 저도 공감돼요.", "그거 정말 재밌겠네요! 더 자세히 알려주세요."],
-    successCriteria: (message, _context) => {
+    successCriteria: (message: string, _context: any) => {
         const reactions = ["정말", "대단", "재밌", "그렇구나", "공감"];
         return reactions.some(word => message.includes(word));
     }
@@ -249,7 +249,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     title: "4단계: 자연스럽게 대화를 마무리해보세요",
     description: "즐거웠다는 표현과 함께 다음을 기약하며 대화를 끝내세요.",
     quickReplies: ["오늘 대화 정말 즐거웠어요! 다음에 또 얘기해요.", "시간 가는 줄 몰랐네요. 다음에 또 봬요!", "오늘 정말 즐거웠습니다. 좋은 하루 보내세요!"],
-    successCriteria: (message) => {
+    successCriteria: (message: string) => {
         const closings = ["즐거웠", "다음에", "마무리", "다음에 또"];
         return closings.some(word => message.includes(word));
     }

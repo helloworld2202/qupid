@@ -18,7 +18,7 @@ export class BadgeService {
   }
 
   async getUserBadges(userId: string): Promise<Badge[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_badges')
       .select(`
         badge_id,
@@ -33,7 +33,7 @@ export class BadgeService {
     }
 
     // Transform the data to include acquired status
-    const userBadges = data?.map(item => ({
+    const userBadges = data?.map((item: any) => ({
       ...item.badges,
       acquired: true,
       acquired_at: item.acquired_at
@@ -44,7 +44,7 @@ export class BadgeService {
     
     // Merge user badges with all badges
     return allBadges.map(badge => {
-      const userBadge = userBadges.find(ub => ub.id === badge.id);
+      const userBadge = userBadges.find((ub: any) => ub.id === badge.id);
       return {
         ...badge,
         acquired: !!userBadge,
@@ -54,7 +54,7 @@ export class BadgeService {
   }
 
   async awardBadge(userId: string, badgeId: string): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabaseAdmin as any)
       .from('user_badges')
       .insert({
         user_id: userId,

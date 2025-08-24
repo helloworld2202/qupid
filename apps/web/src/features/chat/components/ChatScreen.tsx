@@ -108,8 +108,8 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
       const initSession = async () => {
         try {
           const sessionId = await createSessionMutation.mutateAsync({
-            personaId: 'id' in partner ? partner.id : partner.name,
-            systemInstruction: partner.system_instruction
+            personaId: partner && 'id' in partner ? partner.id : (partner as any)?.name || 'unknown',
+            systemInstruction: partner?.system_instruction || ''
           });
           sessionIdRef.current = sessionId;
         } catch (error) {
@@ -186,7 +186,10 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     // Get realtime feedback
     const lastAiMessage = messages.filter(m => m.sender === 'ai').pop()?.text;
     feedbackMutation.mutate(
-      { lastUserMessage: messageText, lastAiMessage },
+      { 
+        lastUserMessage: messageText, 
+        ...(lastAiMessage ? { lastAiMessage } : {})
+      },
       { onSuccess: (feedback) => feedback && setRealtimeFeedback(feedback) }
     );
 

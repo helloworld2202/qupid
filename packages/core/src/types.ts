@@ -37,6 +37,7 @@ export interface AICoach {
 export interface Message {
   sender: 'user' | 'ai' | 'system';
   text: string;
+  timestamp?: number;
 }
 
 export interface TutorialStep {
@@ -64,18 +65,25 @@ export enum Screen {
   Favorites,
   TutorialIntro,
   DesignGuide,
+  LOGIN,
+  SIGNUP,
 }
+
+export type NavigationScreen = Screen | 'HOME' | 'CHAT_TAB' | 'COACHING_TAB' | 'MY_TAB' | 'ONBOARDING' | 'SETTINGS' | 'PERSONA_SELECTION' | string;
 
 export interface UserProfile {
   id?: string;
   created_at?: string;
   name: string;
   user_gender: 'male' | 'female';
+  partner_gender?: 'male' | 'female';
   experience: string;
-  confidence: string;
-  difficulty: string;
+  confidence: number;
+  difficulty: number;
   interests: string[];
   isTutorialCompleted?: boolean;
+  isGuest?: boolean;
+  onboarding_completed?: boolean;
 }
 
 export interface ConversationAnalysis {

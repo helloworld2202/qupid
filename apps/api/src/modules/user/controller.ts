@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserService } from './app/UserService';
-import { AppError } from '../../shared/errors/AppError';
+import { UserService } from './app/UserService.js';
+import { AppError } from '../../shared/errors/AppError.js';
 
 const userService = new UserService();
 
@@ -15,7 +15,7 @@ export class UserController {
       const profile = await userService.getUserProfile(id);
       
       if (!profile) {
-        return next(new AppError('User not found', 404));
+        return next(AppError.notFound('User'));
       }
 
       res.json({
@@ -23,7 +23,7 @@ export class UserController {
         data: profile
       });
     } catch (error) {
-      next(new AppError('Failed to fetch user profile', 500));
+      next(AppError.internal('Failed to fetch user profile'));
     }
   }
 
@@ -36,7 +36,7 @@ export class UserController {
       const profile = await userService.createUserProfile(req.body);
       
       if (!profile) {
-        return next(new AppError('Failed to create user profile', 400));
+        return next(AppError.badRequest('Failed to create user profile'));
       }
 
       res.status(201).json({
@@ -44,7 +44,7 @@ export class UserController {
         data: profile
       });
     } catch (error) {
-      next(new AppError('Failed to create user profile', 500));
+      next(AppError.internal('Failed to create user profile'));
     }
   }
 
@@ -58,7 +58,7 @@ export class UserController {
       const profile = await userService.updateUserProfile(id, req.body);
       
       if (!profile) {
-        return next(new AppError('Failed to update user profile', 400));
+        return next(AppError.badRequest('Failed to update user profile'));
       }
 
       res.json({
@@ -66,7 +66,7 @@ export class UserController {
         data: profile
       });
     } catch (error) {
-      next(new AppError('Failed to update user profile', 500));
+      next(AppError.internal('Failed to update user profile'));
     }
   }
 
@@ -80,7 +80,7 @@ export class UserController {
       const success = await userService.completeTutorial(id);
       
       if (!success) {
-        return next(new AppError('Failed to complete tutorial', 400));
+        return next(AppError.badRequest('Failed to complete tutorial'));
       }
 
       res.json({
@@ -88,7 +88,7 @@ export class UserController {
         message: 'Tutorial completed successfully'
       });
     } catch (error) {
-      next(new AppError('Failed to complete tutorial', 500));
+      next(AppError.internal('Failed to complete tutorial'));
     }
   }
 
@@ -106,7 +106,7 @@ export class UserController {
         data: favorites
       });
     } catch (error) {
-      next(new AppError('Failed to fetch favorites', 500));
+      next(AppError.internal('Failed to fetch favorites'));
     }
   }
 
@@ -120,7 +120,7 @@ export class UserController {
       const success = await userService.toggleFavorite(id, personaId);
       
       if (!success) {
-        return next(new AppError('Failed to toggle favorite', 400));
+        return next(AppError.badRequest('Failed to toggle favorite'));
       }
 
       res.json({
@@ -128,7 +128,7 @@ export class UserController {
         message: 'Favorite toggled successfully'
       });
     } catch (error) {
-      next(new AppError('Failed to toggle favorite', 500));
+      next(AppError.internal('Failed to toggle favorite'));
     }
   }
 }

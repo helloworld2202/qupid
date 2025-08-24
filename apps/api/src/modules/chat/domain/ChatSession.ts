@@ -14,8 +14,8 @@ export class ChatSession {
   addMessage(message: Message): void {
     this.messages.push({
       ...message,
-      timestamp: message.timestamp || new Date()
-    });
+      timestamp: (message as any).timestamp || new Date()
+    } as any);
   }
 
   getMessages(): Message[] {

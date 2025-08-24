@@ -21,7 +21,7 @@ export const Providers: React.FC<ProvidersProps> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === 'development' && (
+      {(typeof window !== 'undefined' && import.meta.env?.DEV) && (
         <ReactQueryDevtools initialIsOpen={false} />
       )}
     </QueryClientProvider>

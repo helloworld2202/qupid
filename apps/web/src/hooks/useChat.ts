@@ -31,7 +31,7 @@ export const useChat = () => {
     const userMessage: Message = {
       sender: 'user',
       text: message,
-      timestamp: new Date()
+      timestamp: Date.now()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -51,7 +51,7 @@ export const useChat = () => {
       const aiMessage: Message = {
         sender: 'ai',
         text: response,
-        timestamp: new Date()
+        timestamp: Date.now()
       };
 
       setMessages(prev => [...prev, aiMessage]);

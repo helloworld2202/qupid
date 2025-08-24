@@ -71,7 +71,7 @@ const CheckableCard: React.FC<{icon?: string; title: string; subtitle?: string; 
 )
 
 type NewUserProfile = Omit<UserProfile, 'id' | 'created_at' | 'isTutorialCompleted'>;
-const initialProfile: NewUserProfile = { name: '준호', user_gender: 'male', experience: '없음', confidence: '조금 어색', difficulty: '대화 유지', interests: [] };
+const initialProfile: NewUserProfile = { name: '준호', user_gender: 'male', experience: '없음', confidence: 3, difficulty: 2, interests: [] };
 
 // --- Onboarding Screens ---
 const IntroScreen: React.FC<{ onNext: () => void; progress: number }> = ({ onNext, progress }) => {
@@ -142,7 +142,14 @@ const SurveyScreen: React.FC<{
                 <p className="text-base mt-2 text-[#8B95A1]">{description}</p>
                 <div className="mt-8 space-y-3">
                     {options.map(opt => (
-                        <CheckableCard key={opt.title} icon={opt.icon} title={opt.title} subtitle={opt.subtitle} checked={false} onClick={() => handleSelect(opt.title)} />
+                        <CheckableCard 
+                          key={opt.title} 
+                          {...(opt.icon ? { icon: opt.icon } : {})}
+                          title={opt.title} 
+                          {...(opt.subtitle ? { subtitle: opt.subtitle } : {})}
+                          checked={false} 
+                          onClick={() => handleSelect(opt.title)} 
+                        />
                     ))}
                 </div>
              </main>
@@ -231,7 +238,7 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile) =>
                    profile.experience === '1-2번 정도' ? 2 :
                    profile.experience === '몇 번 있어요' ? 3 : 4,
         interests: profile.interests.map(i => i.split(' ')[1] || i),
-        is_tutorial_completed: false
+        isTutorialCompleted: false
       };
       
       const result = await createUser.mutateAsync(userProfile);

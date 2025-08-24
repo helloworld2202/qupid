@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Persona, UserProfile } from '@qupid/core';
-import { SearchIcon, SettingsIcon, HeartIcon, ArrowLeftIcon } from '@qupid/ui';
+import { SearchIcon, SettingsIcon, ArrowLeftIcon } from '@qupid/ui';
 
 interface PersonaSelectionProps {
   personas: Persona[];

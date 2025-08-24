@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { BadgeService } from './app/BadgeService';
+import { BadgeService } from './app/BadgeService.js';
 
 export class BadgeController {
   private badgeService: BadgeService;

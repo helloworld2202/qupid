@@ -25,7 +25,7 @@ export const useUserStore = create<UserState>()(
         set({ 
           user, 
           isAuthenticated: !!user,
-          isOnboardingComplete: !!user?.onboarding_completed 
+          isOnboardingComplete: !!user?.isTutorialCompleted 
         }),
 
       updateUser: (updates) =>

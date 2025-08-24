@@ -1,4 +1,4 @@
-import { db, DbUser } from '../../../config/supabase.js';
+import { db, DbUser, supabase } from '../../../config/supabase.js';
 import { UserProfile } from '@qupid/core';
 
 export class UserService {
@@ -23,10 +23,10 @@ export class UserService {
       id: profile.id,
       name: profile.name || '',
       user_gender: profile.user_gender as 'male' | 'female' | 'other',
-      partner_gender: profile.partner_gender as 'male' | 'female' | 'other',
+      partner_gender: (profile as any).partner_gender as 'male' | 'female' | 'other',
       experience: profile.experience || '',
-      confidence: profile.confidence || 3,
-      difficulty: profile.difficulty || 2,
+      confidence: Number(profile.confidence) || 3,
+      difficulty: Number(profile.difficulty) || 2,
       interests: profile.interests || [],
       is_tutorial_completed: profile.isTutorialCompleted || false
     });
@@ -43,12 +43,12 @@ export class UserService {
    */
   async updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
     // Supabase update 로직 구현
-    const { data, error } = await db.supabase
+    const { data, error } = await supabase
       .from('users')
       .update({
         name: updates.name,
         user_gender: updates.user_gender,
-        partner_gender: updates.partner_gender,
+        partner_gender: (updates as any).partner_gender,
         experience: updates.experience,
         confidence: updates.confidence,
         difficulty: updates.difficulty,
@@ -71,7 +71,7 @@ export class UserService {
    * 튜토리얼 완료 상태 업데이트
    */
   async completeTutorial(userId: string): Promise<boolean> {
-    const { error } = await db.supabase
+    const { error } = await supabase
       .from('users')
       .update({ 
         is_tutorial_completed: true,
@@ -105,13 +105,12 @@ export class UserService {
       id: dbUser.id,
       name: dbUser.name,
       user_gender: dbUser.user_gender as 'male' | 'female',
-      partner_gender: dbUser.partner_gender as 'male' | 'female',
       experience: dbUser.experience,
-      confidence: dbUser.confidence,
-      difficulty: dbUser.difficulty,
+      confidence: Number(dbUser.confidence) || 3,
+      difficulty: Number(dbUser.difficulty) || 2,
       interests: dbUser.interests,
       isTutorialCompleted: dbUser.is_tutorial_completed,
       created_at: dbUser.created_at
-    };
+    } as UserProfile;
   }
 }

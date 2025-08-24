@@ -69,13 +69,13 @@ const SectionContainer: React.FC<{ title?: string, children: React.ReactNode, cl
 
 const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate, onLogout, isGuest }) => {
     const { currentUserId } = useAppStore();
-    const { data: userProfile, isLoading } = useUserProfile(currentUserId || '');
+    const { data: userProfile } = useUserProfile(currentUserId || '');
     
     // 로딩 중이거나 데이터가 없을 때의 기본값
     const defaultProfile = { name: '사용자', user_gender: 'male' } as UserProfile;
     const profile = userProfile || defaultProfile;
     const [practiceNotification, setPracticeNotification] = useState(true);
-    const [analysisDisplay, setAnalysisDisplay] = useState(true);
+    // const [analysisDisplay] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
 
     const initial = profile.name.charAt(0).toUpperCase();
@@ -165,7 +165,7 @@ const MyTabScreen: React.FC<MyTabScreenProps> = ({ onNavigate, onLogout, isGuest
                 
                 {/* Danger Zone */}
                 <SectionContainer>
-                    <SettingItem icon="🚪" title="로그아웃" onClick={onLogout} dangerous rightComponent={<></>} />
+                    <SettingItem icon="🚪" title="로그아웃" {...(onLogout ? { onClick: onLogout } : {})} dangerous rightComponent={<></>} />
                     <SettingItem icon="❌" title="회원 탈퇴" subtitle="모든 데이터가 삭제됩니다" onClick={() => onNavigate(Screen.DeleteAccount)} dangerous rightComponent={<></>} />
                 </SectionContainer>
 

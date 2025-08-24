@@ -2,24 +2,25 @@ import React, { useState } from 'react';
 import { ArrowLeftIcon, SparklesIcon } from '@qupid/ui';
 
 interface CustomPersonaFormProps {
-  onCreate: (description: string) => void;
-  onBack: () => void;
+  onCreate?: (description: string) => void;
+  onBack?: () => void;
+  onCancel?: () => void;
 }
 
-const CustomPersonaForm: React.FC<CustomPersonaFormProps> = ({ onCreate, onBack }) => {
+const CustomPersonaForm: React.FC<CustomPersonaFormProps> = ({ onCreate, onBack, onCancel }) => {
   const [description, setDescription] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (description.trim()) {
-      onCreate(description);
+      onCreate?.(description);
     }
   };
 
   return (
     <div className="flex flex-col h-full animate-back-out" style={{ backgroundColor: 'var(--surface)' }}>
       <header className="flex-shrink-0 flex items-center p-3 border-b" style={{ borderColor: 'var(--border)' }}>
-        <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-100 mr-2">
+        <button onClick={onBack || onCancel} className="p-2 rounded-full hover:bg-gray-100 mr-2">
           <ArrowLeftIcon className="w-6 h-6" style={{ color: 'var(--text-secondary)' }}/>
         </button>
         <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>나만의 이상형 만들기</h2>

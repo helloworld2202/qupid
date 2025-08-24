@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from './app/AuthService';
-import { AppError } from '../../shared/errors/AppError';
+import { AuthService } from './app/AuthService.js';
+import { AppError } from '../../shared/errors/AppError.js';
 
 export class AuthController {
   private authService: AuthService;
@@ -15,11 +15,11 @@ export class AuthController {
 
       // 기본 유효성 검사
       if (!email || !password || !name || !user_gender || !partner_gender) {
-        throw new AppError('Missing required fields', 400);
+        throw AppError.badRequest('Missing required fields');
       }
 
       if (password.length < 6) {
-        throw new AppError('Password must be at least 6 characters', 400);
+        throw AppError.badRequest('Password must be at least 6 characters');
       }
 
       const result = await this.authService.signup({
@@ -44,7 +44,7 @@ export class AuthController {
       const { email, password } = req.body;
 
       if (!email || !password) {
-        throw new AppError('Email and password are required', 400);
+        throw AppError.badRequest('Email and password are required');
       }
 
       const result = await this.authService.login({ email, password });
@@ -89,7 +89,7 @@ export class AuthController {
       const { refresh_token } = req.body;
 
       if (!refresh_token) {
-        throw new AppError('Refresh token is required', 400);
+        throw AppError.badRequest('Refresh token is required');
       }
 
       const result = await this.authService.refreshToken(refresh_token);
@@ -108,7 +108,7 @@ export class AuthController {
       const { email } = req.body;
 
       if (!email) {
-        throw new AppError('Email is required', 400);
+        throw AppError.badRequest('Email is required');
       }
 
       await this.authService.resetPassword(email);
@@ -127,7 +127,7 @@ export class AuthController {
       const { password } = req.body;
 
       if (!password || password.length < 6) {
-        throw new AppError('Password must be at least 6 characters', 400);
+        throw AppError.badRequest('Password must be at least 6 characters');
       }
 
       await this.authService.updatePassword(password);
