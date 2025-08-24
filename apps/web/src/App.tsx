@@ -45,6 +45,8 @@ import { DeleteAccountScreen } from './features/profile/components/DeleteAccount
 import { DesignGuideScreen } from './features/profile/components/DesignGuideScreen';
 import { PerformanceDetailScreen } from './features/analytics/components/PerformanceDetailScreen';
 import { DataExportScreen } from './features/analytics/components/DataExportScreen';
+import { LoginScreen } from './features/auth/components/LoginScreen';
+import { SignupScreen } from './features/auth/components/SignupScreen';
 
 // Badges Container with API integration
 const BadgesContainer: React.FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -64,7 +66,7 @@ const BadgesContainer: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 const AppContent: React.FC = () => {
   const { user, setUser } = useUserStore();
   const { currentScreen, navigateTo: originalNavigateTo } = useNavigationStore();
-  const [appState, setAppState] = React.useState<'loading' | 'onboarding' | 'main'>('loading');
+  const [appState, setAppState] = React.useState<'loading' | 'auth' | 'onboarding' | 'main'>('loading');
   const [sessionData, setSessionData] = React.useState<any>(null);
   const [favoriteIds, setFavoriteIds] = React.useState<string[]>(['persona-1', 'persona-3']);
   const [previousScreen, setPreviousScreen] = React.useState<Screen | string>('HOME');
@@ -76,15 +78,21 @@ const AppContent: React.FC = () => {
   }, [currentScreen, originalNavigateTo]);
 
   useEffect(() => {
-    // Check local storage for existing user profile
+    // Check for auth token first
+    const authToken = localStorage.getItem('authToken');
     const storedProfile = localStorage.getItem('userProfile');
     
-    if (storedProfile) {
+    if (authToken && storedProfile) {
+      // Logged in with profile
       const profile = JSON.parse(storedProfile);
       setUser(profile);
       setAppState('main');
-    } else {
+    } else if (authToken) {
+      // Logged in but no profile yet
       setAppState('onboarding');
+    } else {
+      // Not logged in
+      setAppState('auth');
     }
   }, [setUser]);
 
@@ -266,6 +274,16 @@ const AppContent: React.FC = () => {
           <SettingsScreen
             onBack={() => navigateTo('MY_TAB')}
             onNavigate={navigateTo}
+            onLogout={() => {
+              // 로그아웃 처리
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('userId');
+              localStorage.removeItem('userProfile');
+              setUser(null);
+              setAppState('auth');
+              navigateTo('LOGIN');
+            }}
           />
         );
       
@@ -359,6 +377,48 @@ const AppContent: React.FC = () => {
         </div>
       </div>
     );
+  }
+
+  // 인증 화면
+  if (appState === 'auth') {
+    switch (currentScreen) {
+      case 'SIGNUP':
+        return (
+          <SignupScreen
+            onNavigate={navigateTo}
+            onSignupSuccess={(userData) => {
+              if (userData.profile) {
+                setUser(userData.profile);
+                localStorage.setItem('userProfile', JSON.stringify(userData.profile));
+                setAppState('main');
+                navigateTo('HOME');
+              } else {
+                setAppState('onboarding');
+                navigateTo('ONBOARDING');
+              }
+            }}
+          />
+        );
+      
+      case 'LOGIN':
+      default:
+        return (
+          <LoginScreen
+            onNavigate={navigateTo}
+            onLoginSuccess={(userData) => {
+              if (userData.profile) {
+                setUser(userData.profile);
+                localStorage.setItem('userProfile', JSON.stringify(userData.profile));
+                setAppState('main');
+                navigateTo('HOME');
+              } else {
+                setAppState('onboarding');
+                navigateTo('ONBOARDING');
+              }
+            }}
+          />
+        );
+    }
   }
 
   if (appState === 'onboarding') {

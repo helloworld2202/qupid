@@ -4,8 +4,9 @@ import { UserProfile, Screen } from '@qupid/core';
 import { ArrowLeftIcon, ChevronRightIcon } from '@qupid/ui';
 
 interface SettingsScreenProps {
-  onNavigate: (screen: Screen) => void;
+  onNavigate: (screen: Screen | string) => void;
   onBack: () => void;
+  onLogout?: () => void;
 }
 
 const TossToggle: React.FC<{ value: boolean; onToggle: () => void; }> = ({ value, onToggle }) => (
@@ -54,7 +55,7 @@ const SectionContainer: React.FC<{ title?: string, children: React.ReactNode, cl
     </div>
 );
 
-const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack }) => {
+const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack, onLogout }) => {
     // localStorage에서 사용자 정보 가져오기
     const storedProfile = localStorage.getItem('userProfile');
     const userProfile = storedProfile ? JSON.parse(storedProfile) : { name: '사용자', user_gender: 'female' } as UserProfile;
@@ -141,7 +142,24 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack }) =
                 {/* Danger Zone */}
                 <div className="mt-8">
                      <SectionContainer>
-                        <SettingItem icon="🚪" title="로그아웃" onClick={() => {}} dangerous rightComponent={<ChevronRightIcon className="w-4 h-4" />} />
+                        <SettingItem 
+                            icon="🚪" 
+                            title="로그아웃" 
+                            onClick={() => {
+                                if (onLogout) {
+                                    onLogout();
+                                } else {
+                                    // 기본 로그아웃 처리
+                                    localStorage.removeItem('authToken');
+                                    localStorage.removeItem('refreshToken');
+                                    localStorage.removeItem('userId');
+                                    localStorage.removeItem('userProfile');
+                                    window.location.href = '/';
+                                }
+                            }} 
+                            dangerous 
+                            rightComponent={<ChevronRightIcon className="w-4 h-4" />} 
+                        />
                         <SettingItem icon="❌" title="회원 탈퇴" subtitle="모든 데이터가 삭제됩니다" onClick={() => onNavigate(Screen.DeleteAccount)} dangerous rightComponent={<ChevronRightIcon className="w-4 h-4" />} isLast />
                     </SectionContainer>
                 </div>

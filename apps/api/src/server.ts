@@ -8,6 +8,7 @@ import { env } from "./shared/config/env.js"
 import { errorHandler } from "./shared/middleware/errorHandler.js"
 
 // Import routes
+import authRoutes from "./modules/auth/routes.js"
 import chatRoutes from "./modules/chat/routes.js"
 import stylingRoutes from "./modules/styling/routes.js"
 import personaRoutes from "./modules/persona/routes.js"
@@ -61,6 +62,7 @@ app.get("/healthz", (_req, res) => {
 })
 
 // API routes
+app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/chat", chatRoutes)
 app.use("/api/v1/styling", stylingRoutes)
 app.use("/api/v1/personas", personaRoutes)
