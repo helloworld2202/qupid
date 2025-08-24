@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build:vercel": "cd ../.. && pnpm --filter @qupid/core build && pnpm --filter @qupid/ui build && cd apps/web && tsc && vite build",
+    "build": "tsc -p tsconfig.build.json && vite build",
+    "build:local": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

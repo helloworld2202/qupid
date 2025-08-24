@@ -1,5 +1,5 @@
 {
-  "extends": "@qupid/config/tsconfig.base.json",
+  "extends": "../config/tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "rootDir": "./src",
@@ -8,7 +8,9 @@
     "declarationMap": true,
     "outDir": "./dist",
     "noEmit": false,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

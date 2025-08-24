@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm -w build:packages && pnpm -w build:web",
+  "buildCommand": "pnpm build:packages && cd apps/web && pnpm build",
   "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "vite",
@@ -8,5 +8,10 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "env": {
+    "VITE_API_URL": "@vite_api_url",
+    "VITE_SUPABASE_URL": "@vite_supabase_url",
+    "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key"
+  }
 }
