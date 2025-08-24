@@ -3,10 +3,12 @@ import { Persona, Message, RealtimeFeedback, TutorialStep, ConversationAnalysis,
 import { ArrowLeftIcon, PaperAirplaneIcon, CoachKeyIcon } from '@qupid/ui';
 import { TUTORIAL_STEPS } from '@qupid/core';
 import { useChatSession, useSendMessage, useAnalyzeConversation, useRealtimeFeedback, useCoachSuggestion } from '../hooks/useChatQueries';
+import { useCreateCoachingSession, useSendCoachingMessage, useAnalyzeCoachingSession } from '../../coaching/hooks/useCoachingQueries';
 
 interface ChatScreenProps {
   partner?: Persona | AICoach;
   isTutorial?: boolean;
+  isCoaching?: boolean;
   onComplete: (analysis: ConversationAnalysis | null, tutorialJustCompleted: boolean) => void;
 }
 
@@ -55,7 +57,7 @@ const CoachHint: React.FC<{
     );
 };
 
-export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = false, onComplete }) => {
+export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = false, isCoaching = false, onComplete }) => {
   // partner가 없으면 에러 처리
   if (!partner) {
     return (
@@ -88,6 +90,11 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const analyzeMutation = useAnalyzeConversation();
   const feedbackMutation = useRealtimeFeedback();
   const coachMutation = useCoachSuggestion();
+  
+  // 코칭 세션 hooks
+  const createCoachingSessionMutation = useCreateCoachingSession();
+  const sendCoachingMessageMutation = useSendCoachingMessage();
+  const analyzeCoachingMutation = useAnalyzeCoachingSession();
 
   const fetchAndShowSuggestion = useCallback(async () => {
     if (isFetchingSuggestion || showCoachHint || messages.length < 2) return;
@@ -107,10 +114,23 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     if (!sessionIdRef.current) {
       const initSession = async () => {
         try {
-          const sessionId = await createSessionMutation.mutateAsync({
-            personaId: partner && 'id' in partner ? partner.id : (partner as any)?.name || 'unknown',
-            systemInstruction: partner?.system_instruction || ''
-          });
+          let sessionId;
+          
+          if (isCoaching && partner && 'specialty' in partner) {
+            // 코칭 세션 생성
+            const userId = localStorage.getItem('userId') || undefined;
+            sessionId = await createCoachingSessionMutation.mutateAsync({
+              coachId: partner.id,
+              userId
+            });
+          } else {
+            // 일반 페르소나 세션 생성
+            sessionId = await createSessionMutation.mutateAsync({
+              personaId: partner && 'id' in partner ? partner.id : (partner as any)?.name || 'unknown',
+              systemInstruction: partner?.system_instruction || ''
+            });
+          }
+          
           sessionIdRef.current = sessionId;
         } catch (error) {
           console.error('Failed to create session:', error);
@@ -207,14 +227,29 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
       let aiResponse: string;
       
       try {
-        aiResponse = await sendMessageMutation.mutateAsync({
-          sessionId: sessionIdRef.current,
-          message: messageText
-        });
+        if (isCoaching && 'specialty' in partner) {
+          // 코칭 메시지 전송
+          aiResponse = await sendCoachingMessageMutation.mutateAsync({
+            sessionId: sessionIdRef.current,
+            message: messageText
+          });
+        } else {
+          // 일반 페르소나 메시지 전송
+          aiResponse = await sendMessageMutation.mutateAsync({
+            sessionId: sessionIdRef.current,
+            message: messageText
+          });
+        }
       } catch (error) {
         console.error('API call failed, using mock response:', error);
         // Mock 응답 생성
-        const mockResponses = [
+        const mockResponses = isCoaching ? [
+          "좋은 질문이네요! 이런 접근을 해보세요 👍",
+          "정확하게 파악하셨네요! 다음 단계로 나아가볼까요?",
+          "훌륭한 진전이에요! 계속 이렇게 연습해보세요 💪",
+          "이 부분을 더 자세히 연습해볼까요? 함께 해보죠!",
+          "잘하고 계세요! 이런 팩을 기억하세요 💡"
+        ] : [
           "네, 맞아요! 정말 재미있는 이야기네요 😊",
           "오~ 그렇군요! 더 자세히 들려주세요!",
           "와, 대단하네요! 저도 그런 경험이 있어요.",
@@ -240,7 +275,19 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     }
     setIsAnalyzing(true);
     try {
-      const result = await analyzeMutation.mutateAsync(messages);
+      let result;
+      
+      if (isCoaching && sessionIdRef.current) {
+        // 코칭 세션 분석
+        result = await analyzeCoachingMutation.mutateAsync({
+          sessionId: sessionIdRef.current,
+          messages
+        });
+      } else {
+        // 일반 대화 분석
+        result = await analyzeMutation.mutateAsync(messages);
+      }
+      
       onComplete(result, isTutorialMode);
     } catch (error) {
       console.error('Failed to analyze conversation:', error);

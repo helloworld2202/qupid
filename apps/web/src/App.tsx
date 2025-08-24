@@ -201,6 +201,7 @@ const AppContent: React.FC = () => {
           <ChatScreen
             partner={sessionData?.partner}
             isTutorial={sessionData?.isTutorial || false}
+            isCoaching={sessionData?.isCoaching || false}
             onComplete={async (analysis, tutorialCompleted) => {
               if (tutorialCompleted && user) {
                 // 튜토리얼 완료 시 처리
@@ -318,7 +319,8 @@ const AppContent: React.FC = () => {
                 requireAuth();
                 return;
               }
-              setSessionData({ partner: coach, isTutorial: false });
+              // 코치와의 채팅 시작 (프렉 화면 건너뛰고 바로 채팅으로)
+              setSessionData({ partner: coach, isTutorial: false, isCoaching: true });
               navigateTo(Screen.Chat);
             }}
           />
