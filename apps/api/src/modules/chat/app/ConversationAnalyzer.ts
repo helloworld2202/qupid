@@ -54,10 +54,15 @@ JSON 형식:
         friendliness: result.friendliness || { score: 80, feedback: '친근한 대화였어요!' },
         curiosity: result.curiosity || { score: 75, feedback: '호기심을 보여주셨어요!' },
         empathy: result.empathy || { score: 70, feedback: '공감 능력을 보여주셨어요!' },
-        strengths: result.strengths || ['친근한 태도', '적극적인 참여'],
-        improvements: result.improvements || ['더 많은 질문하기', '감정 표현 더하기'],
         feedback: result.feedback || '좋은 대화였어요! 계속 연습하면 더 좋아질 거예요.',
-        badges: result.badges || []
+        positivePoints: result.strengths || ['친근한 태도', '적극적인 참여'],
+        pointsToImprove: result.improvements?.map((imp: string) => ({ 
+          topic: imp,
+          suggestion: imp
+        })) || [
+          { topic: '질문하기', suggestion: '더 많은 질문하기' },
+          { topic: '감정 표현', suggestion: '감정 표현 더하기' }
+        ]
       };
     } catch (error) {
       console.error('Analysis error:', error);
@@ -71,10 +76,12 @@ JSON 형식:
       friendliness: { score: 80, feedback: '친근한 대화였어요!' },
       curiosity: { score: 75, feedback: '호기심을 보여주셨어요!' },
       empathy: { score: 70, feedback: '공감 능력을 보여주셨어요!' },
-      strengths: ['친근한 태도', '적극적인 참여'],
-      improvements: ['더 많은 질문하기', '감정 표현 더하기'],
       feedback: '좋은 대화였어요! 계속 연습하면 더 좋아질 거예요.',
-      badges: []
+      positivePoints: ['친근한 태도', '적극적인 참여'],
+      pointsToImprove: [
+        { topic: '질문하기', suggestion: '더 많은 질문하기' },
+        { topic: '감정 표현', suggestion: '감정 표현 더하기' }
+      ]
     };
   }
 

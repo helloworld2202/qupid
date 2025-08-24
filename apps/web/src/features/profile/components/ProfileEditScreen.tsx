@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { UserProfile } from '@qupid/core';
 import { ChevronRightIcon } from '@qupid/ui';
+import { useUpdateProfile } from '../../../shared/hooks/useUpdateProfile';
+import { useUserStore } from '../../../shared/stores/userStore';
 
 interface ProfileEditScreenProps {
   userProfile: UserProfile;
@@ -10,6 +12,9 @@ interface ProfileEditScreenProps {
 }
 
 const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBack, onSave }) => {
+    const { user, setUser } = useUserStore();
+    const updateProfileMutation = useUpdateProfile();
+    
     // 기본값 설정
     const defaultProfile: UserProfile = {
         name: '사용자',
@@ -21,12 +26,20 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
         difficulty: 2
     };
     
-    const profile = userProfile || defaultProfile;
+    const profile = userProfile || user || defaultProfile;
     
     const [nickname, setNickname] = useState(profile.name);
+    const [experience, setExperience] = useState(profile.experience || '없음');
+    const [interests, setInterests] = useState<string[]>(profile.interests || []);
     const [showActionSheet, setShowActionSheet] = useState(false);
+    const [showExperienceModal, setShowExperienceModal] = useState(false);
+    const [showInterestModal, setShowInterestModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    
     const initialNickname = profile.name;
-    const hasChanges = nickname !== initialNickname;
+    const hasChanges = nickname !== initialNickname || 
+                      experience !== profile.experience || 
+                      JSON.stringify(interests) !== JSON.stringify(profile.interests);
     
     const initial = profile.name.charAt(0).toUpperCase();
 
@@ -36,16 +49,41 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
                 <button onClick={onBack} className="px-2 text-base font-medium text-[#191F28]">취소</button>
                 <h1 className="text-xl font-bold text-[#191F28]">프로필 편집</h1>
                 <button 
-                    onClick={() => {
-                        if (hasChanges && onSave) {
-                            onSave({ ...profile, name: nickname });
+                    onClick={async () => {
+                        if (hasChanges) {
+                            setIsLoading(true);
+                            try {
+                                const updates = {
+                                    name: nickname,
+                                    experience,
+                                    interests
+                                };
+                                
+                                if (user?.id && !user.isGuest) {
+                                    // 서버에 업데이트
+                                    const updatedProfile = await updateProfileMutation.mutateAsync({
+                                        userId: user.id,
+                                        updates
+                                    });
+                                    setUser(updatedProfile);
+                                } else if (onSave) {
+                                    // 게스트는 로컬만 업데이트
+                                    onSave({ ...profile, ...updates });
+                                }
+                            } catch (error) {
+                                console.error('Failed to update profile:', error);
+                            } finally {
+                                setIsLoading(false);
+                                onBack();
+                            }
+                        } else {
+                            onBack();
                         }
-                        onBack();
                     }}
-                    disabled={!hasChanges}
+                    disabled={!hasChanges || isLoading}
                     className="px-2 text-base font-bold disabled:text-[#D1D6DB] text-[#F093B0]"
                 >
-                    완료
+                    {isLoading ? '저장 중...' : '완료'}
                 </button>
             </header>
 
@@ -100,10 +138,13 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
                 <div className="mt-10">
                     <h3 className="text-lg font-bold">학습 정보</h3>
                     <div className="mt-4 space-y-4">
-                        <div className="flex justify-between items-center">
+                        <button 
+                            onClick={() => setShowExperienceModal(true)}
+                            className="flex justify-between items-center w-full"
+                        >
                             <p className="text-base font-medium">연애 경험</p>
-                            <p className="text-base font-medium text-[#8B95A1]">{profile.experience} <ChevronRightIcon className="inline w-4 h-4" /></p>
-                        </div>
+                            <p className="text-base font-medium text-[#8B95A1]">{experience} <ChevronRightIcon className="inline w-4 h-4" /></p>
+                        </button>
                         <div className="flex justify-between items-center">
                             <p className="text-base font-medium">학습 목표</p>
                             <p className="text-base font-medium text-[#8B95A1]">{profile.difficulty} <ChevronRightIcon className="inline w-4 h-4" /></p>
@@ -111,8 +152,8 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
                          <div className="flex flex-col items-start">
                             <p className="text-base font-medium">관심 분야</p>
                             <div className="mt-2 flex flex-wrap gap-2">
-                                {profile.interests && profile.interests.length > 0 ? (
-                                    profile.interests.map((interest: string) => (
+                                {interests && interests.length > 0 ? (
+                                    interests.map((interest: string) => (
                                         <span key={interest} className="px-3 py-1.5 bg-[#EBF2FF] text-[#4F7ABA] text-sm font-medium rounded-full">
                                             {interest.replace(/^(?:. )/, '#')}
                                         </span>
@@ -120,7 +161,12 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
                                 ) : (
                                     <span className="text-sm text-[#8B95A1]">관심사를 추가해주세요</span>
                                 )}
-                                <button className="px-3 py-1.5 bg-gray-200 text-gray-600 text-sm font-medium rounded-full">+</button>
+                                <button 
+                                    onClick={() => setShowInterestModal(true)}
+                                    className="px-3 py-1.5 bg-gray-200 text-gray-600 text-sm font-medium rounded-full"
+                                >
+                                    +
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -129,19 +175,107 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
             
              <footer className="p-4 bg-white border-t border-[#F2F4F6]">
                 <button
-                    onClick={() => {
-                        if (hasChanges && onSave) {
-                            onSave({ ...profile, name: nickname });
+                    onClick={async () => {
+                        if (hasChanges) {
+                            setIsLoading(true);
+                            try {
+                                const updates = {
+                                    name: nickname,
+                                    experience,
+                                    interests
+                                };
+                                
+                                if (user?.id && !user.isGuest) {
+                                    // 서버에 업데이트
+                                    const updatedProfile = await updateProfileMutation.mutateAsync({
+                                        userId: user.id,
+                                        updates
+                                    });
+                                    setUser(updatedProfile);
+                                } else if (onSave) {
+                                    // 게스트는 로컬만 업데이트
+                                    onSave({ ...profile, ...updates });
+                                }
+                            } catch (error) {
+                                console.error('Failed to update profile:', error);
+                            } finally {
+                                setIsLoading(false);
+                                onBack();
+                            }
+                        } else {
+                            onBack();
                         }
-                        onBack();
                     }}
-                    disabled={!hasChanges}
+                    disabled={!hasChanges || isLoading}
                     className="w-full h-14 text-white text-lg font-bold rounded-xl transition-colors duration-300 disabled:bg-[#D1D6DB]"
-                    style={{ backgroundColor: hasChanges ? '#F093B0' : '#D1D6DB' }}
+                    style={{ backgroundColor: hasChanges && !isLoading ? '#F093B0' : '#D1D6DB' }}
                 >
                     완료
                 </button>
             </footer>
+
+            {/* 연애 경험 선택 모달 */}
+            {showExperienceModal && (
+                <div className="absolute inset-0 bg-black/40 flex justify-center items-center animate-fade-in" onClick={() => setShowExperienceModal(false)}>
+                    <div className="w-[90%] max-w-sm bg-white rounded-2xl p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-bold text-center mb-4">연애 경험 선택</h3>
+                        <div className="space-y-2">
+                            {['없음', '1-2번', '3-5번', '5번 이상'].map(exp => (
+                                <button
+                                    key={exp}
+                                    onClick={() => {
+                                        setExperience(exp);
+                                        setShowExperienceModal(false);
+                                    }}
+                                    className={`w-full py-3 rounded-lg font-medium transition-colors ${
+                                        experience === exp 
+                                            ? 'bg-[#F093B0] text-white' 
+                                            : 'bg-[#F9FAFB] text-[#191F28] hover:bg-[#F2F4F6]'
+                                    }`}
+                                >
+                                    {exp}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 관심사 선택 모달 */}
+            {showInterestModal && (
+                <div className="absolute inset-0 bg-black/40 flex justify-center items-center animate-fade-in" onClick={() => setShowInterestModal(false)}>
+                    <div className="w-[90%] max-w-sm bg-white rounded-2xl p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-bold text-center mb-4">관심사 선택</h3>
+                        <div className="space-y-2">
+                            {['영화', '음악', '여행', '운동', '요리', '독서', '게임', '예술'].map(interest => (
+                                <button
+                                    key={interest}
+                                    onClick={() => {
+                                        if (interests.includes(interest)) {
+                                            setInterests(interests.filter(i => i !== interest));
+                                        } else {
+                                            setInterests([...interests, interest]);
+                                        }
+                                    }}
+                                    className={`w-full py-3 rounded-lg font-medium transition-colors ${
+                                        interests.includes(interest)
+                                            ? 'bg-[#F093B0] text-white' 
+                                            : 'bg-[#F9FAFB] text-[#191F28] hover:bg-[#F2F4F6]'
+                                    }`}
+                                >
+                                    {interest} {interests.includes(interest) && '✓'}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => setShowInterestModal(false)}
+                            className="w-full mt-4 py-3 bg-[#191F28] text-white rounded-lg font-bold"
+                        >
+                            완료
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Action Sheet Modal */}
             {showActionSheet && (

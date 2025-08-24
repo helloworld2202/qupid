@@ -106,6 +106,58 @@ export class ChatService {
     }
   }
 
+  async streamMessage(
+    sessionId: string,
+    userMessage: string,
+    onChunk: (chunk: string) => void
+  ): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (!session) {
+      throw AppError.notFound('Session');
+    }
+
+    try {
+      const messages = [
+        { role: 'system', content: session.systemInstruction || '' },
+        ...session.getMessages().map((msg: Message) => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.text
+        })),
+        { role: 'user', content: userMessage }
+      ] as ChatCompletionMessageParam[];
+
+      const stream = await openai.chat.completions.create({
+        model: defaultModel,
+        messages,
+        temperature: 0.7,
+        max_tokens: 500,
+        stream: true
+      });
+
+      let fullResponse = '';
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          fullResponse += content;
+          onChunk(content);
+        }
+      }
+
+      // 메시지 저장
+      const userMsg: Message = { sender: 'user', text: userMessage };
+      const aiMsg: Message = { sender: 'ai', text: fullResponse };
+      
+      session.addMessage(userMsg);
+      session.addMessage(aiMsg);
+      
+      // DB에 저장
+      await this.saveMessageToDb(sessionId, userMsg);
+      await this.saveMessageToDb(sessionId, aiMsg);
+    } catch (error) {
+      throw AppError.internal('Failed to stream message', error);
+    }
+  }
+
   async analyzeConversation(
     messages: Message[]
   ): Promise<ConversationAnalysis> {
@@ -277,8 +329,8 @@ export class ChatService {
     }
   }
 
-  // Get conversation history from database
-  async getConversationHistory(conversationId: string): Promise<Message[]> {
+  // Get conversation messages from database
+  async getConversationMessages(conversationId: string): Promise<Message[]> {
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -320,9 +372,9 @@ export class ChatService {
   }
 
   /**
-   * 사용자의 대화 히스토리 조회
+   * 사용자의 대화 목록 조회
    */
-  async getConversationHistory(
+  async getUserConversationHistory(
     userId: string,
     page: number = 1,
     limit: number = 20,
@@ -368,7 +420,7 @@ export class ChatService {
       if (error) throw error;
 
       // 데이터 포맷팅
-      const formattedHistory = conversations?.map(conv => ({
+      const formattedHistory = conversations?.map((conv: any) => ({
         id: conv.id,
         startedAt: conv.started_at,
         endedAt: conv.ended_at,
@@ -534,7 +586,7 @@ export class ChatService {
         .eq('user_id', userId);
 
       const averageScore = analysisData && analysisData.length > 0
-        ? Math.round(analysisData.reduce((sum, a) => sum + (a.total_score || 0), 0) / analysisData.length)
+        ? Math.round(analysisData.reduce((sum: number, a: any) => sum + (a.total_score || 0), 0) / analysisData.length)
         : 0;
 
       // 가장 많이 대화한 파트너 타입
@@ -544,7 +596,7 @@ export class ChatService {
         .eq('user_id', userId);
 
       const typeCounts: Record<string, number> = {};
-      partnerTypes?.forEach(conv => {
+      partnerTypes?.forEach((conv: any) => {
         typeCounts[conv.partner_type] = (typeCounts[conv.partner_type] || 0) + 1;
       });
 
@@ -605,7 +657,7 @@ export class ChatService {
         const nextDate = new Date(checkDate);
         nextDate.setDate(nextDate.getDate() + 1);
 
-        const hasConversation = conversations.some(conv => {
+        const hasConversation = conversations.some((conv: any) => {
           const convDate = new Date(conv.started_at);
           return convDate >= checkDate && convDate < nextDate;
         });
@@ -641,6 +693,15 @@ export class ChatService {
     }
 
     return data;
+  }
+
+  // End a chat session
+  async endSession(sessionId: string): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      // 세션 종료 처리
+      this.sessions.delete(sessionId);
+    }
   }
 
   // Cleanup old sessions periodically

@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { ChatService } from './app/ChatService.js';
-import { ChatSessionService } from './app/ChatSessionService.js';
 import { ConversationAnalyzer } from './app/ConversationAnalyzer.js';
 import { AppError } from '../../shared/errors/AppError.js';
 
 const chatService = new ChatService();
-const sessionService = new ChatSessionService();
+const sessionService = chatService; // ChatService를 세션 서비스로도 사용
 const analyzer = new ConversationAnalyzer();
 
 /**
@@ -18,13 +17,17 @@ export const createSession = async (
   next: NextFunction
 ) => {
   try {
-    const { personaId, systemInstruction } = req.body;
+    const { userId, personaId, systemInstruction } = req.body;
     
     if (!personaId) {
       throw AppError.badRequest('Persona ID is required');
     }
 
-    const sessionId = await sessionService.createSession(personaId, systemInstruction);
+    const sessionId = await chatService.createSession(
+      userId || 'guest_' + Date.now(), 
+      personaId, 
+      systemInstruction || ''
+    );
     
     res.json({
       ok: true,
@@ -91,7 +94,7 @@ export const streamMessage = async (
     });
 
     // Stream the response
-    await sessionService.streamMessage(
+    await chatService.streamMessage(
       sessionId,
       message,
       (chunk: string) => {
@@ -231,7 +234,7 @@ export const endConversation = async (
     const { sessionId } = req.params;
     
     // End the session
-    await sessionService.endSession(sessionId);
+    await chatService.endSession(sessionId);
     
     res.json({
       ok: true,
@@ -287,7 +290,7 @@ export const getConversationHistory = async (
     const { userId } = req.params;
     const { page = 1, limit = 20, filter } = req.query;
     
-    const history = await chatService.getConversationHistory(
+    const history = await chatService.getUserConversationHistory(
       userId,
       Number(page),
       Number(limit),
