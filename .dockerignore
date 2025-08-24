@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Node
+**/node_modules
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+**/dist
+**/.turbo
+**/tsconfig.tsbuildinfo
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+
+# Test coverage
+coverage
+.nyc_output
+
+# Frontend build (we only need API for Docker)
+apps/web/dist
+
+# Docs
+docs
+README.md
+*.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
