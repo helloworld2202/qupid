@@ -14,7 +14,7 @@ interface ChatTabScreenProps {
 const PersonaCard: React.FC<{ persona: Persona; onSelect: () => void; }> = ({ persona, onSelect }) => {
   return (
     <div 
-        className="w-full p-4 flex bg-white rounded-2xl border border-[#F2F4F6] transition-transform hover:-translate-y-0.5 cursor-pointer"
+        className="w-full p-4 flex bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-md hover:border-[#F093B0] cursor-pointer"
         onClick={onSelect}
     >
       <img src={persona.avatar} alt={persona.name} className="w-20 h-20 rounded-xl object-cover" />
@@ -89,7 +89,7 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
     if (userProfile.experience === '없음' || userProfile.experience === '1-2회') {
       considerations.push('연애 초보자를 위한 친근한 성격');
     }
-    if (userProfile.interests.length > 0) {
+    if (userProfile.interests && userProfile.interests.length > 0) {
       considerations.push(`${userProfile.interests[0].replace(/🎮|🎬|💪|✈️|🍕|📚|🎵|🎨|📱|🐕|☕|📷|🏖️|🎪|💼\s/g, '')} 등 공통 관심사 보유`);
     }
     return considerations;

@@ -62,9 +62,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
       { title: '공감력', emoji: '💬', score: 58, change: 3, goal: 70 },
     ]
   } as PerformanceData;
-  const recentBadge = badges.find(b => b.featured);
+  const recentBadge = badges && badges.length > 0 ? badges.find(b => b.featured) : undefined;
   const partnerGender = userProfile.user_gender === 'female' ? 'male' : 'female';
-  const recommendedPersonas = personas.filter(p => p.gender === partnerGender).slice(0, 5);
+  const recommendedPersonas = personas && personas.length > 0 
+    ? personas.filter(p => p.gender === partnerGender).slice(0, 5) 
+    : [];
   
   // 로딩 상태 처리
   if (isLoadingPersonas || isLoadingBadges) {

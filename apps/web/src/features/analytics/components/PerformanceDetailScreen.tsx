@@ -128,7 +128,7 @@ const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBac
         </section>
 
         <section className="space-y-3">
-             {data.categoryScores.map(cat => (
+             {data.categoryScores && data.categoryScores.length > 0 && data.categoryScores.map(cat => (
                 <div key={cat.title} className="p-4 bg-white rounded-xl border border-[#F2F4F6]">
                     <div className="flex items-center">
                         <p className="text-2xl mr-3">{cat.emoji}</p>

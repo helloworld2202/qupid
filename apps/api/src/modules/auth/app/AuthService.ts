@@ -24,16 +24,15 @@ export class AuthService {
    * 회원가입
    */
   async signup(data: SignupData): Promise<AuthResponse> {
-    // 1. Supabase Auth에 사용자 생성
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    // 1. Admin API를 사용하여 사용자 생성 (이메일 확인 건너뛰기)
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: data.email,
       password: data.password,
-      options: {
-        data: {
-          name: data.name,
-          user_gender: data.user_gender,
-          partner_gender: data.partner_gender
-        }
+      email_confirm: true, // 이메일 자동 확인
+      user_metadata: {
+        name: data.name,
+        user_gender: data.user_gender,
+        partner_gender: data.partner_gender
       }
     });
 
@@ -68,9 +67,15 @@ export class AuthService {
       // 나중에 프로필을 다시 생성할 수 있도록 Auth 사용자는 유지
     }
 
+    // 3. 자동 로그인을 위해 세션 생성
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password
+    });
+
     return {
       user: authData.user,
-      session: authData.session,
+      session: loginData?.session || null,
       profile: profile || undefined
     };
   }

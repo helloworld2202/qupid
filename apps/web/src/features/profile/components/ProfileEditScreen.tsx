@@ -6,15 +6,29 @@ import { ChevronRightIcon } from '@qupid/ui';
 interface ProfileEditScreenProps {
   userProfile: UserProfile;
   onBack: () => void;
+  onSave?: (profile: UserProfile) => void;
 }
 
-const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBack }) => {
-    const [nickname, setNickname] = useState(userProfile.name);
+const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBack, onSave }) => {
+    // 기본값 설정
+    const defaultProfile: UserProfile = {
+        name: '사용자',
+        user_gender: 'male',
+        partner_gender: 'female',
+        interests: [],
+        experience: '없음',
+        confidence: 3,
+        difficulty: 2
+    };
+    
+    const profile = userProfile || defaultProfile;
+    
+    const [nickname, setNickname] = useState(profile.name);
     const [showActionSheet, setShowActionSheet] = useState(false);
-    const initialNickname = userProfile.name;
+    const initialNickname = profile.name;
     const hasChanges = nickname !== initialNickname;
     
-    const initial = userProfile.name.charAt(0).toUpperCase();
+    const initial = profile.name.charAt(0).toUpperCase();
 
     return (
         <div className="flex flex-col h-full w-full bg-white">
@@ -22,7 +36,12 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
                 <button onClick={onBack} className="px-2 text-base font-medium text-[#191F28]">취소</button>
                 <h1 className="text-xl font-bold text-[#191F28]">프로필 편집</h1>
                 <button 
-                    onClick={onBack} 
+                    onClick={() => {
+                        if (hasChanges && onSave) {
+                            onSave({ ...profile, name: nickname });
+                        }
+                        onBack();
+                    }}
                     disabled={!hasChanges}
                     className="px-2 text-base font-bold disabled:text-[#D1D6DB] text-[#F093B0]"
                 >
@@ -83,20 +102,24 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
                     <div className="mt-4 space-y-4">
                         <div className="flex justify-between items-center">
                             <p className="text-base font-medium">연애 경험</p>
-                            <p className="text-base font-medium text-[#8B95A1]">{userProfile.experience} <ChevronRightIcon className="inline w-4 h-4" /></p>
+                            <p className="text-base font-medium text-[#8B95A1]">{profile.experience} <ChevronRightIcon className="inline w-4 h-4" /></p>
                         </div>
                         <div className="flex justify-between items-center">
                             <p className="text-base font-medium">학습 목표</p>
-                            <p className="text-base font-medium text-[#8B95A1]">{userProfile.difficulty} <ChevronRightIcon className="inline w-4 h-4" /></p>
+                            <p className="text-base font-medium text-[#8B95A1]">{profile.difficulty} <ChevronRightIcon className="inline w-4 h-4" /></p>
                         </div>
                          <div className="flex flex-col items-start">
                             <p className="text-base font-medium">관심 분야</p>
                             <div className="mt-2 flex flex-wrap gap-2">
-                                {userProfile.interests.map(interest => (
-                                    <span key={interest} className="px-3 py-1.5 bg-[#EBF2FF] text-[#4F7ABA] text-sm font-medium rounded-full">
-                                        {interest.replace(/^(?:. )/, '#')}
-                                    </span>
-                                ))}
+                                {profile.interests && profile.interests.length > 0 ? (
+                                    profile.interests.map(interest => (
+                                        <span key={interest} className="px-3 py-1.5 bg-[#EBF2FF] text-[#4F7ABA] text-sm font-medium rounded-full">
+                                            {interest.replace(/^(?:. )/, '#')}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className="text-sm text-[#8B95A1]">관심사를 추가해주세요</span>
+                                )}
                                 <button className="px-3 py-1.5 bg-gray-200 text-gray-600 text-sm font-medium rounded-full">+</button>
                             </div>
                         </div>
@@ -106,7 +129,12 @@ const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ userProfile, onBa
             
              <footer className="p-4 bg-white border-t border-[#F2F4F6]">
                 <button
-                    onClick={onBack}
+                    onClick={() => {
+                        if (hasChanges && onSave) {
+                            onSave({ ...profile, name: nickname });
+                        }
+                        onBack();
+                    }}
                     disabled={!hasChanges}
                     className="w-full h-14 text-white text-lg font-bold rounded-xl transition-colors duration-300 disabled:bg-[#D1D6DB]"
                     style={{ backgroundColor: hasChanges ? '#F093B0' : '#D1D6DB' }}

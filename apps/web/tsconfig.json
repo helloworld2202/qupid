@@ -2,6 +2,7 @@
   "extends": "../../packages/config/tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "types": ["vite/client"],
     "paths": {
       "@/*": ["./src/*"],
       "@qupid/core": ["../../packages/core/src"],
@@ -9,7 +10,7 @@
       "@qupid/config": ["../../packages/config"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "vite-env.d.ts"],
   "references": [
     { "path": "../../packages/core" },
     { "path": "../../packages/ui" }

@@ -9,7 +9,10 @@ interface MyTabScreenProps {
 
 const TossToggle: React.FC<{ value: boolean; onToggle: () => void; }> = ({ value, onToggle }) => (
     <button
-        onClick={onToggle}
+        onClick={(e) => {
+            e.stopPropagation();
+            onToggle();
+        }}
         className={`relative inline-flex items-center h-[30px] w-[50px] rounded-full transition-colors duration-300 ease-in-out focus:outline-none`}
         style={{ backgroundColor: value ? 'var(--primary-pink-main)' : '#E5E8EB' }}
     >
@@ -28,20 +31,28 @@ const SettingItem: React.FC<{
   rightComponent: React.ReactNode;
   onClick?: () => void;
   dangerous?: boolean;
-}> = ({ icon, title, subtitle, rightComponent, onClick, dangerous = false }) => (
-    <button onClick={onClick} className="flex items-center w-full h-[56px] px-5 bg-white">
-        <div className="flex items-center flex-1">
-            <span className="text-2xl w-6 text-center">{icon}</span>
-            <div className="ml-4 text-left">
-                <p className={`text-base font-medium ${dangerous ? 'text-[var(--warning-orange)]' : 'text-[#191F28]'}`}>{title}</p>
-                {subtitle && <p className="text-xs text-[#8B95A1]">{subtitle}</p>}
+}> = ({ icon, title, subtitle, rightComponent, onClick, dangerous = false }) => {
+    const isClickable = !!onClick;
+    const Component = isClickable ? 'button' : 'div';
+    
+    return (
+        <Component 
+            onClick={onClick} 
+            className={`flex items-center w-full h-[56px] px-5 bg-white ${isClickable ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+        >
+            <div className="flex items-center flex-1">
+                <span className="text-2xl w-6 text-center">{icon}</span>
+                <div className="ml-4 text-left">
+                    <p className={`text-base font-medium ${dangerous ? 'text-[var(--warning-orange)]' : 'text-[#191F28]'}`}>{title}</p>
+                    {subtitle && <p className="text-xs text-[#8B95A1]">{subtitle}</p>}
+                </div>
             </div>
-        </div>
-        <div className="flex items-center space-x-2 text-[#8B95A1]">
-            {rightComponent}
-        </div>
-    </button>
-);
+            <div className="flex items-center space-x-2 text-[#8B95A1]">
+                {rightComponent}
+            </div>
+        </Component>
+    );
+};
 
 const SectionContainer: React.FC<{ title?: string, children: React.ReactNode, className?: string }> = ({ title, children, className }) => (
     <div className={`mt-4 ${className}`}>

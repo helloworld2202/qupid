@@ -13,7 +13,7 @@ interface PersonaSelectionProps {
 const PersonaCard: React.FC<{ persona: Persona; onSelect: () => void; }> = ({ persona, onSelect }) => {
   return (
     <div 
-        className="w-full p-5 flex flex-col bg-white rounded-2xl border border-[#F2F4F6] shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-transform hover:-translate-y-1 cursor-pointer"
+        className="w-full p-5 flex flex-col bg-white rounded-2xl border border-[#F2F4F6] shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:shadow-lg hover:border-[#F093B0] cursor-pointer"
         onClick={onSelect}
     >
       <div className="flex items-start flex-grow">

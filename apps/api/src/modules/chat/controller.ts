@@ -1,10 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { ChatService } from './app/ChatService.js';
+import { ChatServiceStreaming } from './app/ChatServiceStreaming.js';
+import { ConversationAnalyzer } from './app/ConversationAnalyzer.js';
 import { AuthenticatedRequest } from '../../shared/middleware/authenticate.js';
 import { Message } from '@qupid/core';
 
 const chatService = new ChatService();
+const streamingService = new ChatServiceStreaming();
+const analyzer = new ConversationAnalyzer();
 
 // Validation schemas
 const createSessionSchema = z.object({
@@ -44,7 +48,8 @@ export const createSession = async (
 ) => {
   try {
     const { personaId, systemInstruction } = createSessionSchema.parse(req.body);
-    const userId = req.user?.id || 'anonymous';
+    // 테스트용 사용자 ID (실제로는 인증된 사용자 ID 사용)
+    const userId = req.user?.id || 'a6d4ac3f-b8cf-41eb-b744-0279b12ea192';
     
     const sessionId = await chatService.createSession(
       userId,
@@ -87,6 +92,7 @@ export const analyzeConversation = async (
   next: NextFunction
 ) => {
   try {
+    const { sessionId } = req.params;
     const { messages } = analyzeConversationSchema.parse(req.body);
     
     const analysis = await chatService.analyzeConversation(
@@ -95,6 +101,11 @@ export const analyzeConversation = async (
         timestamp: m.timestamp ? new Date(m.timestamp) : undefined
       })) as Message[]
     );
+    
+    // Save analysis to database if sessionId is provided
+    if (sessionId) {
+      await chatService.saveConversationAnalysis(sessionId, analysis);
+    }
     
     res.json({
       ok: true,
@@ -177,6 +188,68 @@ export const getSessionInfo = async (
         personaId: session.personaId,
         messageCount: session.getMessageCount(),
         messages: session.getMessages()
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Streaming message endpoint
+const streamMessageSchema = z.object({
+  message: z.string().min(1).max(1000),
+  systemInstruction: z.string(),
+  previousMessages: z.array(z.object({
+    role: z.enum(['user', 'assistant']),
+    content: z.string()
+  })).optional().default([])
+});
+
+export const streamMessage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sessionId } = req.params;
+    const { message, systemInstruction, previousMessages } = streamMessageSchema.parse(req.body);
+    
+    // Stream response
+    await streamingService.streamMessage(
+      sessionId,
+      message,
+      systemInstruction,
+      previousMessages,
+      res
+    );
+  } catch (error) {
+    // Error handling is done inside streamMessage
+    if (!res.headersSent) {
+      next(error);
+    }
+  }
+};
+
+// End conversation and trigger analysis
+export const endConversation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sessionId } = req.params;
+    
+    // Trigger automatic analysis
+    await analyzer.analyzeAndSave(sessionId);
+    
+    // Get the analysis result
+    const analysis = await chatService.getConversationAnalysis(sessionId);
+    
+    res.json({
+      ok: true,
+      data: {
+        message: 'Conversation ended and analyzed',
+        analysis
       }
     });
   } catch (error) {

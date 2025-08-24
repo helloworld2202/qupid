@@ -261,6 +261,7 @@ const AppContent: React.FC = () => {
       case Screen.ProfileEdit:
         return (
           <ProfileEditScreen
+            userProfile={user}
             onBack={() => navigateTo('MY_TAB')}
             onSave={(profile) => {
               setUser(profile);

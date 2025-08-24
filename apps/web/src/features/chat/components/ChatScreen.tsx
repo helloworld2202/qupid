@@ -138,7 +138,11 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                 { sender: 'system', text: 'COACH_HINT_INTRO' }
             );
         }
-        initialMessages.push({ sender: 'ai', text: partner.conversation_preview[0]?.text || `안녕하세요! 처음 뵙네요 😊 반갑습니다!` });
+        // conversation_preview가 없거나 비어있는 경우 처리
+        const firstMessage = partner.conversation_preview && partner.conversation_preview.length > 0
+          ? partner.conversation_preview[0].text
+          : `안녕하세요! 처음 뵙네요 😊 반갑습니다!`;
+        initialMessages.push({ sender: 'ai', text: firstMessage });
     }
 
     setMessages(initialMessages);

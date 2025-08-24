@@ -3,6 +3,7 @@ import { AppError } from '../../../shared/errors/AppError.js';
 import { ChatSession } from '../domain/ChatSession.js';
 import { Message, ConversationAnalysis, RealtimeFeedback } from '@qupid/core';
 import type { ChatCompletionMessageParam } from 'openai/resources/index.js';
+import { supabase } from '../../../config/supabase.js';
 
 export class ChatService {
   private sessions = new Map<string, ChatSession>();
@@ -12,7 +13,28 @@ export class ChatService {
     personaId: string,
     systemInstruction: string
   ): Promise<string> {
-    const sessionId = this.generateSessionId();
+    // Create conversation in database
+    const { data: conversation, error } = await supabase
+      .from('conversations')
+      .insert({
+        user_id: userId,
+        partner_type: 'persona',
+        partner_id: personaId,
+        started_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Failed to create conversation:', error);
+      throw AppError.internal(`Failed to create conversation: ${error.message}`);
+    }
+    
+    if (!conversation) {
+      throw AppError.internal('Failed to create conversation: No data returned');
+    }
+
+    const sessionId = conversation.id;
     const session = new ChatSession(
       sessionId,
       userId,
@@ -33,12 +55,16 @@ export class ChatService {
       throw AppError.notFound('Chat session');
     }
 
-    // Add user message
-    session.addMessage({
-      sender: 'user',
+    // Add user message to session
+    const userMessage = {
+      sender: 'user' as const,
       text: message,
       timestamp: new Date()
-    });
+    };
+    session.addMessage(userMessage);
+
+    // Save user message to database
+    await this.saveMessageToDb(sessionId, userMessage);
 
     // Prepare messages for OpenAI
     const messages: ChatCompletionMessageParam[] = [
@@ -62,12 +88,16 @@ export class ChatService {
 
       const aiResponse = response.choices[0]?.message?.content || '응답을 생성할 수 없습니다.';
       
-      // Add AI response
-      session.addMessage({
-        sender: 'ai',
+      // Add AI response to session
+      const aiMessage = {
+        sender: 'ai' as const,
         text: aiResponse,
         timestamp: new Date()
-      });
+      };
+      session.addMessage(aiMessage);
+
+      // Save AI message to database
+      await this.saveMessageToDb(sessionId, aiMessage);
 
       return aiResponse;
     } catch (error) {
@@ -227,6 +257,83 @@ export class ChatService {
 
   private generateSessionId(): string {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  }
+
+  // Save message to database
+  private async saveMessageToDb(conversationId: string, message: Message): Promise<void> {
+    const { error } = await supabase
+      .from('messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_type: message.sender === 'user' ? 'user' : 'ai',
+        content: message.text,
+        timestamp: message.timestamp?.toISOString() || new Date().toISOString()
+      });
+
+    if (error) {
+      console.error('Failed to save message:', error);
+      // Don't throw - continue chat even if save fails
+    }
+  }
+
+  // Get conversation history from database
+  async getConversationHistory(conversationId: string): Promise<Message[]> {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .order('timestamp', { ascending: true });
+
+    if (error) {
+      console.error('Failed to load conversation history:', error);
+      return [];
+    }
+
+    return data?.map(msg => ({
+      sender: msg.sender_type as 'user' | 'ai',
+      text: msg.content,
+      timestamp: new Date(msg.timestamp)
+    })) || [];
+  }
+
+  // Save conversation analysis to database
+  async saveConversationAnalysis(
+    conversationId: string,
+    analysis: ConversationAnalysis
+  ): Promise<void> {
+    const { error } = await supabase
+      .from('conversation_analysis')
+      .insert({
+        conversation_id: conversationId,
+        total_score: analysis.totalScore,
+        friendliness_score: analysis.friendliness.score,
+        curiosity_score: analysis.curiosity.score,
+        empathy_score: analysis.empathy.score,
+        feedback: analysis.feedback,
+        analyzed_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error('Failed to save analysis:', error);
+    }
+  }
+
+  // Get conversation analysis from database
+  async getConversationAnalysis(conversationId: string): Promise<any> {
+    const { data, error } = await supabase
+      .from('conversation_analysis')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .order('analyzed_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      console.error('Failed to get analysis:', error);
+      return null;
+    }
+
+    return data;
   }
 
   // Cleanup old sessions periodically

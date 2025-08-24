@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Tab, Screen } from '@qupid/core';
 
 interface BottomNavBarProps {
   activeTab: string;
@@ -23,7 +22,7 @@ const NavItem: React.FC<{
   const inactiveColor = 'var(--text-secondary)';
 
   return (
-    <button onClick={onClick} className="flex-1 flex flex-col items-center justify-center p-2 transition-transform duration-200 ease-out hover:scale-105">
+    <button onClick={onClick} className="flex-1 flex flex-col items-center justify-center p-2 transition-opacity duration-200 ease-out hover:opacity-80">
       <div className="relative">
         <span className="text-2xl" style={{ color: isActive ? activeColor : inactiveColor }}>
           {icon}

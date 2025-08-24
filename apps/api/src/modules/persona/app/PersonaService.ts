@@ -11,17 +11,22 @@ export class PersonaService {
     return dbPersonas.map(p => ({
       id: p.id,
       name: p.name,
-      gender: p.gender as 'male' | 'female',
       age: p.age,
+      gender: p.gender as 'male' | 'female',
+      job: p.occupation,
       mbti: p.mbti,
-      personality: p.personality,
-      occupation: p.occupation,
-      bio: p.bio,
-      interests: p.interests,
       avatar: p.avatar,
+      intro: p.bio,
+      tags: p.tags,
       match_rate: p.match_rate,
-      difficulty: p.difficulty,
-      tags: p.tags
+      system_instruction: p.personality,
+      personality_traits: p.tags, // 임시로 tags 사용
+      interests: p.interests.map((interest: string) => ({
+        emoji: '✨',
+        topic: interest,
+        description: interest
+      })),
+      conversation_preview: [] // 빈 배열로 초기화
     }));
   }
 
@@ -38,17 +43,22 @@ export class PersonaService {
     return {
       id: dbPersona.id,
       name: dbPersona.name,
-      gender: dbPersona.gender as 'male' | 'female',
       age: dbPersona.age,
+      gender: dbPersona.gender as 'male' | 'female',
+      job: dbPersona.occupation,
       mbti: dbPersona.mbti,
-      personality: dbPersona.personality,
-      occupation: dbPersona.occupation,
-      bio: dbPersona.bio,
-      interests: dbPersona.interests,
       avatar: dbPersona.avatar,
+      intro: dbPersona.bio,
+      tags: dbPersona.tags,
       match_rate: dbPersona.match_rate,
-      difficulty: dbPersona.difficulty,
-      tags: dbPersona.tags
+      system_instruction: dbPersona.personality,
+      personality_traits: dbPersona.tags,
+      interests: dbPersona.interests.map((interest: string) => ({
+        emoji: '✨',
+        topic: interest,
+        description: interest
+      })),
+      conversation_preview: []
     };
   }
 

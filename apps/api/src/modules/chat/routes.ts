@@ -24,6 +24,17 @@ router.post(
   controller.sendMessage
 );
 
+// Stream a message response (SSE)
+router.post(
+  '/sessions/:sessionId/stream',
+  requestValidator({
+    params: z.object({
+      sessionId: z.string()
+    })
+  }),
+  controller.streamMessage
+);
+
 // Get session information
 router.get(
   '/sessions/:sessionId',
@@ -35,9 +46,31 @@ router.get(
   controller.getSessionInfo
 );
 
+// End conversation and trigger analysis
+router.post(
+  '/sessions/:sessionId/end',
+  requestValidator({
+    params: z.object({
+      sessionId: z.string()
+    })
+  }),
+  controller.endConversation
+);
+
 // Analyze conversation
 router.post(
   '/analyze',
+  controller.analyzeConversation
+);
+
+// Analyze conversation with session ID (saves to database)
+router.post(
+  '/sessions/:sessionId/analyze',
+  requestValidator({
+    params: z.object({
+      sessionId: z.string()
+    })
+  }),
   controller.analyzeConversation
 );
 

@@ -33,11 +33,13 @@ const BadgesScreen: React.FC<BadgesScreenProps> = ({ badges, onBack }) => {
   const [activeTab, setActiveTab] = useState<Category>('전체');
   
   const tabs: Category[] = ['전체', '대화', '성장', '특별'];
-  const featuredBadge = badges.find(b => b.featured && b.acquired);
+  const featuredBadge = badges && badges.length > 0 
+    ? badges.find(b => b.featured && b.acquired) 
+    : undefined;
 
-  const filteredBadges = activeTab === '전체' 
-    ? badges 
-    : badges.filter(b => b.category === activeTab);
+  const filteredBadges = badges && badges.length > 0 
+    ? (activeTab === '전체' ? badges : badges.filter(b => b.category === activeTab))
+    : [];
 
   return (
     <div className="flex flex-col h-full w-full bg-[#F9FAFB]">
