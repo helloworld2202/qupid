@@ -31,9 +31,7 @@ INSERT INTO auth.users (
     '{"name": "테스트 사용자"}'::jsonb,
     'authenticated',
     'authenticated'
-) ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email,
-    raw_user_meta_data = EXCLUDED.raw_user_meta_data;
+) ON CONFLICT (id) DO NOTHING;
 
 -- 테스트 사용자 2
 INSERT INTO auth.users (
@@ -58,9 +56,7 @@ INSERT INTO auth.users (
     '{"name": "테스트 사용자2"}'::jsonb,
     'authenticated',
     'authenticated'
-) ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email,
-    raw_user_meta_data = EXCLUDED.raw_user_meta_data;
+) ON CONFLICT (id) DO NOTHING;
 
 -- 테스트 사용자 3 (튜토리얼 미완료)
 INSERT INTO auth.users (
@@ -85,9 +81,7 @@ INSERT INTO auth.users (
     '{"name": "튜토리얼 테스트"}'::jsonb,
     'authenticated',
     'authenticated'
-) ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email,
-    raw_user_meta_data = EXCLUDED.raw_user_meta_data;
+) ON CONFLICT (id) DO NOTHING;
 
 -- =====================================================
 -- 이후 기존 seed-data.sql 내용과 동일
