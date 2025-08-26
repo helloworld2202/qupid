@@ -97,10 +97,16 @@ const mockPartner: Persona = {
   avatar: '/avatar.jpg',
   job: 'Designer',
   intro: 'Hi! I love design.',
-  interests: ['design', 'art'],
-  characteristics: ['creative', 'friendly'],
+  interests: [
+    { emoji: '🎨', topic: 'design', description: 'Design enthusiast' },
+    { emoji: '🖼️', topic: 'art', description: 'Art lover' }
+  ],
   conversation_preview: [{ sender: 'ai', text: 'Nice to meet you!' }],
-  system_instruction: 'Be friendly'
+  system_instruction: 'Be friendly',
+  tags: ['creative', 'friendly'],
+  match_rate: 85,
+  mbti: 'ENFJ',
+  personality_traits: ['creative', 'friendly']
 };
 
 describe('ChatScreen', () => {
@@ -123,7 +129,7 @@ describe('ChatScreen', () => {
         <ChatScreen
           partner={mockPartner}
           onComplete={mockOnComplete}
-          isTutorialMode={false}
+          isTutorial={false}
           {...props}
         />
       </QueryClientProvider>
