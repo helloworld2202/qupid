@@ -9,7 +9,10 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "clean": "rm -rf dist node_modules .turbo"
+    "clean": "rm -rf dist node_modules .turbo",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
   },
   "dependencies": {
     "@qupid/core": "workspace:*",
@@ -28,8 +31,13 @@
     "@qupid/config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.14.0",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.0.5",
     "pino-pretty": "^13.1.1",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.1",
     "tsx": "^4.20.0",
     "typescript": "~5.8.2"
   }
