@@ -21,6 +21,7 @@ export class ChatService {
         user_id: userId,
         partner_type: 'persona',
         partner_id: personaId,
+        system_instruction: systemInstruction,
         started_at: new Date().toISOString()
       })
       .select()
@@ -51,9 +52,47 @@ export class ChatService {
     sessionId: string,
     message: string
   ): Promise<string> {
-    const session = this.sessions.get(sessionId);
+    let session = this.sessions.get(sessionId);
+    
+    // If session not in memory, try to load from DB
     if (!session) {
-      throw AppError.notFound('Chat session');
+      const { data: conversation, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('id', sessionId)
+        .single();
+
+      if (error || !conversation) {
+        throw AppError.notFound('Chat session');
+      }
+
+      // Recreate session from DB
+      const systemInstruction = conversation.system_instruction || 'Be a helpful AI assistant';
+      session = new ChatSession(
+        sessionId,
+        conversation.user_id,
+        conversation.partner_id,
+        systemInstruction
+      );
+      
+      // Load previous messages
+      const { data: messages } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', sessionId)
+        .order('timestamp', { ascending: true });
+
+      if (messages) {
+        messages.forEach(msg => {
+          session!.addMessage({
+            sender: msg.sender_type as 'user' | 'ai',
+            text: msg.content,
+            timestamp: new Date(msg.timestamp).getTime()
+          });
+        });
+      }
+
+      this.sessions.set(sessionId, session);
     }
 
     // Add user message to session
