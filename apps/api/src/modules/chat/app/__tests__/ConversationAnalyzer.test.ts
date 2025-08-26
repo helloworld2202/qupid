@@ -1,6 +1,6 @@
-import { ConversationAnalyzer } from '../ConversationAnalyzer';
+import { ConversationAnalyzer } from '../ConversationAnalyzer.js';
 import { Message } from '@qupid/core';
-import { openai } from '../../../../shared/infra/openai';
+import { openai } from '../../../../shared/infra/openai.js';
 
 // Mock dependencies
 jest.mock('../../../../shared/infra/openai');

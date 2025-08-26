@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
-import chatRoutes from '../../modules/chat/routes';
-import { errorHandler } from '../../shared/middleware/errorHandler';
+import chatRoutes from '../../modules/chat/routes.js';
+import { errorHandler } from '../../shared/middleware/errorHandler.js';
 
 // Mock dependencies
 jest.mock('../../modules/chat/app/ChatService', () => ({

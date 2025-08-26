@@ -1,5 +1,5 @@
-import { ChatService } from '../ChatService';
-import { ConversationAnalyzer } from '../ConversationAnalyzer';
+import { ChatService } from '../ChatService.js';
+import { ConversationAnalyzer } from '../ConversationAnalyzer.js';
 
 // Mock dependencies before importing
 jest.mock('../../../../shared/infra/openai');
@@ -149,7 +149,7 @@ describe('ChatService', () => {
 
   describe('analyzeConversationStyle', () => {
     it('should analyze conversation style with sufficient messages', async () => {
-      const mockMessages = [
+      const mockMessages: any[] = [
         { sender: 'user', text: 'Hello', timestamp: Date.now() },
         { sender: 'ai', text: 'Hi there!', timestamp: Date.now() },
         { sender: 'user', text: 'How are you?', timestamp: Date.now() },
@@ -189,7 +189,7 @@ describe('ChatService', () => {
     });
 
     it('should return default analysis with insufficient messages', async () => {
-      const mockMessages = [
+      const mockMessages: any[] = [
         { sender: 'user', text: 'Hello', timestamp: Date.now() }
       ];
 

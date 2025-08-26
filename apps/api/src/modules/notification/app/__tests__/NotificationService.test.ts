@@ -1,4 +1,4 @@
-import { NotificationService } from '../NotificationService';
+import { NotificationService } from '../NotificationService.js';
 
 // Mock Supabase before importing
 jest.mock('../../../../config/supabase');

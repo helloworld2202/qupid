@@ -1,5 +1,5 @@
-import { AuthService } from '../AuthService';
-import { AppError } from '../../../../shared/errors/AppError';
+import { AuthService } from '../AuthService.js';
+import { AppError } from '../../../../shared/errors/AppError.js';
 
 // Mock Supabase before importing
 jest.mock('../../../../shared/infra/supabase');
@@ -206,7 +206,8 @@ describe('AuthService', () => {
 
       const result = await authService.getSession();
 
-      expect(result.user.id).toBe('user-123');
+      expect(result).not.toBeNull();
+      expect(result?.user.id).toBe('user-123');
       expect(mockSupabase.auth.getSession).toHaveBeenCalled();
     });
 
