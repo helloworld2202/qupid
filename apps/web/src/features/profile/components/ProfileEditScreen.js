@@ -1,7 +1,11 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from 'react';
 import { ChevronRightIcon } from '@qupid/ui';
+import { useUpdateProfile } from '../../../shared/hooks/useUpdateProfile';
+import { useUserStore } from '../../../shared/stores/userStore';
 const ProfileEditScreen = ({ userProfile, onBack, onSave }) => {
+    const { user, setUser } = useUserStore();
+    const updateProfileMutation = useUpdateProfile();
     // 기본값 설정
     const defaultProfile = {
         name: '사용자',
@@ -12,23 +16,100 @@ const ProfileEditScreen = ({ userProfile, onBack, onSave }) => {
         confidence: 3,
         difficulty: 2
     };
-    const profile = userProfile || defaultProfile;
+    const profile = userProfile || user || defaultProfile;
     const [nickname, setNickname] = useState(profile.name);
+    const [experience, setExperience] = useState(profile.experience || '없음');
+    const [interests, setInterests] = useState(profile.interests || []);
     const [showActionSheet, setShowActionSheet] = useState(false);
+    const [showExperienceModal, setShowExperienceModal] = useState(false);
+    const [showInterestModal, setShowInterestModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const initialNickname = profile.name;
-    const hasChanges = nickname !== initialNickname;
+    const hasChanges = nickname !== initialNickname ||
+        experience !== profile.experience ||
+        JSON.stringify(interests) !== JSON.stringify(profile.interests);
     const initial = profile.name.charAt(0).toUpperCase();
-    return (_jsxs("div", { className: "flex flex-col h-full w-full bg-white", children: [_jsxs("header", { className: "flex-shrink-0 flex items-center justify-between p-3 border-b border-[#F2F4F6]", children: [_jsx("button", { onClick: onBack, className: "px-2 text-base font-medium text-[#191F28]", children: "\uCDE8\uC18C" }), _jsx("h1", { className: "text-xl font-bold text-[#191F28]", children: "\uD504\uB85C\uD544 \uD3B8\uC9D1" }), _jsx("button", { onClick: () => {
-                            if (hasChanges && onSave) {
-                                onSave({ ...profile, name: nickname });
+    return (_jsxs("div", { className: "flex flex-col h-full w-full bg-white", children: [_jsxs("header", { className: "flex-shrink-0 flex items-center justify-between p-3 border-b border-[#F2F4F6]", children: [_jsx("button", { onClick: onBack, className: "px-2 text-base font-medium text-[#191F28]", children: "\uCDE8\uC18C" }), _jsx("h1", { className: "text-xl font-bold text-[#191F28]", children: "\uD504\uB85C\uD544 \uD3B8\uC9D1" }), _jsx("button", { onClick: async () => {
+                            if (hasChanges) {
+                                setIsLoading(true);
+                                try {
+                                    const updates = {
+                                        name: nickname,
+                                        experience,
+                                        interests
+                                    };
+                                    if (user?.id && !user.isGuest) {
+                                        // 서버에 업데이트
+                                        const updatedProfile = await updateProfileMutation.mutateAsync({
+                                            userId: user.id,
+                                            updates
+                                        });
+                                        setUser(updatedProfile);
+                                    }
+                                    else if (onSave) {
+                                        // 게스트는 로컬만 업데이트
+                                        onSave({ ...profile, ...updates });
+                                    }
+                                }
+                                catch (error) {
+                                    console.error('Failed to update profile:', error);
+                                }
+                                finally {
+                                    setIsLoading(false);
+                                    onBack();
+                                }
                             }
-                            onBack();
-                        }, disabled: !hasChanges, className: "px-2 text-base font-bold disabled:text-[#D1D6DB] text-[#F093B0]", children: "\uC644\uB8CC" })] }), _jsxs("main", { className: "flex-1 overflow-y-auto p-6", children: [_jsx("div", { className: "flex justify-center items-center mt-8", children: _jsxs("div", { className: "relative", children: [_jsx("div", { className: "w-[120px] h-[120px] rounded-full bg-[#FDF2F8] border-2 border-[#F093B0] flex items-center justify-center text-6xl font-bold text-[#F093B0]", children: initial }), _jsx("button", { onClick: () => setShowActionSheet(true), className: "absolute bottom-0 right-0 w-9 h-9 bg-[#F093B0] rounded-full flex items-center justify-center border-2 border-white", children: _jsx("span", { className: "text-base", children: "\u270F\uFE0F" }) })] }) }), _jsxs("div", { className: "mt-10 space-y-6", children: [_jsxs("div", { children: [_jsx("label", { className: "text-base font-bold text-[#191F28]", children: "\uB2C9\uB124\uC784" }), _jsx("input", { type: "text", value: nickname, onChange: (e) => setNickname(e.target.value), maxLength: 10, className: "mt-2 w-full h-14 px-4 bg-[#F9FAFB] border border-[#E5E8EB] rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-[#F093B0]" }), _jsxs("p", { className: "mt-2 text-sm text-[#8B95A1]", children: ["\uB2E4\uB978 \uC0AC\uC6A9\uC790\uC5D0\uAC8C \uD45C\uC2DC\uB418\uB294 \uC774\uB984\uC774\uC5D0\uC694. ( ", nickname.length, " / 10 )"] })] }), _jsxs("div", { children: [_jsx("label", { className: "text-base font-bold text-[#191F28]", children: "\uB098\uC774" }), _jsxs("div", { className: "mt-2 w-full h-14 px-4 bg-[#F9FAFB] border border-[#E5E8EB] rounded-xl flex items-center justify-between", children: [_jsx("span", { className: "text-lg", children: "28\uC138" }), _jsx(ChevronRightIcon, { className: "w-5 h-5 text-gray-400" })] })] }), _jsxs("div", { children: [_jsx("label", { className: "text-base font-bold text-[#191F28]", children: "\uAC70\uC8FC \uC9C0\uC5ED" }), _jsxs("div", { className: "mt-2 w-full h-14 px-4 bg-[#F9FAFB] border border-[#E5E8EB] rounded-xl flex items-center justify-between", children: [_jsx("span", { className: "text-lg", children: "\uC11C\uC6B8\uD2B9\uBCC4\uC2DC" }), _jsx(ChevronRightIcon, { className: "w-5 h-5 text-gray-400" })] })] })] }), _jsxs("div", { className: "mt-10", children: [_jsx("h3", { className: "text-lg font-bold", children: "\uD559\uC2B5 \uC815\uBCF4" }), _jsxs("div", { className: "mt-4 space-y-4", children: [_jsxs("div", { className: "flex justify-between items-center", children: [_jsx("p", { className: "text-base font-medium", children: "\uC5F0\uC560 \uACBD\uD5D8" }), _jsxs("p", { className: "text-base font-medium text-[#8B95A1]", children: [profile.experience, " ", _jsx(ChevronRightIcon, { className: "inline w-4 h-4" })] })] }), _jsxs("div", { className: "flex justify-between items-center", children: [_jsx("p", { className: "text-base font-medium", children: "\uD559\uC2B5 \uBAA9\uD45C" }), _jsxs("p", { className: "text-base font-medium text-[#8B95A1]", children: [profile.difficulty, " ", _jsx(ChevronRightIcon, { className: "inline w-4 h-4" })] })] }), _jsxs("div", { className: "flex flex-col items-start", children: [_jsx("p", { className: "text-base font-medium", children: "\uAD00\uC2EC \uBD84\uC57C" }), _jsxs("div", { className: "mt-2 flex flex-wrap gap-2", children: [profile.interests && profile.interests.length > 0 ? (profile.interests.map((interest) => (_jsx("span", { className: "px-3 py-1.5 bg-[#EBF2FF] text-[#4F7ABA] text-sm font-medium rounded-full", children: interest.replace(/^(?:. )/, '#') }, interest)))) : (_jsx("span", { className: "text-sm text-[#8B95A1]", children: "\uAD00\uC2EC\uC0AC\uB97C \uCD94\uAC00\uD574\uC8FC\uC138\uC694" })), _jsx("button", { className: "px-3 py-1.5 bg-gray-200 text-gray-600 text-sm font-medium rounded-full", children: "+" })] })] })] })] })] }), _jsx("footer", { className: "p-4 bg-white border-t border-[#F2F4F6]", children: _jsx("button", { onClick: () => {
-                        if (hasChanges && onSave) {
-                            onSave({ ...profile, name: nickname });
+                            else {
+                                onBack();
+                            }
+                        }, disabled: !hasChanges || isLoading, className: "px-2 text-base font-bold disabled:text-[#D1D6DB] text-[#F093B0]", children: isLoading ? '저장 중...' : '완료' })] }), _jsxs("main", { className: "flex-1 overflow-y-auto p-6", children: [_jsx("div", { className: "flex justify-center items-center mt-8", children: _jsxs("div", { className: "relative", children: [_jsx("div", { className: "w-[120px] h-[120px] rounded-full bg-[#FDF2F8] border-2 border-[#F093B0] flex items-center justify-center text-6xl font-bold text-[#F093B0]", children: initial }), _jsx("button", { onClick: () => setShowActionSheet(true), className: "absolute bottom-0 right-0 w-9 h-9 bg-[#F093B0] rounded-full flex items-center justify-center border-2 border-white", children: _jsx("span", { className: "text-base", children: "\u270F\uFE0F" }) })] }) }), _jsxs("div", { className: "mt-10 space-y-6", children: [_jsxs("div", { children: [_jsx("label", { className: "text-base font-bold text-[#191F28]", children: "\uB2C9\uB124\uC784" }), _jsx("input", { type: "text", value: nickname, onChange: (e) => setNickname(e.target.value), maxLength: 10, className: "mt-2 w-full h-14 px-4 bg-[#F9FAFB] border border-[#E5E8EB] rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-[#F093B0]" }), _jsxs("p", { className: "mt-2 text-sm text-[#8B95A1]", children: ["\uB2E4\uB978 \uC0AC\uC6A9\uC790\uC5D0\uAC8C \uD45C\uC2DC\uB418\uB294 \uC774\uB984\uC774\uC5D0\uC694. ( ", nickname.length, " / 10 )"] })] }), _jsxs("div", { children: [_jsx("label", { className: "text-base font-bold text-[#191F28]", children: "\uB098\uC774" }), _jsxs("div", { className: "mt-2 w-full h-14 px-4 bg-[#F9FAFB] border border-[#E5E8EB] rounded-xl flex items-center justify-between", children: [_jsx("span", { className: "text-lg", children: "28\uC138" }), _jsx(ChevronRightIcon, { className: "w-5 h-5 text-gray-400" })] })] }), _jsxs("div", { children: [_jsx("label", { className: "text-base font-bold text-[#191F28]", children: "\uAC70\uC8FC \uC9C0\uC5ED" }), _jsxs("div", { className: "mt-2 w-full h-14 px-4 bg-[#F9FAFB] border border-[#E5E8EB] rounded-xl flex items-center justify-between", children: [_jsx("span", { className: "text-lg", children: "\uC11C\uC6B8\uD2B9\uBCC4\uC2DC" }), _jsx(ChevronRightIcon, { className: "w-5 h-5 text-gray-400" })] })] })] }), _jsxs("div", { className: "mt-10", children: [_jsx("h3", { className: "text-lg font-bold", children: "\uD559\uC2B5 \uC815\uBCF4" }), _jsxs("div", { className: "mt-4 space-y-4", children: [_jsxs("button", { onClick: () => setShowExperienceModal(true), className: "flex justify-between items-center w-full", children: [_jsx("p", { className: "text-base font-medium", children: "\uC5F0\uC560 \uACBD\uD5D8" }), _jsxs("p", { className: "text-base font-medium text-[#8B95A1]", children: [experience, " ", _jsx(ChevronRightIcon, { className: "inline w-4 h-4" })] })] }), _jsxs("div", { className: "flex justify-between items-center", children: [_jsx("p", { className: "text-base font-medium", children: "\uD559\uC2B5 \uBAA9\uD45C" }), _jsxs("p", { className: "text-base font-medium text-[#8B95A1]", children: [profile.difficulty, " ", _jsx(ChevronRightIcon, { className: "inline w-4 h-4" })] })] }), _jsxs("div", { className: "flex flex-col items-start", children: [_jsx("p", { className: "text-base font-medium", children: "\uAD00\uC2EC \uBD84\uC57C" }), _jsxs("div", { className: "mt-2 flex flex-wrap gap-2", children: [interests && interests.length > 0 ? (interests.map((interest) => (_jsx("span", { className: "px-3 py-1.5 bg-[#EBF2FF] text-[#4F7ABA] text-sm font-medium rounded-full", children: interest.replace(/^(?:. )/, '#') }, interest)))) : (_jsx("span", { className: "text-sm text-[#8B95A1]", children: "\uAD00\uC2EC\uC0AC\uB97C \uCD94\uAC00\uD574\uC8FC\uC138\uC694" })), _jsx("button", { onClick: () => setShowInterestModal(true), className: "px-3 py-1.5 bg-gray-200 text-gray-600 text-sm font-medium rounded-full", children: "+" })] })] })] })] })] }), _jsx("footer", { className: "p-4 bg-white border-t border-[#F2F4F6]", children: _jsx("button", { onClick: async () => {
+                        if (hasChanges) {
+                            setIsLoading(true);
+                            try {
+                                const updates = {
+                                    name: nickname,
+                                    experience,
+                                    interests
+                                };
+                                if (user?.id && !user.isGuest) {
+                                    // 서버에 업데이트
+                                    const updatedProfile = await updateProfileMutation.mutateAsync({
+                                        userId: user.id,
+                                        updates
+                                    });
+                                    setUser(updatedProfile);
+                                }
+                                else if (onSave) {
+                                    // 게스트는 로컬만 업데이트
+                                    onSave({ ...profile, ...updates });
+                                }
+                            }
+                            catch (error) {
+                                console.error('Failed to update profile:', error);
+                            }
+                            finally {
+                                setIsLoading(false);
+                                onBack();
+                            }
                         }
-                        onBack();
-                    }, disabled: !hasChanges, className: "w-full h-14 text-white text-lg font-bold rounded-xl transition-colors duration-300 disabled:bg-[#D1D6DB]", style: { backgroundColor: hasChanges ? '#F093B0' : '#D1D6DB' }, children: "\uC644\uB8CC" }) }), showActionSheet && (_jsx("div", { className: "absolute inset-0 bg-black/40 flex justify-center items-end animate-fade-in", onClick: () => setShowActionSheet(false), children: _jsxs("div", { className: "w-full bg-white rounded-t-2xl p-4 animate-fade-in-up", onClick: e => e.stopPropagation(), children: [_jsx("button", { className: "w-full text-center text-lg py-3 text-blue-500", children: "\uCE74\uBA54\uB77C\uB85C \uCD2C\uC601" }), _jsx("div", { className: "h-px bg-gray-200" }), _jsx("button", { className: "w-full text-center text-lg py-3 text-blue-500", children: "\uAC24\uB7EC\uB9AC\uC5D0\uC11C \uC120\uD0DD" }), _jsx("div", { className: "h-px bg-gray-200" }), _jsx("button", { className: "w-full text-center text-lg py-3 text-red-500", children: "\uAE30\uBCF8 \uC774\uBBF8\uC9C0\uB85C \uBCC0\uACBD" }), _jsx("button", { onClick: () => setShowActionSheet(false), className: "w-full mt-2 text-center text-lg py-3 bg-gray-100 rounded-lg font-bold text-blue-500", children: "\uCDE8\uC18C" })] }) }))] }));
+                        else {
+                            onBack();
+                        }
+                    }, disabled: !hasChanges || isLoading, className: "w-full h-14 text-white text-lg font-bold rounded-xl transition-colors duration-300 disabled:bg-[#D1D6DB]", style: { backgroundColor: hasChanges && !isLoading ? '#F093B0' : '#D1D6DB' }, children: "\uC644\uB8CC" }) }), showExperienceModal && (_jsx("div", { className: "absolute inset-0 bg-black/40 flex justify-center items-center animate-fade-in", onClick: () => setShowExperienceModal(false), children: _jsxs("div", { className: "w-[90%] max-w-sm bg-white rounded-2xl p-6 animate-scale-in", onClick: e => e.stopPropagation(), children: [_jsx("h3", { className: "text-lg font-bold text-center mb-4", children: "\uC5F0\uC560 \uACBD\uD5D8 \uC120\uD0DD" }), _jsx("div", { className: "space-y-2", children: ['없음', '1-2번', '3-5번', '5번 이상'].map(exp => (_jsx("button", { onClick: () => {
+                                    setExperience(exp);
+                                    setShowExperienceModal(false);
+                                }, className: `w-full py-3 rounded-lg font-medium transition-colors ${experience === exp
+                                    ? 'bg-[#F093B0] text-white'
+                                    : 'bg-[#F9FAFB] text-[#191F28] hover:bg-[#F2F4F6]'}`, children: exp }, exp))) })] }) })), showInterestModal && (_jsx("div", { className: "absolute inset-0 bg-black/40 flex justify-center items-center animate-fade-in", onClick: () => setShowInterestModal(false), children: _jsxs("div", { className: "w-[90%] max-w-sm bg-white rounded-2xl p-6 animate-scale-in", onClick: e => e.stopPropagation(), children: [_jsx("h3", { className: "text-lg font-bold text-center mb-4", children: "\uAD00\uC2EC\uC0AC \uC120\uD0DD" }), _jsx("div", { className: "space-y-2", children: ['영화', '음악', '여행', '운동', '요리', '독서', '게임', '예술'].map(interest => (_jsxs("button", { onClick: () => {
+                                    if (interests.includes(interest)) {
+                                        setInterests(interests.filter(i => i !== interest));
+                                    }
+                                    else {
+                                        setInterests([...interests, interest]);
+                                    }
+                                }, className: `w-full py-3 rounded-lg font-medium transition-colors ${interests.includes(interest)
+                                    ? 'bg-[#F093B0] text-white'
+                                    : 'bg-[#F9FAFB] text-[#191F28] hover:bg-[#F2F4F6]'}`, children: [interest, " ", interests.includes(interest) && '✓'] }, interest))) }), _jsx("button", { onClick: () => setShowInterestModal(false), className: "w-full mt-4 py-3 bg-[#191F28] text-white rounded-lg font-bold", children: "\uC644\uB8CC" })] }) })), showActionSheet && (_jsx("div", { className: "absolute inset-0 bg-black/40 flex justify-center items-end animate-fade-in", onClick: () => setShowActionSheet(false), children: _jsxs("div", { className: "w-full bg-white rounded-t-2xl p-4 animate-fade-in-up", onClick: e => e.stopPropagation(), children: [_jsx("button", { className: "w-full text-center text-lg py-3 text-blue-500", children: "\uCE74\uBA54\uB77C\uB85C \uCD2C\uC601" }), _jsx("div", { className: "h-px bg-gray-200" }), _jsx("button", { className: "w-full text-center text-lg py-3 text-blue-500", children: "\uAC24\uB7EC\uB9AC\uC5D0\uC11C \uC120\uD0DD" }), _jsx("div", { className: "h-px bg-gray-200" }), _jsx("button", { className: "w-full text-center text-lg py-3 text-red-500", children: "\uAE30\uBCF8 \uC774\uBBF8\uC9C0\uB85C \uBCC0\uACBD" }), _jsx("button", { onClick: () => setShowActionSheet(false), className: "w-full mt-2 text-center text-lg py-3 bg-gray-100 rounded-lg font-bold text-blue-500", children: "\uCDE8\uC18C" })] }) }))] }));
 };
 export { ProfileEditScreen };
 export default ProfileEditScreen;

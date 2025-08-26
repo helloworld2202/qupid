@@ -21,7 +21,6 @@ export class ChatService {
         user_id: userId,
         partner_type: 'persona',
         partner_id: personaId,
-        system_instruction: systemInstruction,
         started_at: new Date().toISOString()
       })
       .select()
@@ -66,8 +65,14 @@ export class ChatService {
         throw AppError.notFound('Chat session');
       }
 
-      // Recreate session from DB
-      const systemInstruction = conversation.system_instruction || 'Be a helpful AI assistant';
+      // Recreate session from DB (system_instruction은 세션 재생성 시 페르소나에서 가져옴)
+      const { data: persona } = await supabase
+        .from('personas')
+        .select('personality')
+        .eq('id', conversation.partner_id)
+        .single();
+      
+      const systemInstruction = persona?.personality || 'Be a helpful AI assistant';
       session = new ChatSession(
         sessionId,
         conversation.user_id,

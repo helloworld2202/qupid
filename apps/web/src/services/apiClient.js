@@ -8,6 +8,7 @@ class ApiClient {
                 'Content-Type': 'application/json',
                 ...options.headers,
             },
+            credentials: 'include', // 쿠키와 인증 정보 포함
         });
         const data = await response.json();
         if (!response.ok || !data.ok) {
