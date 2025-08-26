@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Bell } from 'lucide-react';
 import { useUnreadCount, useNotifications, useMarkAsRead, useMarkAllAsRead } from '../hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -45,7 +44,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
       >
-        <Bell className="w-6 h-6 text-gray-700" />
+        <span className="text-xl">🔔</span>
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F093B0] text-white text-xs rounded-full flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -80,7 +79,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
             {/* Notifications List */}
             <div className="overflow-y-auto max-h-80">
               {notifications.length > 0 ? (
-                notifications.map((notification) => (
+                notifications.map((notification: any) => (
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification.id, notification.isRead)}
@@ -114,7 +113,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
                 ))
               ) : (
                 <div className="p-8 text-center text-gray-500">
-                  <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <span className="text-5xl block mb-3">🔔</span>
                   <p>새로운 알림이 없습니다</p>
                 </div>
               )}
