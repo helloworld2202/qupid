@@ -1,10 +1,10 @@
-import { ConversationAnalyzer } from '../ConversationAnalyzer.js';
+import { ConversationAnalyzer } from '../ConversationAnalyzer';
 import { Message } from '@qupid/core';
-import { openai } from '../../../../shared/infra/openai.js';
+import { openai } from '../../../../shared/infra/openai';
 
 // Mock dependencies
-jest.mock('../../../../shared/infra/openai.js');
-jest.mock('../../../../config/supabase.js', () => ({
+jest.mock('../../../../shared/infra/openai');
+jest.mock('../../../../config/supabase', () => ({
   supabase: {
     from: jest.fn(() => ({
       select: jest.fn(() => ({

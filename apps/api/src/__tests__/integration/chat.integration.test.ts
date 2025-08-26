@@ -1,10 +1,10 @@
 import request from 'supertest';
 import express from 'express';
-import chatRoutes from '../../modules/chat/routes.js';
-import { errorHandler } from '../../shared/middleware/errorHandler.js';
+import chatRoutes from '../../modules/chat/routes';
+import { errorHandler } from '../../shared/middleware/errorHandler';
 
 // Mock dependencies
-jest.mock('../../modules/chat/app/ChatService.js', () => ({
+jest.mock('../../modules/chat/app/ChatService', () => ({
   ChatService: jest.fn().mockImplementation(() => ({
     createSession: jest.fn().mockResolvedValue('session-123'),
     sendMessage: jest.fn().mockResolvedValue({

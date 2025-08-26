@@ -210,7 +210,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
 
     // Get realtime feedback
     const lastAiMessage = messages.filter(m => m.sender === 'ai').pop()?.text;
-    feedbackMutation.mutate(
+    feedbackMutation?.mutate?.(
       { 
         lastUserMessage: messageText, 
         ...(lastAiMessage ? { lastAiMessage } : {})
@@ -271,7 +271,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, isAnalyzing, messages, isTutorialMode, tutorialStep, sendMessageMutation, feedbackMutation]);
+  }, [isLoading, isAnalyzing, messages, isTutorialMode, tutorialStep, sendMessageMutation, feedbackMutation, partner]);
 
   const handleComplete = useCallback(async () => {
     if (messages.filter(m => m.sender === 'user').length === 0) {

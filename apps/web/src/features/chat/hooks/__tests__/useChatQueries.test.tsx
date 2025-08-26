@@ -9,13 +9,16 @@ import {
   useRealtimeFeedback,
   useCoachSuggestion
 } from '../useChatQueries';
-import { apiClient } from '../../../../shared/api/apiClient';
+import { apiClient } from '../../../../services/apiClient';
 
-// Mock apiClient
-vi.mock('../../../../shared/api/apiClient', () => ({
+// Mock the actual apiClient used by hooks
+vi.mock('../../../../services/apiClient', () => ({
   apiClient: {
-    post: vi.fn(),
-    get: vi.fn()
+    createChatSession: vi.fn(),
+    sendMessage: vi.fn(),
+    analyzeConversation: vi.fn(),
+    getRealtimeFeedback: vi.fn(),
+    getCoachSuggestion: vi.fn()
   }
 }));
 
@@ -30,29 +33,25 @@ describe('Chat Query Hooks', () => {
       }
     });
 
-    return ({ children }: { children: ReactNode }) => (
+    const Wrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>
         {children}
       </QueryClientProvider>
     );
+    
+    return Wrapper;
   };
 
   describe('useChatSession', () => {
     it('should create a chat session', async () => {
       const mockSessionId = 'session-123';
-      vi.mocked(apiClient.post).mockResolvedValueOnce({
-        data: {
-          ok: true,
-          data: { sessionId: mockSessionId }
-        }
-      });
+      vi.mocked(apiClient.createChatSession).mockResolvedValueOnce(mockSessionId);
 
       const { result } = renderHook(() => useChatSession(), {
         wrapper: createWrapper()
       });
 
       const sessionData = {
-        userId: 'user-123',
         personaId: 'persona-456',
         systemInstruction: 'Be helpful'
       };
@@ -64,23 +63,20 @@ describe('Chat Query Hooks', () => {
         expect(result.current.data).toBe(mockSessionId);
       });
 
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/chat/sessions',
-        sessionData
-      );
+      expect(apiClient.createChatSession).toHaveBeenCalledWith('persona-456', 'Be helpful');
     });
 
     it('should handle session creation error', async () => {
       const mockError = new Error('Failed to create session');
-      vi.mocked(apiClient.post).mockRejectedValueOnce(mockError);
+      vi.mocked(apiClient.createChatSession).mockRejectedValueOnce(mockError);
 
       const { result } = renderHook(() => useChatSession(), {
         wrapper: createWrapper()
       });
 
       result.current.mutate({
-        userId: 'user-123',
-        personaId: 'persona-456'
+        personaId: 'persona-456',
+        systemInstruction: 'Be helpful'
       });
 
       await waitFor(() => {
@@ -92,17 +88,9 @@ describe('Chat Query Hooks', () => {
 
   describe('useSendMessage', () => {
     it('should send a message and get response', async () => {
-      const mockResponse = {
-        userMessage: { sender: 'user', text: 'Hello' },
-        aiResponse: { sender: 'ai', text: 'Hi there!' }
-      };
+      const mockResponse = 'Hi there!';
 
-      vi.mocked(apiClient.post).mockResolvedValueOnce({
-        data: {
-          ok: true,
-          data: mockResponse
-        }
-      });
+      vi.mocked(apiClient.sendMessage).mockResolvedValueOnce(mockResponse);
 
       const { result } = renderHook(() => useSendMessage(), {
         wrapper: createWrapper()
@@ -118,10 +106,7 @@ describe('Chat Query Hooks', () => {
         expect(result.current.data).toEqual(mockResponse);
       });
 
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/chat/sessions/session-123/messages',
-        { message: 'Hello' }
-      );
+      expect(apiClient.sendMessage).toHaveBeenCalledWith('session-123', 'Hello');
     });
   });
 
@@ -139,12 +124,7 @@ describe('Chat Query Hooks', () => {
         ]
       };
 
-      vi.mocked(apiClient.post).mockResolvedValueOnce({
-        data: {
-          ok: true,
-          data: mockAnalysis
-        }
-      });
+      vi.mocked(apiClient.analyzeConversation).mockResolvedValueOnce(mockAnalysis);
 
       const { result } = renderHook(() => useAnalyzeConversation(), {
         wrapper: createWrapper()
@@ -162,10 +142,7 @@ describe('Chat Query Hooks', () => {
         expect(result.current.data).toEqual(mockAnalysis);
       });
 
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/chat/analyze',
-        { messages }
-      );
+      expect(apiClient.analyzeConversation).toHaveBeenCalledWith(messages);
     });
   });
 
@@ -177,26 +154,25 @@ describe('Chat Query Hooks', () => {
         category: 'question'
       };
 
-      vi.mocked(apiClient.post).mockResolvedValueOnce({
-        data: {
-          ok: true,
-          data: mockFeedback
-        }
-      });
+      vi.mocked(apiClient.getRealtimeFeedback).mockResolvedValueOnce(mockFeedback);
 
       const { result } = renderHook(() => useRealtimeFeedback(), {
         wrapper: createWrapper()
       });
 
-      result.current.mutate({
+      const feedbackData = {
         lastUserMessage: 'What are your hobbies?',
         lastAiMessage: 'I enjoy reading!'
-      });
+      };
+
+      result.current.mutate(feedbackData);
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
         expect(result.current.data).toEqual(mockFeedback);
       });
+
+      expect(apiClient.getRealtimeFeedback).toHaveBeenCalledWith('What are your hobbies?', 'I enjoy reading!');
     });
   });
 
@@ -207,12 +183,7 @@ describe('Chat Query Hooks', () => {
         suggestion: 'Try asking "What do you enjoy most about reading?"'
       };
 
-      vi.mocked(apiClient.post).mockResolvedValueOnce({
-        data: {
-          ok: true,
-          data: mockSuggestion
-        }
-      });
+      vi.mocked(apiClient.getCoachSuggestion).mockResolvedValueOnce(mockSuggestion);
 
       const { result } = renderHook(() => useCoachSuggestion(), {
         wrapper: createWrapper()
@@ -230,10 +201,7 @@ describe('Chat Query Hooks', () => {
         expect(result.current.data).toEqual(mockSuggestion);
       });
 
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/chat/coach-suggestion',
-        { messages }
-      );
+      expect(apiClient.getCoachSuggestion).toHaveBeenCalledWith(messages);
     });
 
     it('should handle empty messages', async () => {
@@ -242,12 +210,7 @@ describe('Chat Query Hooks', () => {
         suggestion: ''
       };
 
-      vi.mocked(apiClient.post).mockResolvedValueOnce({
-        data: {
-          ok: true,
-          data: mockSuggestion
-        }
-      });
+      vi.mocked(apiClient.getCoachSuggestion).mockResolvedValueOnce(mockSuggestion);
 
       const { result } = renderHook(() => useCoachSuggestion(), {
         wrapper: createWrapper()
