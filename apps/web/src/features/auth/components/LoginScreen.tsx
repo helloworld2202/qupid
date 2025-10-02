@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Screen } from '@qupid/core';
+import SocialLoginButtons from './SocialLoginButtons';
 
 interface LoginScreenProps {
   onNavigate: (screen: Screen | string) => void;
@@ -130,6 +131,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onNavigate, onLoginSuccess })
           <span className="px-4 text-sm text-[#8B95A1]">또는</span>
           <div className="flex-1 h-px bg-[#E5E8EB]"></div>
         </div>
+
+        {/* 소셜 로그인 버튼 */}
+        <SocialLoginButtons />
 
         {/* 회원가입 링크 */}
         <div className="text-center">

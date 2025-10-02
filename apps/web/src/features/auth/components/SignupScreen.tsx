@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Screen } from '@qupid/core';
 import { ArrowLeftIcon } from '@qupid/ui';
+import SocialLoginButtons from './SocialLoginButtons';
 
 interface SignupScreenProps {
   onNavigate: (screen: Screen | string) => void;
@@ -253,6 +254,16 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ onNavigate, onSignupSuccess
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
+
+        {/* 구분선 */}
+        <div className="my-8 flex items-center">
+          <div className="flex-1 h-px bg-[#E5E8EB]"></div>
+          <span className="px-4 text-sm text-[#8B95A1]">또는</span>
+          <div className="flex-1 h-px bg-[#E5E8EB]"></div>
+        </div>
+
+        {/* 소셜 로그인 버튼 */}
+        <SocialLoginButtons />
       </main>
 
       {/* 하단 버튼 */}

@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from './app/AuthService.js';
+import { SocialAuthService } from './app/SocialAuthService.js';
 import { AppError } from '../../shared/errors/AppError.js';
 
 export class AuthController {
   private authService: AuthService;
+  private socialAuthService: SocialAuthService;
 
   constructor() {
     this.authService = new AuthService();
+    this.socialAuthService = new SocialAuthService();
   }
 
   signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -136,6 +139,81 @@ export class AuthController {
         success: true,
         message: 'Password updated successfully'
       });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // 소셜 로그인 URL 생성
+  getSocialLoginUrls = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const urls = {
+        kakao: this.socialAuthService.getKakaoLoginUrl(),
+        naver: this.socialAuthService.getNaverLoginUrl(),
+        google: this.socialAuthService.getGoogleLoginUrl(),
+      };
+
+      res.json({
+        success: true,
+        data: urls
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // 카카오 로그인 콜백
+  kakaoCallback = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { code } = req.query;
+
+      if (!code || typeof code !== 'string') {
+        throw AppError.badRequest('Authorization code is required');
+      }
+
+      const result = await this.socialAuthService.kakaoLogin(code);
+
+      // 프론트엔드로 리다이렉트 (토큰 포함)
+      const frontendUrl = `${process.env.ALLOWED_ORIGINS?.split(',')[0]}/auth/callback?token=${result.session.access_token}&refresh_token=${result.session.refresh_token}`;
+      res.redirect(frontendUrl);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // 네이버 로그인 콜백
+  naverCallback = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { code, state } = req.query;
+
+      if (!code || typeof code !== 'string') {
+        throw AppError.badRequest('Authorization code is required');
+      }
+
+      const result = await this.socialAuthService.naverLogin(code, state as string);
+
+      // 프론트엔드로 리다이렉트 (토큰 포함)
+      const frontendUrl = `${process.env.ALLOWED_ORIGINS?.split(',')[0]}/auth/callback?token=${result.session.access_token}&refresh_token=${result.session.refresh_token}`;
+      res.redirect(frontendUrl);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // 구글 로그인 콜백
+  googleCallback = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { code } = req.query;
+
+      if (!code || typeof code !== 'string') {
+        throw AppError.badRequest('Authorization code is required');
+      }
+
+      const result = await this.socialAuthService.googleLogin(code);
+
+      // 프론트엔드로 리다이렉트 (토큰 포함)
+      const frontendUrl = `${process.env.ALLOWED_ORIGINS?.split(',')[0]}/auth/callback?token=${result.session.access_token}&refresh_token=${result.session.refresh_token}`;
+      res.redirect(frontendUrl);
     } catch (error) {
       next(error);
     }
