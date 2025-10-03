@@ -2,6 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from 'react';
 import { Screen } from '@qupid/core';
 import { ArrowLeftIcon } from '@qupid/ui';
+import SocialLoginButtons from './SocialLoginButtons';
 const SignupScreen = ({ onNavigate, onSignupSuccess }) => {
     const [step, setStep] = useState(1); // 1: 기본정보, 2: 성별선택
     // 게스트 데이터가 있으면 가져오기
@@ -115,7 +116,7 @@ const SignupScreen = ({ onNavigate, onSignupSuccess }) => {
                                                     ? 'border-[#F093B0] bg-[#FDF2F8]'
                                                     : 'border-[#E5E8EB] bg-white'}`, children: [_jsx("p", { className: "text-3xl mb-2", children: "\uD83D\uDC68" }), _jsx("p", { className: "font-bold text-[#191F28]", children: "\uB0A8\uC131" })] }), _jsxs("button", { onClick: () => setFormData({ ...formData, partner_gender: 'female' }), className: `p-6 rounded-2xl border-2 transition-all ${formData.partner_gender === 'female'
                                                     ? 'border-[#F093B0] bg-[#FDF2F8]'
-                                                    : 'border-[#E5E8EB] bg-white'}`, children: [_jsx("p", { className: "text-3xl mb-2", children: "\uD83D\uDC69" }), _jsx("p", { className: "font-bold text-[#191F28]", children: "\uC5EC\uC131" })] })] })] })] })), error && (_jsx("div", { className: "mt-4 p-3 bg-red-50 border border-red-200 rounded-lg", children: _jsx("p", { className: "text-sm text-red-600", children: error }) }))] }), _jsx("div", { className: "px-6 pb-8", children: _jsx("button", { onClick: step === 1 ? handleNext : handleSignup, disabled: (step === 1 ? !isStep1Valid : !isStep2Valid) || isLoading, className: `w-full h-14 rounded-full font-bold text-lg transition-all ${(step === 1 ? isStep1Valid : isStep2Valid) && !isLoading
+                                                    : 'border-[#E5E8EB] bg-white'}`, children: [_jsx("p", { className: "text-3xl mb-2", children: "\uD83D\uDC69" }), _jsx("p", { className: "font-bold text-[#191F28]", children: "\uC5EC\uC131" })] })] })] })] })), error && (_jsx("div", { className: "mt-4 p-3 bg-red-50 border border-red-200 rounded-lg", children: _jsx("p", { className: "text-sm text-red-600", children: error }) })), _jsxs("div", { className: "my-8 flex items-center", children: [_jsx("div", { className: "flex-1 h-px bg-[#E5E8EB]" }), _jsx("span", { className: "px-4 text-sm text-[#8B95A1]", children: "\uB610\uB294" }), _jsx("div", { className: "flex-1 h-px bg-[#E5E8EB]" })] }), _jsx(SocialLoginButtons, {})] }), _jsx("div", { className: "px-6 pb-8", children: _jsx("button", { onClick: step === 1 ? handleNext : handleSignup, disabled: (step === 1 ? !isStep1Valid : !isStep2Valid) || isLoading, className: `w-full h-14 rounded-full font-bold text-lg transition-all ${(step === 1 ? isStep1Valid : isStep2Valid) && !isLoading
                         ? 'bg-[#F093B0] text-white'
                         : 'bg-[#E5E8EB] text-[#8B95A1]'}`, children: isLoading ? '처리 중...' : step === 1 ? '다음' : '회원가입 완료' }) })] }));
 };

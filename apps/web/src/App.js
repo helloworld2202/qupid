@@ -44,6 +44,7 @@ import { PerformanceDetailScreen } from './features/analytics/components/Perform
 import { DataExportScreen } from './features/analytics/components/DataExportScreen';
 import { LoginScreen } from './features/auth/components/LoginScreen';
 import { SignupScreen } from './features/auth/components/SignupScreen';
+import AuthCallback from './features/auth/components/AuthCallback';
 // Badges Container with API integration
 const BadgesContainer = ({ onBack }) => {
     const { data: badges = [], isLoading } = useBadges();
@@ -66,6 +67,29 @@ const AppContent = () => {
         originalNavigateTo(screen);
     }, [currentScreen, originalNavigateTo]);
     useEffect(() => {
+        // Check if this is a social login callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const refreshToken = urlParams.get('refresh_token');
+        if (token && refreshToken) {
+            // This is a social login callback, check if we're in onboarding flow
+            const isOnboardingFlow = localStorage.getItem('isOnboardingFlow') === 'true';
+            if (isOnboardingFlow) {
+                // Store tokens and continue with onboarding
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('refreshToken', refreshToken);
+                localStorage.removeItem('isOnboardingFlow');
+                setAppState('onboarding');
+                navigateTo('ONBOARDING');
+                return;
+            }
+            else {
+                // Regular social login callback
+                setAppState('auth');
+                navigateTo('AUTH_CALLBACK');
+                return;
+            }
+        }
         // Check for auth token first
         const authToken = localStorage.getItem('authToken');
         const storedProfile = localStorage.getItem('userProfile');
@@ -337,6 +361,8 @@ const AppContent = () => {
     // 인증 화면
     if (appState === 'auth') {
         switch (currentScreen) {
+            case 'AUTH_CALLBACK':
+                return _jsx(AuthCallback, { onNavigate: navigateTo });
             case Screen.SIGNUP:
                 return (_jsx(SignupScreen, { onNavigate: navigateTo, onSignupSuccess: (userData) => {
                         if (userData.profile) {

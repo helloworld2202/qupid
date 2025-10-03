@@ -18,6 +18,9 @@ COPY . .
 # 의존성 설치 (--frozen-lockfile은 lock 파일 변경 방지, CI=true로 대화형 프롬프트 방지)
 RUN pnpm install --frozen-lockfile --prefer-offline
 
+# 패키지 빌드 먼저 실행
+RUN pnpm build:packages
+
 # 전체 빌드 (올바른 순서로 자동 빌드)
 RUN pnpm build
 
