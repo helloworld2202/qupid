@@ -88,7 +88,7 @@ export class SocialAuthService {
       return await this.createOrUpdateUser(userInfo);
     } catch (error) {
       console.error('Kakao login error:', error);
-      throw AppError.internalServerError('카카오 로그인에 실패했습니다.');
+      throw AppError.internal('카카오 로그인에 실패했습니다.');
     }
   }
 
@@ -132,7 +132,7 @@ export class SocialAuthService {
       return await this.createOrUpdateUser(userInfo);
     } catch (error) {
       console.error('Naver login error:', error);
-      throw AppError.internalServerError('네이버 로그인에 실패했습니다.');
+      throw AppError.internal('네이버 로그인에 실패했습니다.');
     }
   }
 
@@ -175,37 +175,14 @@ export class SocialAuthService {
       return await this.createOrUpdateUser(userInfo);
     } catch (error) {
       console.error('Google login error:', error);
-      throw AppError.internalServerError('구글 로그인에 실패했습니다.');
+      throw AppError.internal('구글 로그인에 실패했습니다.');
     }
   }
 
   // 사용자 생성 또는 업데이트
   private async createOrUpdateUser(userInfo: SocialUserInfo): Promise<any> {
     try {
-      // 1. Supabase Auth에 사용자 생성/로그인
-      // Supabase에서 지원하는 Provider 타입으로 변환
-      let supabaseProvider: 'google' | 'kakao';
-      if (userInfo.provider === 'google') {
-        supabaseProvider = 'google';
-      } else if (userInfo.provider === 'kakao') {
-        supabaseProvider = 'kakao';
-      } else {
-        // 네이버는 Supabase에서 직접 지원하지 않으므로 구글로 대체
-        supabaseProvider = 'google';
-      }
-
-      const { data: authData, error: authError } = await this.supabase.auth.signInWithOAuth({
-        provider: supabaseProvider,
-        options: {
-          redirectTo: `${process.env.ALLOWED_ORIGINS?.split(',')[0]}/auth/callback`,
-        },
-      });
-
-      if (authError) {
-        throw authError;
-      }
-
-      // 2. 사용자 프로필 테이블에서 확인/생성
+      // 1. 사용자 프로필 테이블에서 확인/생성
       const { data: existingProfile, error: profileError } = await this.supabase
         .from('user_profiles')
         .select('*')
@@ -252,14 +229,29 @@ export class SocialAuthService {
         profile = newProfile;
       }
 
+      // 2. JWT 토큰 생성 (간단한 구현)
+      const token = Buffer.from(JSON.stringify({
+        sub: profile.id,
+        email: profile.email,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24시간
+      })).toString('base64');
+
       return {
-        user: authData.user,
-        session: authData.session,
+        user: {
+          id: profile.id,
+          email: profile.email,
+          name: profile.name,
+        },
+        session: {
+          access_token: token,
+          refresh_token: token,
+        },
         profile,
       };
     } catch (error) {
       console.error('Create or update user error:', error);
-      throw AppError.internalServerError('사용자 정보 처리에 실패했습니다.');
+      throw AppError.internal('사용자 정보 처리에 실패했습니다.');
     }
   }
 
