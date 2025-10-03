@@ -5,9 +5,9 @@ import { ArrowLeftIcon, CheckIcon } from '@qupid/ui';
 import { UserProfile } from '@qupid/core';
 import { useCreateUserProfile } from '../../../shared/hooks/api/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
-import SocialLoginScreen from './SocialLoginScreen';
+// import SocialLoginScreen from './SocialLoginScreen'; // 소셜 로그인 기능 임시 비활성화
 
-const TOTAL_ONBOARDING_STEPS = 5;
+const TOTAL_ONBOARDING_STEPS = 4;
 
 // --- Reusable Components ---
 const ProgressIndicator: React.FC<{ current: number; total: number }> = ({ current, total }) => (
@@ -228,47 +228,9 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile) =>
   // 디버깅을 위한 로그
   console.log('OnboardingFlow rendered, current step:', step);
 
-  // 소셜 로그인으로 온 경우 성별 선택 화면부터 시작
-  React.useEffect(() => {
-    const authToken = localStorage.getItem('authToken');
-    if (authToken && step === 0) {
-      // 소셜 로그인으로 온 경우 사용자 정보 가져오기
-      fetchUserProfile();
-      setStep(2); // 소셜 로그인 화면을 건너뛰고 성별 선택으로
-    }
-  }, [step]);
+  // 소셜 로그인 관련 코드 제거됨
 
-  const fetchUserProfile = async () => {
-    try {
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken) return;
-
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
-      const response = await fetch(`${API_URL}/auth/session`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data.user) {
-          // 소셜 로그인 사용자 정보로 프로필 업데이트
-          const socialProfile = {
-            name: data.data.user.user_metadata?.name || data.data.user.email?.split('@')[0] || '사용자',
-            user_gender: 'male' as 'male' | 'female', // 기본값, 사용자가 선택할 수 있도록
-            experience: '없음',
-            confidence: 3,
-            difficulty: 2,
-            interests: []
-          };
-          setProfile(socialProfile);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch user profile:', error);
-    }
-  };
+  // fetchUserProfile 함수 제거됨 (소셜 로그인 관련)
 
   const nextStep = useCallback(() => {
     console.log('nextStep 호출됨, 현재 step:', step);
@@ -328,9 +290,8 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile) =>
     console.log('renderStep 호출됨, step:', step, 'currentProgress:', currentProgress);
     switch (step) {
       case 0: return <IntroScreen onNext={nextStep} progress={currentProgress} />;
-      case 1: return <SocialLoginScreen onBack={prevStep} onSuccess={nextStep} progress={currentProgress} />;
-      case 2: return <GenderSelectionScreen onNext={handleGenderSelect} onBack={prevStep} progress={currentProgress} />;
-      case 3: return <SurveyScreen 
+      case 1: return <GenderSelectionScreen onNext={handleGenderSelect} onBack={prevStep} progress={currentProgress} />;
+      case 2: return <SurveyScreen 
                         onComplete={handleSurveyComplete} 
                         onBack={prevStep} 
                         progress={currentProgress}
@@ -344,8 +305,8 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile) =>
                         ]}
                         field="experience"
                     />;
-       case 4: return <InterestsScreen onComplete={handleInterestComplete} onBack={prevStep} progress={currentProgress} />;
-       case 5: 
+       case 3: return <InterestsScreen onComplete={handleInterestComplete} onBack={prevStep} progress={currentProgress} />;
+       case 4: 
           // Completion screen
           return <CompletionScreen onComplete={handleFinalComplete} profile={profile} progress={TOTAL_ONBOARDING_STEPS} />;
       default: return <IntroScreen onNext={nextStep} progress={1} />;
