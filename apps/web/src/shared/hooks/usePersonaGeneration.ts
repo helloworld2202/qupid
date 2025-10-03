@@ -50,7 +50,7 @@ export const useGeneratePersona = () => {
   return useMutation<PersonaProfile, Error, GeneratePersonaRequest>({
     mutationFn: async (data) => {
       const response = await apiClient.post('/personas/generate', data);
-      return response.data.data;
+      return response.data;
     },
     onError: (error) => {
       console.error('페르소나 생성 오류:', error);
@@ -65,7 +65,7 @@ export const useGenerateDailyPersonas = () => {
   return useMutation<PersonaProfile[], Error, GenerateDailyPersonasRequest>({
     mutationFn: async (data) => {
       const response = await apiClient.post('/personas/generate-daily', data);
-      return response.data.data;
+      return response.data;
     },
     onError: (error) => {
       console.error('일일 페르소나 생성 오류:', error);
@@ -81,11 +81,11 @@ export const useRecommendedPersonas = (userGender: 'male' | 'female', limit: num
     queryKey: ['personas', 'recommended', userGender, limit],
     queryFn: async () => {
       const response = await apiClient.get(`/personas/recommended?userGender=${userGender}&limit=${limit}`);
-      return response.data.data;
+      return response.data;
     },
     enabled: !!userGender,
     staleTime: 5 * 60 * 1000, // 5분
-    cacheTime: 10 * 60 * 1000, // 10분
+    gcTime: 10 * 60 * 1000, // 10분 (cacheTime → gcTime)
   });
 };
 
@@ -97,7 +97,7 @@ export const usePersonaById = (id: string) => {
     queryKey: ['personas', id],
     queryFn: async () => {
       const response = await apiClient.get(`/personas/${id}`);
-      return response.data.data;
+      return response.data;
     },
     enabled: !!id,
   });
