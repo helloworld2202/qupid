@@ -37,7 +37,7 @@ export class PersonaController {
     } catch (error) {
       console.error('Generate persona error:', error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        res.status(error.status).json({
           success: false,
           message: error.message
         });
@@ -73,7 +73,7 @@ export class PersonaController {
     } catch (error) {
       console.error('Generate daily personas error:', error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        res.status(error.status).json({
           success: false,
           message: error.message
         });
@@ -106,7 +106,7 @@ export class PersonaController {
     } catch (error) {
       console.error('Get persona error:', error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        res.status(error.status).json({
           success: false,
           message: error.message
         });
@@ -144,7 +144,7 @@ export class PersonaController {
     } catch (error) {
       console.error('Get recommended personas error:', error);
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+        res.status(error.status).json({
           success: false,
           message: error.message
         });
