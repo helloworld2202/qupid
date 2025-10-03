@@ -101,7 +101,7 @@ const IntroScreen: React.FC<{ onNext: () => void; progress: number }> = ({ onNex
             console.log('무료로 시작하기 버튼 클릭됨!');
             onNext();
         }}>
-            🚀 테스트 버튼 🚀
+            무료로 시작하기
         </FixedBottomButton>
       </div>
     );
