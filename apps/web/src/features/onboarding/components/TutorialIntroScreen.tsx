@@ -23,7 +23,17 @@ const TutorialIntroScreen: React.FC<TutorialIntroScreenProps> = ({ persona, onSt
       </header>
 
       <main className="flex-1 px-6 text-center">
-        <img src={persona?.avatar || '/default-avatar.png'} alt={persona?.name || 'AI 친구'} className="w-24 h-24 rounded-full mx-auto shadow-lg" />
+        <div className="w-24 h-24 rounded-full mx-auto shadow-lg bg-gradient-to-br from-pink-200 to-blue-200 flex items-center justify-center">
+          <img 
+            src={persona?.avatar || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'} 
+            alt={persona?.name || 'AI 친구'} 
+            className="w-20 h-20 rounded-full object-cover border-2 border-white"
+            onError={(e) => {
+              // 기본 2D 캐릭터 이미지로 fallback
+              e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRkY5N0JCIi8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzUiIHI9IjE1IiBmaWxsPSIjRkZGRkZGIi8+CjxwYXRoIGQ9Ik0yMCA3NUMyMCA2NS4zNTU4IDI3LjM1NTggNTggMzcgNThINjNDNzIuNjQ0MiA1OCA4MCA2NS4zNTU4IDgwIDc1VjEwMEgyMFY3NVoiIGZpbGw9IiNGRkZGRkYiLz4KPC9zdmc+';
+            }}
+          />
+        </div>
         <h1 className="mt-4 text-2xl font-bold text-[#191F28]">첫 대화 튜토리얼</h1>
         <p className="text-base text-[#8B95A1] mt-2">첫 대화는 AI 친구 <span className="font-bold text-[#F093B0]">{persona?.name || 'AI 친구'}</span>님과 함께해요.</p>
         

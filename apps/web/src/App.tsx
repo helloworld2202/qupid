@@ -79,6 +79,18 @@ const AppContent: React.FC = () => {
   }, [currentScreen, originalNavigateTo]);
 
   useEffect(() => {
+    // 튜토리얼 세션 데이터 로드
+    const tutorialSessionData = localStorage.getItem('tutorialSessionData');
+    if (tutorialSessionData) {
+      try {
+        const session = JSON.parse(tutorialSessionData);
+        setSessionData(session);
+        console.log('튜토리얼 세션 데이터 로드됨:', session);
+      } catch (error) {
+        console.error('튜토리얼 세션 데이터 파싱 오류:', error);
+      }
+    }
+
     // Check if this is a social login callback
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -167,7 +179,14 @@ const AppContent: React.FC = () => {
     setUser(newProfile);
     setIsGuest(true);
     setAppState('main');
-    navigateTo(Screen.TutorialIntro); // 튜토리얼 소개 화면으로 이동
+    
+    // 튜토리얼 세션 데이터가 있으면 튜토리얼 화면으로, 없으면 홈으로
+    const tutorialSessionData = localStorage.getItem('tutorialSessionData');
+    if (tutorialSessionData) {
+      navigateTo(Screen.TutorialIntro); // 튜토리얼 소개 화면으로 이동
+    } else {
+      navigateTo('HOME'); // 홈 화면으로 이동
+    }
   };
   
   // 회원가입/로그인 유도 함수
