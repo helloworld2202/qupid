@@ -40,7 +40,7 @@ export class SocialAuthService {
 
   constructor() {
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
     
     if (!supabaseUrl || !supabaseServiceKey) {
       throw new Error('Supabase configuration is missing');
@@ -257,9 +257,13 @@ export class SocialAuthService {
 
   // 소셜 로그인 URL 생성
   getKakaoLoginUrl(): string {
+    if (!process.env.KAKAO_CLIENT_ID || !process.env.KAKAO_REDIRECT_URI) {
+      return '';
+    }
+    
     const params = new URLSearchParams({
-      client_id: process.env.KAKAO_CLIENT_ID || '',
-      redirect_uri: process.env.KAKAO_REDIRECT_URI || '',
+      client_id: process.env.KAKAO_CLIENT_ID,
+      redirect_uri: process.env.KAKAO_REDIRECT_URI,
       response_type: 'code',
     });
 
@@ -267,11 +271,15 @@ export class SocialAuthService {
   }
 
   getNaverLoginUrl(): string {
+    if (!process.env.NAVER_CLIENT_ID || !process.env.NAVER_REDIRECT_URI) {
+      return '';
+    }
+    
     const state = Math.random().toString(36).substring(2, 15);
     const params = new URLSearchParams({
       response_type: 'code',
-      client_id: process.env.NAVER_CLIENT_ID || '',
-      redirect_uri: process.env.NAVER_REDIRECT_URI || '',
+      client_id: process.env.NAVER_CLIENT_ID,
+      redirect_uri: process.env.NAVER_REDIRECT_URI,
       state,
     });
 
@@ -279,9 +287,13 @@ export class SocialAuthService {
   }
 
   getGoogleLoginUrl(): string {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REDIRECT_URI) {
+      return '';
+    }
+    
     const params = new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID || '',
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI || '',
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
       response_type: 'code',
       scope: 'openid email profile',
     });
