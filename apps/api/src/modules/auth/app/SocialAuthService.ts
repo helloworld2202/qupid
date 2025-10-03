@@ -209,7 +209,7 @@ export class SocialAuthService {
         throw profileError;
       }
 
-      let profile;
+      let profile: any;
       if (existingProfile) {
         // 기존 사용자 업데이트
         const { data: updatedProfile, error: updateError } = await this.supabase
@@ -224,7 +224,10 @@ export class SocialAuthService {
           .single();
 
         if (updateError) throw updateError;
-        profile = updatedProfile!;
+        if (!updatedProfile) {
+          throw new Error('Failed to update user profile');
+        }
+        profile = updatedProfile;
       } else {
         // 새 사용자 생성
         const { data: newProfile, error: createError } = await this.supabase
@@ -242,7 +245,10 @@ export class SocialAuthService {
           .single();
 
         if (createError) throw createError;
-        profile = newProfile!;
+        if (!newProfile) {
+          throw new Error('Failed to create user profile');
+        }
+        profile = newProfile;
       }
 
       // 2. JWT 토큰 생성 (간단한 구현)
@@ -255,15 +261,15 @@ export class SocialAuthService {
 
       return {
         user: {
-          id: profile!.id,
-          email: profile!.email,
-          name: profile!.name,
+          id: profile.id,
+          email: profile.email,
+          name: profile.name,
         },
         session: {
           access_token: token,
           refresh_token: token,
         },
-        profile: profile!,
+        profile: profile,
       };
     } catch (error) {
       console.error('Create or update user error:', error);
