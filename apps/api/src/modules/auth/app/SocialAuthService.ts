@@ -183,8 +183,19 @@ export class SocialAuthService {
   private async createOrUpdateUser(userInfo: SocialUserInfo): Promise<any> {
     try {
       // 1. Supabase Auth에 사용자 생성/로그인
+      // Supabase에서 지원하는 Provider 타입으로 변환
+      let supabaseProvider: 'google' | 'kakao';
+      if (userInfo.provider === 'google') {
+        supabaseProvider = 'google';
+      } else if (userInfo.provider === 'kakao') {
+        supabaseProvider = 'kakao';
+      } else {
+        // 네이버는 Supabase에서 직접 지원하지 않으므로 구글로 대체
+        supabaseProvider = 'google';
+      }
+
       const { data: authData, error: authError } = await this.supabase.auth.signInWithOAuth({
-        provider: userInfo.provider,
+        provider: supabaseProvider,
         options: {
           redirectTo: `${process.env.ALLOWED_ORIGINS?.split(',')[0]}/auth/callback`,
         },

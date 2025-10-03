@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Screen } from '@qupid/core';
 
-type NavigationScreen = Screen | 'HOME' | 'CHAT_TAB' | 'COACHING_TAB' | 'MY_TAB' | 'SETTINGS' | 'PERSONA_SELECTION' | 'PERSONA_RECOMMENDATION_INTRO';
+type NavigationScreen = Screen | 'HOME' | 'CHAT_TAB' | 'COACHING_TAB' | 'MY_TAB' | 'SETTINGS' | 'PERSONA_SELECTION' | 'PERSONA_RECOMMENDATION_INTRO' | 'AUTH_CALLBACK';
 
 interface NavigationState {
   currentScreen: NavigationScreen;
