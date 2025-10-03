@@ -2,8 +2,10 @@ import { z } from 'zod';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables from .env.local in the project root
-dotenv.config({ path: path.resolve(process.cwd(), '../../.env.local') });
+// Load environment variables from .env.local in the project root (development only)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: path.resolve(process.cwd(), '../../.env.local') });
+}
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
