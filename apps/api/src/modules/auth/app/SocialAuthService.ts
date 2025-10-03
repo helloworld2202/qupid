@@ -36,7 +36,7 @@ interface GoogleUserInfo {
 }
 
 export class SocialAuthService {
-  private supabase;
+  private supabase: any = null;
   private isEnabled: boolean = false;
 
   constructor() {
@@ -46,6 +46,7 @@ export class SocialAuthService {
     if (!supabaseUrl || !supabaseServiceKey) {
       console.warn('SocialAuthService: Supabase configuration is missing. Social login will be disabled.');
       this.isEnabled = false;
+      this.supabase = null;
       return;
     }
 
@@ -197,6 +198,10 @@ export class SocialAuthService {
 
   // 사용자 생성 또는 업데이트
   private async createOrUpdateUser(userInfo: SocialUserInfo): Promise<any> {
+    if (!this.supabase) {
+      throw AppError.internal('Supabase client is not initialized.');
+    }
+    
     try {
       // 1. 사용자 프로필 테이블에서 확인/생성
       const { data: existingProfile, error: profileError } = await this.supabase
