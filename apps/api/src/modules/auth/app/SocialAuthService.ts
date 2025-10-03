@@ -37,20 +37,28 @@ interface GoogleUserInfo {
 
 export class SocialAuthService {
   private supabase;
+  private isEnabled: boolean = false;
 
   constructor() {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
     
     if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Supabase configuration is missing');
+      console.warn('SocialAuthService: Supabase configuration is missing. Social login will be disabled.');
+      this.isEnabled = false;
+      return;
     }
 
     this.supabase = createClient(supabaseUrl, supabaseServiceKey);
+    this.isEnabled = true;
   }
 
   // 카카오 로그인
   async kakaoLogin(code: string): Promise<any> {
+    if (!this.isEnabled) {
+      throw AppError.badRequest('소셜 로그인이 비활성화되어 있습니다.');
+    }
+    
     try {
       // 1. 카카오에서 액세스 토큰 받기
       const tokenResponse = await axios.post('https://kauth.kakao.com/oauth/token', {
@@ -94,6 +102,10 @@ export class SocialAuthService {
 
   // 네이버 로그인
   async naverLogin(code: string, state: string): Promise<any> {
+    if (!this.isEnabled) {
+      throw AppError.badRequest('소셜 로그인이 비활성화되어 있습니다.');
+    }
+    
     try {
       // 1. 네이버에서 액세스 토큰 받기
       const tokenResponse = await axios.post('https://nid.naver.com/oauth2.0/token', {
@@ -138,6 +150,10 @@ export class SocialAuthService {
 
   // 구글 로그인
   async googleLogin(code: string): Promise<any> {
+    if (!this.isEnabled) {
+      throw AppError.badRequest('소셜 로그인이 비활성화되어 있습니다.');
+    }
+    
     try {
       // 1. 구글에서 액세스 토큰 받기
       const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
@@ -257,7 +273,7 @@ export class SocialAuthService {
 
   // 소셜 로그인 URL 생성
   getKakaoLoginUrl(): string {
-    if (!process.env.KAKAO_CLIENT_ID || !process.env.KAKAO_REDIRECT_URI) {
+    if (!this.isEnabled || !process.env.KAKAO_CLIENT_ID || !process.env.KAKAO_REDIRECT_URI) {
       return '';
     }
     
@@ -271,7 +287,7 @@ export class SocialAuthService {
   }
 
   getNaverLoginUrl(): string {
-    if (!process.env.NAVER_CLIENT_ID || !process.env.NAVER_REDIRECT_URI) {
+    if (!this.isEnabled || !process.env.NAVER_CLIENT_ID || !process.env.NAVER_REDIRECT_URI) {
       return '';
     }
     
@@ -287,7 +303,7 @@ export class SocialAuthService {
   }
 
   getGoogleLoginUrl(): string {
-    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REDIRECT_URI) {
+    if (!this.isEnabled || !process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REDIRECT_URI) {
       return '';
     }
     

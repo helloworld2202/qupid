@@ -35,6 +35,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   
   const currentUser = userProfile || defaultUserProfile;
   
+  // 오늘의 대화 수 계산
+  const todayConversations = React.useMemo(() => {
+    // localStorage에서 오늘의 대화 기록 확인
+    const today = new Date().toDateString();
+    const todayConversationsData = localStorage.getItem(`conversations_${today}`);
+    
+    if (todayConversationsData) {
+      try {
+        const conversations = JSON.parse(todayConversationsData);
+        return conversations.length;
+      } catch (error) {
+        console.error('Error parsing today conversations:', error);
+        return 0;
+      }
+    }
+    
+    // 게스트 모드인 경우 게스트 채팅 수 확인
+    const guestChatCount = parseInt(localStorage.getItem('guestChatCount') || '0');
+    return guestChatCount;
+  }, []);
+  
   // 이성 페르소나만 필터링
   const personas = allPersonas.filter(p => p.gender === (currentUser.partner_gender || 'female'));
   
@@ -116,10 +137,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             <div className="flex items-center justify-between">
                 <div>
                     <p className="text-sm font-bold text-[#191F28]">📅 오늘의 목표</p>
-                    <p className="text-2xl font-bold mt-1" style={{color: '#F093B0'}}>2/3 대화 완료</p>
+                    <p className="text-2xl font-bold mt-1" style={{color: '#F093B0'}}>{todayConversations}/3 대화 완료</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-sm font-medium" style={{color: '#4F7ABA'}}>1번 더 대화하면 목표 달성!</p>
+                    <p className="text-sm font-medium" style={{color: '#4F7ABA'}}>
+                        {todayConversations >= 3 ? '목표 달성!' : `${3 - todayConversations}번 더 대화하면 목표 달성!`}
+                    </p>
                     <button onClick={() => {
                         const firstRecommended = personas.find(p => p.gender === partnerGender);
                         if (firstRecommended) {
@@ -132,7 +155,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                 </div>
             </div>
             <div className="w-full bg-white/30 h-1.5 rounded-full mt-3">
-                <div className="bg-[#F093B0] h-1.5 rounded-full" style={{width: '66%'}}></div>
+                <div className="bg-[#F093B0] h-1.5 rounded-full" style={{width: `${(todayConversations / 3) * 100}%`}}></div>
             </div>
         </div>
 
