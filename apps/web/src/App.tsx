@@ -182,9 +182,13 @@ const AppContent: React.FC = () => {
     
     // 튜토리얼 세션 데이터가 있으면 튜토리얼 화면으로, 없으면 홈으로
     const tutorialSessionData = localStorage.getItem('tutorialSessionData');
+    console.log('handleOnboardingComplete - tutorialSessionData:', tutorialSessionData);
+    
     if (tutorialSessionData) {
+      console.log('튜토리얼 화면으로 이동');
       navigateTo(Screen.TutorialIntro); // 튜토리얼 소개 화면으로 이동
     } else {
+      console.log('홈 화면으로 이동');
       navigateTo('HOME'); // 홈 화면으로 이동
     }
   };

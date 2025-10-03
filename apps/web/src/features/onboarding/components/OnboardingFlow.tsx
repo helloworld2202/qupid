@@ -277,13 +277,17 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile) =>
         
         // sessionData를 localStorage에 저장
         localStorage.setItem('tutorialSessionData', JSON.stringify(sessionData));
+        console.log('튜토리얼 세션 데이터 저장됨:', sessionData);
       }
     } catch (error) {
       console.error('Failed to create user profile:', error);
     }
     
-    onComplete(profile);
-  }, [createUser, onComplete, profile, setCurrentUserId]);
+    // onComplete 호출 전에 약간의 지연을 추가하여 localStorage 저장이 완료되도록 함
+    setTimeout(() => {
+      onComplete(profile);
+    }, 100);
+  }, [createUser, onComplete, profile, setCurrentUserId, generatePersona]);
 
   // 관심사 기반 튜토리얼 페르소나 생성 함수 (API 사용)
   const generateTutorialPersona = async (profile: NewUserProfile) => {
