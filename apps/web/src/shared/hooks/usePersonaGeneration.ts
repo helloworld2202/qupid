@@ -1,6 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../services/apiClient';
 
+// API 응답 타입 정의
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
 export interface PersonaProfile {
   id: string;
   name: string;
@@ -49,7 +56,7 @@ export interface GenerateDailyPersonasRequest {
 export const useGeneratePersona = () => {
   return useMutation<PersonaProfile, Error, GeneratePersonaRequest>({
     mutationFn: async (data) => {
-      const response = await apiClient.post('/personas/generate', data);
+      const response = await apiClient.post<ApiResponse<PersonaProfile>>('/personas/generate', data);
       return response.data;
     },
     onError: (error) => {
@@ -64,7 +71,7 @@ export const useGeneratePersona = () => {
 export const useGenerateDailyPersonas = () => {
   return useMutation<PersonaProfile[], Error, GenerateDailyPersonasRequest>({
     mutationFn: async (data) => {
-      const response = await apiClient.post('/personas/generate-daily', data);
+      const response = await apiClient.post<ApiResponse<PersonaProfile[]>>('/personas/generate-daily', data);
       return response.data;
     },
     onError: (error) => {
@@ -80,7 +87,7 @@ export const useRecommendedPersonas = (userGender: 'male' | 'female', limit: num
   return useQuery<PersonaProfile[]>({
     queryKey: ['personas', 'recommended', userGender, limit],
     queryFn: async () => {
-      const response = await apiClient.get(`/personas/recommended?userGender=${userGender}&limit=${limit}`);
+      const response = await apiClient.get<ApiResponse<PersonaProfile[]>>(`/personas/recommended?userGender=${userGender}&limit=${limit}`);
       return response.data;
     },
     enabled: !!userGender,
@@ -96,7 +103,7 @@ export const usePersonaById = (id: string) => {
   return useQuery<PersonaProfile>({
     queryKey: ['personas', id],
     queryFn: async () => {
-      const response = await apiClient.get(`/personas/${id}`);
+      const response = await apiClient.get<ApiResponse<PersonaProfile>>(`/personas/${id}`);
       return response.data;
     },
     enabled: !!id,
