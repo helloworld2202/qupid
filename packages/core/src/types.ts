@@ -69,7 +69,7 @@ export enum Screen {
   SIGNUP,
 }
 
-export type NavigationScreen = Screen | 'HOME' | 'CHAT_TAB' | 'COACHING_TAB' | 'MY_TAB' | 'ONBOARDING' | 'SETTINGS' | 'PERSONA_SELECTION' | string;
+export type NavigationScreen = Screen | 'HOME' | 'CHAT_TAB' | 'COACHING_TAB' | 'MY_TAB' | 'ONBOARDING' | 'SETTINGS' | 'PERSONA_SELECTION' | 'AUTH_CALLBACK' | string;
 
 export interface UserProfile {
   id?: string;
