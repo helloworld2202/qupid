@@ -68,6 +68,7 @@ export const OnboardingFlow = ({ onComplete }) => {
     const prevStep = useCallback(() => setStep(s => s > 0 ? s - 1 : 0), []);
     const handleFinalComplete = useCallback(async () => {
         try {
+            console.log('🎯 온보딩 완료 처리 시작:', profile);
             // Create user in database
             const userProfile = {
                 name: '사용자',
@@ -83,49 +84,65 @@ export const OnboardingFlow = ({ onComplete }) => {
                 interests: profile.interests.map((i) => i.split(' ')[1] || i),
                 isTutorialCompleted: false
             };
+            console.log('👤 사용자 프로필 생성:', userProfile);
             let tutorialPersona = null;
             const result = await createUser.mutateAsync(userProfile);
+            console.log('💾 사용자 생성 결과:', result);
             if (result?.id) {
                 setCurrentUserId(result.id);
                 // 관심사 기반 자동 AI 프로필 생성 (API 사용)
+                console.log('🤖 튜토리얼 페르소나 생성 시도...');
                 tutorialPersona = await generateTutorialPersona(profile);
+                console.log('✅ 생성된 튜토리얼 페르소나:', tutorialPersona);
             }
             // API 생성 실패하거나 DB가 없으면, constants에서 첫 번째 페르소나 사용
             if (!tutorialPersona) {
+                console.log('⚠️ 튜토리얼 페르소나가 없음, 기본 페르소나 사용');
                 const { PREDEFINED_PERSONAS } = await import('@qupid/core');
                 const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
                 tutorialPersona = PREDEFINED_PERSONAS.find(p => p.gender === partnerGender) || PREDEFINED_PERSONAS[0];
+                console.log('🔄 기본 페르소나 선택:', tutorialPersona);
             }
+            console.log('🎉 최종 튜토리얼 페르소나:', tutorialPersona);
             // 튜토리얼 페르소나와 함께 onComplete 호출
             onComplete(profile, tutorialPersona);
         }
         catch (error) {
-            console.error('Failed to create user profile:', error);
+            console.error('❌ 사용자 프로필 생성 실패:', error);
             // 완전 실패 시에도 constants에서 페르소나 가져와서 진행
+            console.log('🆘 완전 실패, 기본 페르소나로 진행');
             const { PREDEFINED_PERSONAS } = await import('@qupid/core');
             const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
             const fallbackPersona = PREDEFINED_PERSONAS.find(p => p.gender === partnerGender) || PREDEFINED_PERSONAS[0];
+            console.log('🔄 최종 fallback 페르소나:', fallbackPersona);
             onComplete(profile, fallbackPersona);
         }
     }, [createUser, onComplete, profile, setCurrentUserId, generatePersona]);
     // 관심사 기반 튜토리얼 페르소나 생성 함수 (API 사용)
     const generateTutorialPersona = async (profile) => {
         try {
+            console.log('🚀 튜토리얼 페르소나 생성 시작:', profile);
             const interests = profile.interests.map((i) => i.split(' ')[1] || i);
+            console.log('📝 페르소나 생성 요청 데이터:', {
+                userGender: profile.user_gender,
+                userInterests: interests,
+                isTutorial: true
+            });
             const persona = await generatePersona.mutateAsync({
                 userGender: profile.user_gender,
                 userInterests: interests,
                 isTutorial: true
             });
+            console.log('✅ 튜토리얼 페르소나 생성 성공:', persona);
             return persona;
         }
         catch (error) {
-            console.error('페르소나 생성 실패, 기본 페르소나 사용:', error);
+            console.error('❌ 페르소나 생성 실패, 기본 페르소나 사용:', error);
             // API 실패 시 기본 페르소나 반환
             const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
             const interests = profile.interests.map((i) => i.split(' ')[1] || i);
-            return {
-                id: 'tutorial-persona-1',
+            const fallbackPersona = {
+                id: 'tutorial-persona-fallback',
                 name: partnerGender === 'female' ? '김서현' : '박지훈',
                 age: 25,
                 gender: partnerGender,

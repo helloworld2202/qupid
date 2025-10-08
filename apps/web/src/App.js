@@ -165,12 +165,14 @@ const AppContent = () => {
         setIsGuest(true);
         setAppState('main');
         // 튜토리얼 페르소나를 sessionData에 저장
+        console.log('🎉 온보딩 완료:', profile);
+        console.log('🤖 튜토리얼 페르소나:', tutorialPersona);
         if (tutorialPersona) {
             setSessionData({ partner: tutorialPersona, isTutorial: true });
-            console.log('온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
+            console.log('✅ 온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
         }
         else {
-            console.log('튜토리얼 페르소나 없음 - 튜토리얼 화면으로 이동');
+            console.log('⚠️ 튜토리얼 페르소나 없음 - 튜토리얼 화면으로 이동');
         }
         navigateTo(Screen.TutorialIntro);
     };
@@ -280,6 +282,10 @@ const AppContent = () => {
             case Screen.TutorialIntro:
                 // sessionData에서 튜토리얼 페르소나 가져오기
                 const tutorialPartner = sessionData?.partner;
+                // 🚀 페르소나 정보가 없으면 에러 화면 표시
+                if (!tutorialPartner) {
+                    return (_jsx("div", { className: "h-full w-full flex flex-col items-center justify-center bg-white", children: _jsxs("div", { className: "text-center p-8", children: [_jsx("div", { className: "w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center", children: _jsx("span", { className: "text-2xl", children: "\u26A0\uFE0F" }) }), _jsx("h2", { className: "text-xl font-bold text-gray-800 mb-2", children: "\uD398\uB974\uC18C\uB098 \uC815\uBCF4\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4" }), _jsx("p", { className: "text-gray-600 mb-6", children: "\uD29C\uD1A0\uB9AC\uC5BC\uC744 \uC2DC\uC791\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4." }), _jsx("button", { onClick: () => navigateTo('HOME'), className: "px-6 py-3 bg-[#0AC5A8] text-white rounded-lg font-medium hover:bg-[#08A693] transition-colors", children: "\uB3CC\uC544\uAC00\uAE30" })] }) }));
+                }
                 return (_jsx(TutorialIntroScreen, { persona: tutorialPartner, onBack: () => navigateTo('HOME'), onComplete: () => {
                         // 튜토리얼 페르소나를 설정하고 튜토리얼 모드로 표시
                         setSessionData({ partner: tutorialPartner, isTutorial: true });

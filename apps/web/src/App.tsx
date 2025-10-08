@@ -181,11 +181,14 @@ const AppContent: React.FC = () => {
     setAppState('main');
     
     // 튜토리얼 페르소나를 sessionData에 저장
+    console.log('🎉 온보딩 완료:', profile);
+    console.log('🤖 튜토리얼 페르소나:', tutorialPersona);
+    
     if (tutorialPersona) {
       setSessionData({ partner: tutorialPersona, isTutorial: true });
-      console.log('온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
+      console.log('✅ 온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
     } else {
-      console.log('튜토리얼 페르소나 없음 - 튜토리얼 화면으로 이동');
+      console.log('⚠️ 튜토리얼 페르소나 없음 - 튜토리얼 화면으로 이동');
     }
     
     navigateTo(Screen.TutorialIntro);
@@ -342,6 +345,27 @@ const AppContent: React.FC = () => {
       case Screen.TutorialIntro:
         // sessionData에서 튜토리얼 페르소나 가져오기
         const tutorialPartner = sessionData?.partner;
+        
+        // 🚀 페르소나 정보가 없으면 에러 화면 표시
+        if (!tutorialPartner) {
+          return (
+            <div className="h-full w-full flex flex-col items-center justify-center bg-white">
+              <div className="text-center p-8">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                  <span className="text-2xl">⚠️</span>
+                </div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">페르소나 정보가 없습니다</h2>
+                <p className="text-gray-600 mb-6">튜토리얼을 시작할 수 없습니다.</p>
+                <button 
+                  onClick={() => navigateTo('HOME')}
+                  className="px-6 py-3 bg-[#0AC5A8] text-white rounded-lg font-medium hover:bg-[#08A693] transition-colors"
+                >
+                  돌아가기
+                </button>
+              </div>
+            </div>
+          );
+        }
         
         return (
           <TutorialIntroScreen
