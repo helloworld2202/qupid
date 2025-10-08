@@ -44,7 +44,7 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, on
     const sendCoachingMessageMutation = useSendCoachingMessage();
     const analyzeCoachingMutation = useAnalyzeCoachingSession();
     const fetchAndShowSuggestion = useCallback(async () => {
-        if (isFetchingSuggestion || showCoachHint || messages.length < 2)
+        if (isFetchingSuggestion || showCoachHint || messages.length < 1)
             return;
         setShowCoachHint(true);
         setIsFetchingSuggestion(true);

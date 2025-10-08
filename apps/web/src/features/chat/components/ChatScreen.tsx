@@ -102,7 +102,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const analyzeCoachingMutation = useAnalyzeCoachingSession();
 
   const fetchAndShowSuggestion = useCallback(async () => {
-    if (isFetchingSuggestion || showCoachHint || messages.length < 2) return;
+    if (isFetchingSuggestion || showCoachHint || messages.length < 1) return;
 
     setShowCoachHint(true);
     setIsFetchingSuggestion(true);
