@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { useState } from 'react';
 import { UserProfile, Screen, PerformanceData, PREDEFINED_PERSONAS, MOCK_BADGES, MOCK_PERFORMANCE_DATA } from '@qupid/core';
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
 import { usePersonas } from '../hooks/usePersonas';
@@ -16,6 +16,10 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) => {
   const { currentUserId } = useAppStore();
+  
+  // 슬라이드 상태 관리
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [hasViewedAllSlides, setHasViewedAllSlides] = useState(false);
   
   // API 데이터 페칭 (실패 시 constants 사용)
   const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
@@ -102,8 +106,33 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   const recentBadge = badges && badges.length > 0 ? badges.find(b => b.featured) : undefined;
   const partnerGender = currentUser.user_gender === 'female' ? 'male' : 'female';
   const recommendedPersonas = personas && personas.length > 0 
-    ? personas.filter(p => p.gender === partnerGender).slice(0, 5) 
+    ? personas.filter(p => p.gender === partnerGender).slice(0, 3) 
     : [];
+  
+  // 슬라이드 함수들
+  const handleSlideNext = () => {
+    if (currentSlideIndex < recommendedPersonas.length - 1) {
+      setCurrentSlideIndex(currentSlideIndex + 1);
+    } else {
+      // 마지막 슬라이드까지 본 경우
+      setHasViewedAllSlides(true);
+    }
+  };
+  
+  const handleSlidePrev = () => {
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex(currentSlideIndex - 1);
+      setHasViewedAllSlides(false);
+    }
+  };
+  
+  const handleRefreshRecommendations = () => {
+    // 새로고침 시 비용 지출 로직 (추후 구현)
+    console.log('새로운 추천 AI를 위해 비용을 지불합니다...');
+    setCurrentSlideIndex(0);
+    setHasViewedAllSlides(false);
+    // TODO: 실제로는 새로운 페르소나 데이터를 가져와야 함
+  };
   
   // 로딩 상태 처리
   if (isLoadingPersonas || isLoadingBadges || isLoadingPerformance) {
@@ -184,32 +213,102 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
             </div>
         </div>
 
-        {/* Recommended AI Card */}
+        {/* Recommended AI Card - 슬라이드 UI */}
         <div className="p-5 bg-white rounded-2xl border" style={{borderColor: '#F2F4F6'}}>
-            <h2 className="font-bold text-lg">💕 오늘의 추천 AI</h2>
-            <p className="text-sm text-gray-500 mb-4">지금 대화하기 좋은 친구들이에요</p>
-            <div className="flex space-x-3 overflow-x-auto pb-2 -mx-5 px-5">
-                {recommendedPersonas.map((p, index) => (
-                    <div 
-                      key={p.id} 
-                      onClick={() => {
-                        if (onSelectPersona) {
-                          onSelectPersona(p);
-                        } else {
-                          onNavigate('CHAT_TAB');
-                        }
-                      }} 
-                      className="flex-shrink-0 w-32 p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E8EB] text-center cursor-pointer transition-all hover:shadow-md hover:border-[#F093B0] hover:-translate-y-1"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                        <div className="relative w-16 h-16 mx-auto">
-                           <img src={p.avatar} alt={p.name} className="w-full h-full rounded-full object-cover" />
-                           <div className="absolute -bottom-0.5 right-0 w-4 h-4 bg-[#0AC5A8] rounded-full border-2 border-white"></div>
+            <div className="flex justify-between items-center mb-4">
+                <div>
+                    <h2 className="font-bold text-lg">💕 오늘의 추천 AI</h2>
+                    <p className="text-sm text-gray-500">지금 대화하기 좋은 친구들이에요</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-400">{currentSlideIndex + 1}/{recommendedPersonas.length}</span>
+                    {hasViewedAllSlides && (
+                        <button 
+                          onClick={handleRefreshRecommendations}
+                          className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105"
+                          style={{backgroundColor: '#F093B0'}}
+                        >
+                          새로고침 💎
+                        </button>
+                    )}
+                </div>
+            </div>
+            
+            {/* 슬라이드 컨테이너 */}
+            <div className="relative overflow-hidden rounded-xl">
+                <div 
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlideIndex * 100}%)` }}
+                >
+                    {recommendedPersonas.map((p, index) => (
+                        <div 
+                          key={p.id} 
+                          className="w-full flex-shrink-0 p-6 rounded-xl bg-gradient-to-br from-[#F9FAFB] to-[#F0F4F8] border border-[#E5E8EB] text-center cursor-pointer transition-all hover:shadow-lg hover:border-[#F093B0] hover:-translate-y-1"
+                          onClick={() => {
+                            if (onSelectPersona) {
+                              onSelectPersona(p);
+                            } else {
+                              onNavigate('CHAT_TAB');
+                            }
+                          }}
+                        >
+                            <div className="relative w-20 h-20 mx-auto mb-3">
+                               <img src={p.avatar} alt={p.name} className="w-full h-full rounded-full object-cover" />
+                               <div className="absolute -bottom-1 right-0 w-5 h-5 bg-[#0AC5A8] rounded-full border-2 border-white flex items-center justify-center">
+                                 <span className="text-xs font-bold text-white">{p.match_rate}%</span>
+                               </div>
+                            </div>
+                            <h3 className="font-bold text-lg mb-1">{p.name}</h3>
+                            <p className="text-sm text-gray-600 mb-2">{p.age}세 • {p.job}</p>
+                            <div className="flex flex-wrap justify-center gap-1 mb-3">
+                                {p.tags?.slice(0, 2).map((tag, tagIndex) => (
+                                    <span key={tagIndex} className="px-2 py-1 text-xs bg-[#F093B0] text-white rounded-full">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                            <div className="text-xs text-gray-500 mb-3">
+                                {p.intro?.length > 50 ? `${p.intro.substring(0, 50)}...` : p.intro}
+                            </div>
+                            <button className="w-full py-2 px-4 text-sm font-bold text-white rounded-lg transition-all hover:scale-105" style={{backgroundColor: '#F093B0'}}>
+                                자세히 보기
+                            </button>
                         </div>
-                        <p className="mt-2 font-bold text-sm truncate">{p.name}</p>
-                        <p className="text-xs text-[#0AC5A8] font-bold">{p.match_rate}%</p>
+                    ))}
+                </div>
+                
+                {/* 슬라이드 네비게이션 */}
+                {recommendedPersonas.length > 1 && (
+                    <div className="flex justify-center space-x-2 mt-4">
+                        <button 
+                          onClick={handleSlidePrev}
+                          disabled={currentSlideIndex === 0}
+                          className="p-2 rounded-full transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                          style={{backgroundColor: currentSlideIndex === 0 ? '#E5E8EB' : '#F093B0'}}
+                        >
+                            <ChevronRightIcon className="w-4 h-4 text-white rotate-180" />
+                        </button>
+                        <div className="flex space-x-1">
+                            {recommendedPersonas.map((_, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => setCurrentSlideIndex(index)}
+                                  className={`w-2 h-2 rounded-full transition-all ${
+                                    index === currentSlideIndex ? 'bg-[#F093B0]' : 'bg-[#E5E8EB]'
+                                  }`}
+                                />
+                            ))}
+                        </div>
+                        <button 
+                          onClick={handleSlideNext}
+                          disabled={currentSlideIndex === recommendedPersonas.length - 1}
+                          className="p-2 rounded-full transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                          style={{backgroundColor: currentSlideIndex === recommendedPersonas.length - 1 ? '#E5E8EB' : '#F093B0'}}
+                        >
+                            <ChevronRightIcon className="w-4 h-4 text-white" />
+                        </button>
                     </div>
-                ))}
+                )}
             </div>
         </div>
         
