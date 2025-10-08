@@ -5,7 +5,6 @@ import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
 import { usePersonas } from '../../../shared/hooks/usePersonas';
 import { useFavorites } from '../../../shared/hooks/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
-import { PREDEFINED_PERSONAS } from '@qupid/core';
 const PersonaCard = ({ persona, onSelect }) => {
     return (_jsxs("div", { className: "w-full p-4 flex bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-lg hover:border-[#F093B0] hover:-translate-y-0.5 cursor-pointer", onClick: onSelect, children: [_jsx("img", { src: persona.avatar, alt: persona.name, className: "w-20 h-20 rounded-xl object-cover" }), _jsxs("div", { className: "ml-4 flex-1 flex flex-col", children: [_jsxs("div", { className: "flex justify-between items-start", children: [_jsxs("div", { children: [_jsxs("p", { className: "font-bold text-lg text-[#191F28]", children: [persona.name, ", ", persona.age] }), _jsxs("p", { className: "text-sm text-[#8B95A1] mt-0.5", children: [persona.job, " \u00B7 ", persona.mbti] })] }), _jsxs("p", { className: "font-bold text-sm text-[#0AC5A8]", children: [persona.match_rate, "% \uB9DE\uC74C"] })] }), _jsx("div", { className: "mt-2 flex flex-wrap gap-1.5", children: persona.tags.map(tag => (_jsxs("span", { className: "px-2 py-0.5 bg-[#EBF2FF] text-[#4F7ABA] text-xs font-medium rounded-md", children: ["#", tag] }, tag))) })] })] }));
 };
@@ -14,7 +13,8 @@ const ChatTabScreen = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => 
     const { currentUserId } = useAppStore();
     // API 호출
     const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
-    const personas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
+    // 🚀 하드코딩 제거 - API 데이터만 사용
+    const personas = apiPersonas;
     const { data: favoriteIds = [] } = useFavorites(currentUserId || '');
     // 임시 하드코딩 사용자 프로필 (추후 API 구현)
     const userProfile = {

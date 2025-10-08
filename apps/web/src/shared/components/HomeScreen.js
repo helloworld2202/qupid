@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useState, useEffect } from 'react';
-import { Screen, PREDEFINED_PERSONAS, MOCK_BADGES } from '@qupid/core';
+import { Screen, MOCK_BADGES } from '@qupid/core';
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
 import { usePersonas } from '../hooks/usePersonas';
 import { useBadges } from '../hooks/useBadges';
@@ -59,8 +59,8 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
             generateNewPersonas();
         }
     }, [userProfile]);
-    // API 데이터가 없으면 constants 사용
-    const allPersonas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
+    // 🚀 하드코딩 제거 - API 데이터만 사용
+    const allPersonas = apiPersonas; // API 데이터만 사용, 하드코딩 제거
     const allBadges = apiBadges.length > 0 ? apiBadges : MOCK_BADGES;
     // 🚀 실제 성과 데이터 사용 (API에서 가져온 데이터 또는 기본값)
     const performanceData = apiPerformanceData || {
@@ -91,8 +91,8 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
             { title: '공감력', emoji: '💬', score: 0, change: 0, goal: 70 },
         ]
     };
-    // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 기본 페르소나 사용
-    const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas : allPersonas.slice(0, 3);
+    // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 빈 배열 (동적 생성 대기)
+    const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas.slice(0, 3) : [];
     // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
     const defaultUserProfile = {
         name: '사용자',

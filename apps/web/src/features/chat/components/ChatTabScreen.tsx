@@ -5,7 +5,7 @@ import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
 import { usePersonas } from '../../../shared/hooks/usePersonas';
 import { useFavorites } from '../../../shared/hooks/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
-import { PREDEFINED_PERSONAS } from '@qupid/core';
+// 🚀 하드코딩된 페르소나 제거 - 동적 생성 시스템 사용
 
 interface ChatTabScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -46,7 +46,8 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
   
   // API 호출
   const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
-  const personas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
+  // 🚀 하드코딩 제거 - API 데이터만 사용
+  const personas = apiPersonas;
   const { data: favoriteIds = [] } = useFavorites(currentUserId || '');
   
   // 임시 하드코딩 사용자 프로필 (추후 API 구현)

@@ -282,13 +282,36 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile, tu
         console.log('✅ 생성된 튜토리얼 페르소나:', tutorialPersona);
       }
       
-      // API 생성 실패하거나 DB가 없으면, constants에서 첫 번째 페르소나 사용
+      // 🚀 API 생성 실패 시 기본 페르소나 생성 (하드코딩 제거)
       if (!tutorialPersona) {
-        console.log('⚠️ 튜토리얼 페르소나가 없음, 기본 페르소나 사용');
-        const { PREDEFINED_PERSONAS } = await import('@qupid/core');
+        console.log('⚠️ 튜토리얼 페르소나가 없음, 기본 페르소나 생성');
         const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
-        tutorialPersona = PREDEFINED_PERSONAS.find(p => p.gender === partnerGender) || PREDEFINED_PERSONAS[0];
-        console.log('🔄 기본 페르소나 선택:', tutorialPersona);
+        tutorialPersona = {
+          id: 'tutorial-persona-generated',
+          name: partnerGender === 'female' ? '김서현' : '박지훈',
+          age: 25,
+          gender: partnerGender,
+          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+          personality: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
+          occupation: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
+          mbti: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
+          intro: partnerGender === 'female' ? '아이들과 함께하는 일을 좋아해요 ✨' : '코딩과 기술에 관심이 많아요 💻',
+          system_instruction: `당신은 ${partnerGender === 'female' ? '25세 초등학교 교사 김서현' : '25세 소프트웨어 개발자 박지훈'}입니다. ${partnerGender === 'female' ? 'ENFP' : 'ISFJ'} 성격을 가지고 있으며, 자연스럽고 친근한 대화를 나누세요.`,
+          tags: partnerGender === 'female' ? ['교육', '아이들', '활발함'] : ['코딩', '기술', '차분함'],
+          match_rate: 85,
+          personality_traits: partnerGender === 'female' ? ['외향적', '친근함', '활발함'] : ['내향적', '차분함', '신중함'],
+          interests: partnerGender === 'female' ? [
+            { emoji: '👶', topic: '아이들', description: '아이들과 함께하는 시간을 좋아해요' },
+            { emoji: '📚', topic: '교육', description: '교육에 대한 열정이 있어요' }
+          ] : [
+            { emoji: '💻', topic: '코딩', description: '새로운 기술을 배우는 걸 좋아해요' },
+            { emoji: '🎮', topic: '게임', description: '게임 개발에 관심이 있어요' }
+          ],
+          conversation_preview: [
+            { sender: 'ai', text: '안녕하세요! 반가워요 😊' }
+          ]
+        };
+        console.log('🔄 생성된 기본 페르소나:', tutorialPersona);
       }
       
       console.log('🎉 최종 튜토리얼 페르소나:', tutorialPersona);
@@ -298,11 +321,34 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile, tu
     } catch (error) {
       console.error('❌ 사용자 프로필 생성 실패:', error);
       
-      // 완전 실패 시에도 constants에서 페르소나 가져와서 진행
-      console.log('🆘 완전 실패, 기본 페르소나로 진행');
-      const { PREDEFINED_PERSONAS } = await import('@qupid/core');
+      // 🚀 완전 실패 시에도 동적 생성된 페르소나로 진행 (하드코딩 제거)
+      console.log('🆘 완전 실패, 동적 생성된 기본 페르소나로 진행');
       const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
-      const fallbackPersona = PREDEFINED_PERSONAS.find(p => p.gender === partnerGender) || PREDEFINED_PERSONAS[0];
+      const fallbackPersona = {
+        id: 'tutorial-persona-fallback',
+        name: partnerGender === 'female' ? '김서현' : '박지훈',
+        age: 25,
+        gender: partnerGender,
+        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+        personality: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
+        occupation: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
+        mbti: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
+        intro: partnerGender === 'female' ? '아이들과 함께하는 일을 좋아해요 ✨' : '코딩과 기술에 관심이 많아요 💻',
+        system_instruction: `당신은 ${partnerGender === 'female' ? '25세 초등학교 교사 김서현' : '25세 소프트웨어 개발자 박지훈'}입니다. ${partnerGender === 'female' ? 'ENFP' : 'ISFJ'} 성격을 가지고 있으며, 자연스럽고 친근한 대화를 나누세요.`,
+        tags: partnerGender === 'female' ? ['교육', '아이들', '활발함'] : ['코딩', '기술', '차분함'],
+        match_rate: 85,
+        personality_traits: partnerGender === 'female' ? ['외향적', '친근함', '활발함'] : ['내향적', '차분함', '신중함'],
+        interests: partnerGender === 'female' ? [
+          { emoji: '👶', topic: '아이들', description: '아이들과 함께하는 시간을 좋아해요' },
+          { emoji: '📚', topic: '교육', description: '교육에 대한 열정이 있어요' }
+        ] : [
+          { emoji: '💻', topic: '코딩', description: '새로운 기술을 배우는 걸 좋아해요' },
+          { emoji: '🎮', topic: '게임', description: '게임 개발에 관심이 있어요' }
+        ],
+        conversation_preview: [
+          { sender: 'ai', text: '안녕하세요! 반가워요 😊' }
+        ]
+      };
       console.log('🔄 최종 fallback 페르소나:', fallbackPersona);
       onComplete(profile, fallbackPersona);
     }

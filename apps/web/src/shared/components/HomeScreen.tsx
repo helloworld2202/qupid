@@ -72,8 +72,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
     }
   }, [userProfile]);
 
-  // API 데이터가 없으면 constants 사용
-  const allPersonas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
+  // 🚀 하드코딩 제거 - API 데이터만 사용
+  const allPersonas = apiPersonas; // API 데이터만 사용, 하드코딩 제거
   const allBadges = apiBadges.length > 0 ? apiBadges : MOCK_BADGES;
   // 🚀 실제 성과 데이터 사용 (API에서 가져온 데이터 또는 기본값)
   const performanceData = apiPerformanceData || {
@@ -105,8 +105,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
     ]
   };
   
-  // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 기본 페르소나 사용
-  const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas : allPersonas.slice(0, 3);
+  // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 빈 배열 (동적 생성 대기)
+  const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas.slice(0, 3) : [];
   
   // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
   const defaultUserProfile = { 
