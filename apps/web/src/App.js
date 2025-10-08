@@ -141,7 +141,7 @@ const AppContent = () => {
             navigateTo('ONBOARDING');
         }
     }, [setUser, navigateTo]);
-    const handleOnboardingComplete = (profile) => {
+    const handleOnboardingComplete = (profile, tutorialPersona) => {
         // 게스트 프로필 생성
         const guestId = `guest_${new Date().getTime()}`;
         const newProfile = {
@@ -164,17 +164,15 @@ const AppContent = () => {
         setUser(newProfile);
         setIsGuest(true);
         setAppState('main');
-        // 튜토리얼 세션 데이터가 있으면 튜토리얼 화면으로, 없으면 홈으로
-        const tutorialSessionData = localStorage.getItem('tutorialSessionData');
-        console.log('handleOnboardingComplete - tutorialSessionData:', tutorialSessionData);
-        if (tutorialSessionData) {
-            console.log('튜토리얼 화면으로 이동');
-            navigateTo(Screen.TutorialIntro); // 튜토리얼 소개 화면으로 이동
+        // 튜토리얼 페르소나를 sessionData에 저장
+        if (tutorialPersona) {
+            setSessionData({ partner: tutorialPersona, isTutorial: true });
+            console.log('온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
         }
         else {
-            console.log('홈 화면으로 이동');
-            navigateTo('HOME'); // 홈 화면으로 이동
+            console.log('튜토리얼 페르소나 없음 - 튜토리얼 화면으로 이동');
         }
+        navigateTo(Screen.TutorialIntro);
     };
     // 회원가입/로그인 유도 함수
     const requireAuth = (callback) => {
@@ -275,28 +273,11 @@ const AppContent = () => {
             case Screen.CustomPersona:
                 return (_jsx(CustomPersonaForm, { onCancel: () => navigateTo('CHAT_TAB') }));
             case Screen.TutorialIntro:
-                // tutorialSessionData에서 페르소나 가져오기
-                const tutorialSessionData = localStorage.getItem('tutorialSessionData');
-                let tutorialPersona = null;
-                if (tutorialSessionData) {
-                    try {
-                        const parsedData = JSON.parse(tutorialSessionData);
-                        tutorialPersona = parsedData.partner;
-                    }
-                    catch (error) {
-                        console.error('Failed to parse tutorialSessionData:', error);
-                    }
-                }
-                return (_jsx(TutorialIntroScreen, { persona: tutorialPersona, onBack: () => navigateTo('HOME'), onComplete: () => {
-                        // 튜토리얼 페르소나를 sessionData에 설정
-                        if (tutorialPersona) {
-                            setSessionData({ partner: tutorialPersona, isTutorial: true });
-                            navigateTo(Screen.ConversationPrep);
-                        }
-                        else {
-                            // 페르소나가 없으면 홈으로
-                            navigateTo('HOME');
-                        }
+                // sessionData에서 튜토리얼 페르소나 가져오기
+                const tutorialPartner = sessionData?.partner;
+                return (_jsx(TutorialIntroScreen, { persona: tutorialPartner, onBack: () => navigateTo('HOME'), onComplete: () => {
+                        // sessionData에 이미 튜토리얼 페르소나가 설정되어 있음
+                        navigateTo(Screen.ConversationPrep);
                     } }));
             case 'PERSONA_SELECTION':
                 return (_jsx(PersonaSelection, { personas: [], userProfile: user, onSelect: () => {

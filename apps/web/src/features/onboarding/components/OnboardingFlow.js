@@ -81,29 +81,30 @@ export const OnboardingFlow = ({ onComplete }) => {
                 interests: profile.interests.map((i) => i.split(' ')[1] || i),
                 isTutorialCompleted: false
             };
+            let tutorialPersona = null;
             const result = await createUser.mutateAsync(userProfile);
             if (result?.id) {
                 setCurrentUserId(result.id);
-                // 관심사 기반 자동 AI 프로필 생성
-                const tutorialPersona = await generateTutorialPersona(profile);
-                // 튜토리얼용 페르소나를 sessionData에 저장
-                const sessionData = {
-                    partner: tutorialPersona,
-                    isTutorial: true,
-                    userProfile: userProfile
-                };
-                // sessionData를 localStorage에 저장
-                localStorage.setItem('tutorialSessionData', JSON.stringify(sessionData));
-                console.log('튜토리얼 세션 데이터 저장됨:', sessionData);
+                // 관심사 기반 자동 AI 프로필 생성 (API 사용)
+                tutorialPersona = await generateTutorialPersona(profile);
             }
+            // API 생성 실패하거나 DB가 없으면, constants에서 첫 번째 페르소나 사용
+            if (!tutorialPersona) {
+                const { PREDEFINED_PERSONAS } = await import('@qupid/core');
+                const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
+                tutorialPersona = PREDEFINED_PERSONAS.find(p => p.gender === partnerGender) || PREDEFINED_PERSONAS[0];
+            }
+            // 튜토리얼 페르소나와 함께 onComplete 호출
+            onComplete(profile, tutorialPersona);
         }
         catch (error) {
             console.error('Failed to create user profile:', error);
+            // 완전 실패 시에도 constants에서 페르소나 가져와서 진행
+            const { PREDEFINED_PERSONAS } = await import('@qupid/core');
+            const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
+            const fallbackPersona = PREDEFINED_PERSONAS.find(p => p.gender === partnerGender) || PREDEFINED_PERSONAS[0];
+            onComplete(profile, fallbackPersona);
         }
-        // onComplete 호출 전에 약간의 지연을 추가하여 localStorage 저장이 완료되도록 함
-        setTimeout(() => {
-            onComplete(profile);
-        }, 100);
     }, [createUser, onComplete, profile, setCurrentUserId, generatePersona]);
     // 관심사 기반 튜토리얼 페르소나 생성 함수 (API 사용)
     const generateTutorialPersona = async (profile) => {
