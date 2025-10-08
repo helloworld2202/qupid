@@ -16,14 +16,14 @@ interface CoachingTabScreenProps {
 }
 
 const CoachCard: React.FC<{ coach: AICoach; onStart: () => void; }> = ({ coach, onStart }) => (
-  <div className="p-4 bg-white rounded-xl border border-[#F2F4F6] flex items-center space-x-4">
+  <div className="p-4 bg-white rounded-xl border border-[#F2F4F6] flex items-center space-x-4 transition-all hover:shadow-lg hover:border-[#DB7093] hover:-translate-y-0.5 cursor-pointer" onClick={onStart}>
     <img src={coach.avatar} alt={coach.name} className="w-16 h-16 rounded-full object-cover" />
     <div className="flex-1">
       <p className="font-bold text-base text-[#191F28]">{coach.name} 코치</p>
       <p className="text-sm font-semibold text-[#4F7ABA]">{coach.specialty} 전문</p>
       <p className="text-xs text-[#8B95A1] mt-1 truncate">{coach.tagline}</p>
     </div>
-    <button onClick={onStart} className="px-3 py-1.5 bg-[#FDF2F8] text-sm text-[#DB7093] font-bold rounded-full">
+    <button className="px-3 py-1.5 bg-[#FDF2F8] text-sm text-[#DB7093] font-bold rounded-full transition-all hover:bg-[#DB7093] hover:text-white">
       상담 시작
     </button>
   </div>
@@ -107,20 +107,20 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onSta
 
       <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
         {/* Performance Summary Card */}
-        <section className="p-5 bg-white rounded-2xl border border-[#F2F4F6]">
+        <section className="p-5 bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-md">
             <h2 className="font-bold text-lg">이번 주 성과 요약</h2>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                <div>
+                <div className="transition-transform hover:scale-110">
                     <p className="text-3xl font-black text-[#F093B0]">{data.weeklyScore || 0}</p>
                     <p className="text-sm font-medium text-gray-500">총점</p>
                 </div>
-                <div>
+                <div className="transition-transform hover:scale-110">
                     <p className="text-3xl font-black text-[#0AC5A8]">
                       {data.scoreChangePercentage > 0 ? '+' : ''}{data.scoreChangePercentage || 0}%{data.scoreChangePercentage > 0 ? '↗' : ''}
                     </p>
                     <p className="text-sm font-medium text-gray-500">성장률</p>
                 </div>
-                 <div>
+                 <div className="transition-transform hover:scale-110">
                     <p className="text-3xl font-black text-[#4F7ABA]">{Math.round((data.weeklyScore || 0) * 0.85)}%</p>
                     <p className="text-sm font-medium text-gray-500">목표달성</p>
                 </div>
@@ -165,12 +165,12 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onSta
         <section>
             <h2 className="font-bold text-lg px-1">맞춤 학습 콘텐츠 💡</h2>
             <div className="mt-2 space-y-3">
-                <div className="p-4 bg-white rounded-xl border border-[#F2F4F6]">
+                <div className="p-4 bg-white rounded-xl border border-[#F2F4F6] cursor-pointer transition-all hover:shadow-lg hover:border-blue-400 hover:-translate-y-0.5">
                     <p className="font-semibold text-blue-600">추천 강의</p>
                     <p className="font-bold text-base mt-1">공감 능력 향상시키기: 상대의 마음을 얻는 3가지 질문법</p>
                     <p className="text-sm text-gray-500 mt-1">15분 강의 · 75% 수강</p>
                 </div>
-                <div className="p-4 bg-white rounded-xl border border-[#F2F4F6]">
+                <div className="p-4 bg-white rounded-xl border border-[#F2F4F6] cursor-pointer transition-all hover:shadow-lg hover:border-green-400 hover:-translate-y-0.5">
                     <p className="font-semibold text-green-600">실전 팁</p>
                     <p className="font-bold text-base mt-1">어색한 침묵 깨기: 5가지 유용한 대화 주제</p>
                     <p className="text-sm text-gray-500 mt-1">3분 분량</p>
@@ -179,16 +179,16 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onSta
         </section>
 
         {/* Goal Management */}
-        <section className="p-5 bg-white rounded-2xl border border-[#F2F4F6]">
+        <section className="p-5 bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-md">
             <div className="flex justify-between items-center">
                 <h2 className="font-bold text-lg">목표 관리</h2>
-                <button className="text-sm font-bold text-[#F093B0]">수정하기</button>
+                <button className="text-sm font-bold text-[#F093B0] transition-colors hover:text-[#DB7093]">수정하기</button>
             </div>
             <div className="mt-3">
                 <p className="font-semibold">현재 목표: 🔥 집중</p>
                 <p className="text-sm text-gray-500">일 3회 대화 (45분) / 새로운 AI와 대화하기</p>
             </div>
-             <button className="w-full mt-3 h-10 bg-[#F2F4F6] text-[#191F28] font-bold rounded-lg">새로운 목표 설정하기</button>
+             <button className="w-full mt-3 h-10 bg-[#F2F4F6] text-[#191F28] font-bold rounded-lg transition-all hover:bg-[#F093B0] hover:text-white hover:shadow-md">새로운 목표 설정하기</button>
         </section>
       </main>
     </div>

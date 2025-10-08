@@ -215,7 +215,13 @@ const AppContent: React.FC = () => {
   const renderScreen = () => {
     switch (currentScreen) {
       case 'HOME':
-        return <HomeScreen onNavigate={navigateTo} />;
+        return <HomeScreen 
+          onNavigate={navigateTo} 
+          onSelectPersona={(persona) => {
+            setSessionData({ persona });
+            navigateTo(Screen.PersonaDetail);
+          }}
+        />;
       
       case 'CHAT_TAB':
         return (
@@ -329,11 +335,32 @@ const AppContent: React.FC = () => {
         );
       
       case Screen.TutorialIntro:
+        // tutorialSessionData에서 페르소나 가져오기
+        const tutorialSessionData = localStorage.getItem('tutorialSessionData');
+        let tutorialPersona = null;
+        
+        if (tutorialSessionData) {
+          try {
+            const parsedData = JSON.parse(tutorialSessionData);
+            tutorialPersona = parsedData.partner;
+          } catch (error) {
+            console.error('Failed to parse tutorialSessionData:', error);
+          }
+        }
+        
         return (
           <TutorialIntroScreen
+            persona={tutorialPersona}
             onBack={() => navigateTo('HOME')}
             onComplete={() => {
-              navigateTo(Screen.ConversationPrep);
+              // 튜토리얼 페르소나를 sessionData에 설정
+              if (tutorialPersona) {
+                setSessionData({ partner: tutorialPersona, isTutorial: true });
+                navigateTo(Screen.ConversationPrep);
+              } else {
+                // 페르소나가 없으면 홈으로
+                navigateTo('HOME');
+              }
             }}
           />
         );

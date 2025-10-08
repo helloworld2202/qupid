@@ -11,9 +11,10 @@ import { useUserProfile } from '../hooks/api/useUser';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen | string) => void;
+  onSelectPersona?: (persona: any) => void;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) => {
   const { currentUserId } = useAppStore();
   
   // API 데이터 페칭
@@ -145,8 +146,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                     </p>
                     <button onClick={() => {
                         const firstRecommended = personas.find(p => p.gender === partnerGender);
-                        if (firstRecommended) {
-                            // onSelectPersona(firstRecommended);
+                        if (firstRecommended && onSelectPersona) {
+                            onSelectPersona(firstRecommended);
+                        } else {
                             onNavigate('CHAT_TAB');
                         }
                     }} className="mt-2 h-9 px-4 text-sm font-bold text-white rounded-lg" style={{backgroundColor: '#F093B0'}}>
@@ -160,10 +162,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
         </div>
 
         {/* Performance Card */}
-        <div onClick={() => onNavigate(Screen.PerformanceDetail)} className="p-5 bg-white rounded-2xl border cursor-pointer" style={{borderColor: '#F2F4F6'}}>
+        <div onClick={() => onNavigate(Screen.PerformanceDetail)} className="p-5 bg-white rounded-2xl border cursor-pointer transition-all hover:shadow-lg hover:border-[#0AC5A8]" style={{borderColor: '#F2F4F6'}}>
             <div className="flex justify-between items-center">
                 <h2 className="font-bold text-lg">📊 이번 주 성장</h2>
-                <div className="flex items-center text-sm font-medium" style={{color: '#4F7ABA'}}>
+                <div className="flex items-center text-sm font-medium transition-transform hover:translate-x-1" style={{color: '#4F7ABA'}}>
                     자세히 보기 <ChevronRightIcon className="w-4 h-4" />
                 </div>
             </div>
@@ -182,8 +184,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             <h2 className="font-bold text-lg">💕 오늘의 추천 AI</h2>
             <p className="text-sm text-gray-500 mb-4">지금 대화하기 좋은 친구들이에요</p>
             <div className="flex space-x-3 overflow-x-auto pb-2 -mx-5 px-5">
-                {recommendedPersonas.map(p => (
-                    <div key={p.id} onClick={() => onNavigate('CHAT_TAB')} className="flex-shrink-0 w-32 p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E8EB] text-center cursor-pointer">
+                {recommendedPersonas.map((p, index) => (
+                    <div 
+                      key={p.id} 
+                      onClick={() => {
+                        if (onSelectPersona) {
+                          onSelectPersona(p);
+                        } else {
+                          onNavigate('CHAT_TAB');
+                        }
+                      }} 
+                      className="flex-shrink-0 w-32 p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E8EB] text-center cursor-pointer transition-all hover:shadow-md hover:border-[#F093B0] hover:-translate-y-1"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
                         <div className="relative w-16 h-16 mx-auto">
                            <img src={p.avatar} alt={p.name} className="w-full h-full rounded-full object-cover" />
                            <div className="absolute -bottom-0.5 right-0 w-4 h-4 bg-[#0AC5A8] rounded-full border-2 border-white"></div>
@@ -198,16 +211,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
         {/* Achievement Banner */}
         {recentBadge && (
             <div 
-              className="p-4 rounded-2xl flex items-center cursor-pointer" 
+              className="p-4 rounded-2xl flex items-center cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1" 
               style={{ background: 'linear-gradient(90deg, #F7F4FF, #FDF2F8)', border: '1px solid #B794F6' }}
               onClick={() => onNavigate(Screen.Badges)}
             >
-                <span className="text-4xl">{recentBadge.icon}</span>
+                <span className="text-4xl animate-bounce">{recentBadge.icon}</span>
                 <div className="flex-1 ml-3">
                     <p className="font-bold text-base" style={{color: '#191F28'}}>새로운 배지 획득!</p>
                     <p className="font-medium text-sm" style={{color: '#8B95A1'}}>{recentBadge.name}</p>
                 </div>
-                <button className="h-8 px-3 text-xs font-bold text-white rounded-lg" style={{backgroundColor: '#B794F6'}}>
+                <button className="h-8 px-3 text-xs font-bold text-white rounded-lg transition-transform hover:scale-105" style={{backgroundColor: '#B794F6'}}>
                     확인하기
                 </button>
             </div>

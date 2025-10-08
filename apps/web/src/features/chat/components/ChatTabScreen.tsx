@@ -14,7 +14,7 @@ interface ChatTabScreenProps {
 const PersonaCard: React.FC<{ persona: Persona; onSelect: () => void; }> = ({ persona, onSelect }) => {
   return (
     <div 
-        className="w-full p-4 flex bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-md hover:border-[#F093B0] cursor-pointer"
+        className="w-full p-4 flex bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-lg hover:border-[#F093B0] hover:-translate-y-0.5 cursor-pointer"
         onClick={onSelect}
     >
       <img src={persona.avatar} alt={persona.name} className="w-20 h-20 rounded-xl object-cover" />
@@ -105,8 +105,8 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
         <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-[#191F28]">AI 친구들</h1>
             <div className="flex items-center space-x-2">
-                <button className="p-2 rounded-full hover:bg-gray-100"><SearchIcon className="w-6 h-6 text-[#191F28]" /></button>
-                <button className="p-2 rounded-full hover:bg-gray-100"><SettingsIcon className="w-6 h-6 text-[#191F28]" /></button>
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors"><SearchIcon className="w-6 h-6 text-[#191F28]" /></button>
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors"><SettingsIcon className="w-6 h-6 text-[#191F28]" /></button>
             </div>
         </div>
       </header>
@@ -117,8 +117,13 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
           <section>
               <h2 className="text-lg font-bold text-[#191F28] mb-3 px-1">⭐ 즐겨찾는 AI</h2>
               <div className="flex space-x-3 overflow-x-auto pb-2 -mx-4 px-4">
-                  {favoritePersonas.map(p => (
-                      <div key={p.id} onClick={() => onSelectPersona(p)} className="flex-shrink-0 w-20 text-center cursor-pointer">
+                  {favoritePersonas.map((p, index) => (
+                      <div 
+                        key={p.id} 
+                        onClick={() => onSelectPersona(p)} 
+                        className="flex-shrink-0 w-20 text-center cursor-pointer transition-transform hover:-translate-y-1"
+                        style={{ animationDelay: `${index * 80}ms` }}
+                      >
                           <div className="relative">
                               <img src={p.avatar} alt={p.name} className="w-20 h-20 rounded-full object-cover"/>
                               <div className="absolute bottom-0 right-0 w-4 h-4 bg-[#0AC5A8] rounded-full border-2 border-white"></div>
@@ -153,7 +158,7 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
         </section>
 
         <section>
-          <button onClick={() => onNavigate(Screen.CustomPersona)} className="w-full p-4 bg-white rounded-2xl border border-dashed border-[#B794F6] flex items-center justify-center text-[#B794F6] font-bold hover:bg-[#F7F4FF]">
+          <button onClick={() => onNavigate(Screen.CustomPersona)} className="w-full p-4 bg-white rounded-2xl border border-dashed border-[#B794F6] flex items-center justify-center text-[#B794F6] font-bold hover:bg-[#F7F4FF] transition-all hover:shadow-md hover:border-[#9B7FE5]">
             <PlusCircleIcon className="w-6 h-6 mr-2" />
             나만의 AI 만들기
           </button>
