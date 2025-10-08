@@ -220,7 +220,7 @@ const AppContent = () => {
                         navigateTo(Screen.Chat);
                     }, onBack: () => navigateTo('CHAT_TAB') }));
             case Screen.Chat:
-                return (_jsx(ChatScreen, { partner: sessionData?.partner, isTutorial: sessionData?.isTutorial || false, isCoaching: sessionData?.isCoaching || false, conversationMode: sessionData?.conversationMode || 'normal', onComplete: async (analysis, tutorialCompleted) => {
+                return (_jsx(ChatScreen, { partner: sessionData?.partner, isTutorial: sessionData?.isTutorial || false, isCoaching: sessionData?.isCoaching || false, conversationMode: sessionData?.conversationMode || 'normal', userProfile: user, onComplete: async (analysis, tutorialCompleted) => {
                         if (tutorialCompleted && user) {
                             // 튜토리얼 완료 시 처리
                             const updatedProfile = { ...user, isTutorialCompleted: true };

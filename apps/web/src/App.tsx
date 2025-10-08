@@ -259,6 +259,7 @@ const AppContent: React.FC = () => {
             isTutorial={sessionData?.isTutorial || false}
             isCoaching={sessionData?.isCoaching || false}
             conversationMode={sessionData?.conversationMode || 'normal'}
+            userProfile={user} // 사용자 프로필 전달
             onComplete={async (analysis, tutorialCompleted) => {
               if (tutorialCompleted && user) {
                 // 튜토리얼 완료 시 처리

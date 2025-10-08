@@ -11,7 +11,7 @@ const RealtimeFeedbackToast = ({ feedback }) => (_jsxs("div", { className: "abso
 const CoachHint = ({ isLoading, suggestion, onApply, onClose }) => {
     return (_jsx("div", { className: "absolute inset-x-4 top-1/2 -translate-y-1/2 z-20", children: _jsxs("div", { className: "p-5 bg-white rounded-2xl border-2 border-[#F093B0] shadow-xl animate-scale-in", children: [_jsxs("p", { className: "font-bold text-lg text-[#191F28] flex items-center", children: [_jsx(CoachKeyIcon, { className: "w-5 h-5 mr-2 text-[#F093B0]" }), " \uCF54\uCE58 \uC81C\uC548"] }), isLoading && (_jsx("div", { className: "mt-2 text-center h-24 flex items-center justify-center", children: _jsx(TypingIndicator, {}) })), suggestion && !isLoading && (_jsxs(_Fragment, { children: [_jsx("p", { className: "mt-2 text-base text-[#4F7ABA]", children: suggestion.reason }), _jsxs("p", { className: "mt-3 text-base text-[#191F28] font-semibold bg-[#F9FAFB] p-3 rounded-lg border border-[#F2F4F6]", children: ["\"", suggestion.suggestion, "\""] })] })), _jsxs("div", { className: "mt-4 flex space-x-2", children: [_jsx("button", { onClick: () => suggestion && onApply(suggestion.suggestion), disabled: isLoading || !suggestion, className: "flex-1 h-10 bg-[#F093B0] text-white rounded-lg text-sm font-bold disabled:opacity-50", children: "\uC801\uC6A9\uD558\uAE30" }), _jsx("button", { onClick: onClose, className: "flex-1 h-10 bg-[#F9FAFB] text-[#8B95A1] rounded-lg text-sm font-bold", children: "\uC9C1\uC811 \uC785\uB825" })] })] }) }));
 };
-export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, conversationMode = 'normal', onComplete }) => {
+export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, conversationMode = 'normal', userProfile, onComplete }) => {
     // partner가 없으면 에러 처리
     if (!partner) {
         return (_jsx("div", { className: "flex flex-col h-full w-full bg-white items-center justify-center", children: _jsx("p", { className: "text-[#8B95A1]", children: "\uB300\uD654 \uD30C\uD2B8\uB108\uB97C \uC120\uD0DD\uD574\uC8FC\uC138\uC694." }) }));
@@ -33,6 +33,45 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
     const sessionIdRef = useRef(null);
     const messagesEndRef = useRef(null);
     const feedbackTimeoutRef = useRef(null);
+    // 사용자 프로필에 맞춘 맞춤형 첫 메시지 생성
+    const generatePersonalizedFirstMessage = (partner, userProfile) => {
+        if (!userProfile) {
+            return `안녕하세요! 처음 뵙네요 😊 반갑습니다!`;
+        }
+        const userName = userProfile.name || '친구';
+        const userGender = userProfile.user_gender === 'male' ? '남성' : '여성';
+        const userExperience = userProfile.experience || '없음';
+        const userInterests = userProfile.interests || [];
+        // 경험 수준에 따른 맞춤형 인사
+        let experienceGreeting = '';
+        switch (userExperience) {
+            case '전혀 없어요':
+                experienceGreeting = '처음이시라니 조금 긴장되실 것 같아요 😊';
+                break;
+            case '1-2번 정도':
+                experienceGreeting = '조금씩 경험을 쌓아가고 계시는군요!';
+                break;
+            case '몇 번 있어요':
+                experienceGreeting = '어느 정도 경험이 있으시네요!';
+                break;
+            case '많은 편이에요':
+                experienceGreeting = '경험이 풍부하시군요!';
+                break;
+            default:
+                experienceGreeting = '처음 뵙네요!';
+        }
+        // 관심사 기반 맞춤형 메시지
+        let interestMessage = '';
+        if (userInterests.length > 0) {
+            const mainInterest = userInterests[0].split(' ')[1] || userInterests[0];
+            interestMessage = `저도 ${mainInterest}에 관심이 많아요!`;
+        }
+        // 페르소나의 성격에 따른 맞춤형 인사
+        const partnerName = partner.name;
+        const partnerAge = partner.age;
+        const partnerJob = partner.job || '학생';
+        return `안녕하세요 ${userName}님! 저는 ${partnerAge}세 ${partnerJob}인 ${partnerName}이에요 😊 ${experienceGreeting} ${interestMessage} 편하게 대화해요!`;
+    };
     // API hooks
     const createSessionMutation = useChatSession();
     const sendMessageMutation = useSendMessage();
@@ -100,14 +139,16 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
             if (isTutorial) {
                 initialMessages.push({ sender: 'system', text: `${partner.name}님과의 첫 만남이에요. 편안하게 인사해보세요 😊` }, { sender: 'system', text: 'COACH_HINT_INTRO' });
             }
-            // conversation_preview가 없거나 비어있는 경우 처리
-            const firstMessage = partner.conversation_preview && partner.conversation_preview.length > 0
-                ? partner.conversation_preview[0].text
-                : `안녕하세요! 처음 뵙네요 😊 반갑습니다!`;
+            // 튜토리얼에서는 사용자 프로필에 맞춘 맞춤형 메시지 사용
+            const firstMessage = isTutorial
+                ? generatePersonalizedFirstMessage(partner, userProfile)
+                : (partner.conversation_preview && partner.conversation_preview.length > 0
+                    ? partner.conversation_preview[0].text
+                    : `안녕하세요! 처음 뵙네요 😊 반갑습니다!`);
             initialMessages.push({ sender: 'ai', text: firstMessage });
         }
         setMessages(initialMessages);
-    }, []); // 의존성 배열을 빈 배열로 변경
+    }, [isTutorial, userProfile]); // userProfile 의존성 추가
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isLoading]);

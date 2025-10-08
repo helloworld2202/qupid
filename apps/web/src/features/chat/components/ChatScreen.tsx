@@ -12,6 +12,7 @@ interface ChatScreenProps {
   isTutorial?: boolean;
   isCoaching?: boolean;
   conversationMode?: ConversationMode;
+  userProfile?: any; // 사용자 프로필 정보 추가
   onComplete: (analysis: ConversationAnalysis | null, tutorialJustCompleted: boolean) => void;
 }
 
@@ -60,7 +61,7 @@ const CoachHint: React.FC<{
     );
 };
 
-export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = false, isCoaching = false, conversationMode = 'normal', onComplete }) => {
+export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = false, isCoaching = false, conversationMode = 'normal', userProfile, onComplete }) => {
   // partner가 없으면 에러 처리
   if (!partner) {
     return (
@@ -89,6 +90,51 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const sessionIdRef = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const feedbackTimeoutRef = useRef<number | null>(null);
+
+  // 사용자 프로필에 맞춘 맞춤형 첫 메시지 생성
+  const generatePersonalizedFirstMessage = (partner: Persona, userProfile: any) => {
+    if (!userProfile) {
+      return `안녕하세요! 처음 뵙네요 😊 반갑습니다!`;
+    }
+
+    const userName = userProfile.name || '친구';
+    const userGender = userProfile.user_gender === 'male' ? '남성' : '여성';
+    const userExperience = userProfile.experience || '없음';
+    const userInterests = userProfile.interests || [];
+
+    // 경험 수준에 따른 맞춤형 인사
+    let experienceGreeting = '';
+    switch (userExperience) {
+      case '전혀 없어요':
+        experienceGreeting = '처음이시라니 조금 긴장되실 것 같아요 😊';
+        break;
+      case '1-2번 정도':
+        experienceGreeting = '조금씩 경험을 쌓아가고 계시는군요!';
+        break;
+      case '몇 번 있어요':
+        experienceGreeting = '어느 정도 경험이 있으시네요!';
+        break;
+      case '많은 편이에요':
+        experienceGreeting = '경험이 풍부하시군요!';
+        break;
+      default:
+        experienceGreeting = '처음 뵙네요!';
+    }
+
+    // 관심사 기반 맞춤형 메시지
+    let interestMessage = '';
+    if (userInterests.length > 0) {
+      const mainInterest = userInterests[0].split(' ')[1] || userInterests[0];
+      interestMessage = `저도 ${mainInterest}에 관심이 많아요!`;
+    }
+
+    // 페르소나의 성격에 따른 맞춤형 인사
+    const partnerName = partner.name;
+    const partnerAge = partner.age;
+    const partnerJob = partner.job || '학생';
+
+    return `안녕하세요 ${userName}님! 저는 ${partnerAge}세 ${partnerJob}인 ${partnerName}이에요 😊 ${experienceGreeting} ${interestMessage} 편하게 대화해요!`;
+  };
 
   // API hooks
   const createSessionMutation = useChatSession();
@@ -168,15 +214,17 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                 { sender: 'system', text: 'COACH_HINT_INTRO' }
             );
         }
-        // conversation_preview가 없거나 비어있는 경우 처리
-        const firstMessage = partner.conversation_preview && partner.conversation_preview.length > 0
-          ? partner.conversation_preview[0].text
-          : `안녕하세요! 처음 뵙네요 😊 반갑습니다!`;
+        // 튜토리얼에서는 사용자 프로필에 맞춘 맞춤형 메시지 사용
+        const firstMessage = isTutorial 
+          ? generatePersonalizedFirstMessage(partner, userProfile)
+          : (partner.conversation_preview && partner.conversation_preview.length > 0
+            ? partner.conversation_preview[0].text
+            : `안녕하세요! 처음 뵙네요 😊 반갑습니다!`);
         initialMessages.push({ sender: 'ai', text: firstMessage });
     }
 
     setMessages(initialMessages);
-  }, []); // 의존성 배열을 빈 배열로 변경
+  }, [isTutorial, userProfile]); // userProfile 의존성 추가
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
