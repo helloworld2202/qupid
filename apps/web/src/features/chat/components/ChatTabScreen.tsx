@@ -5,6 +5,7 @@ import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
 import { usePersonas } from '../../../shared/hooks/usePersonas';
 import { useFavorites } from '../../../shared/hooks/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
+import { PREDEFINED_PERSONAS } from '@qupid/core';
 
 interface ChatTabScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -44,7 +45,8 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
   const { currentUserId } = useAppStore();
   
   // API 호출
-  const { data: personas = [], isLoading: isLoadingPersonas } = usePersonas();
+  const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
+  const personas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
   const { data: favoriteIds = [] } = useFavorites(currentUserId || '');
   
   // 임시 하드코딩 사용자 프로필 (추후 API 구현)

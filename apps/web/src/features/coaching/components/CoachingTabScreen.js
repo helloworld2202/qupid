@@ -5,12 +5,15 @@ import { Chart, registerables } from 'chart.js/auto';
 import { useCoaches } from '../../../shared/hooks/useCoaches';
 import { usePerformance } from '../../../shared/hooks/usePerformance';
 import { useUserStore } from '../../../shared/stores/userStore';
+import { AI_COACHES, MOCK_PERFORMANCE_DATA } from '@qupid/core';
 Chart.register(...registerables);
 const CoachCard = ({ coach, onStart }) => (_jsxs("div", { className: "p-4 bg-white rounded-xl border border-[#F2F4F6] flex items-center space-x-4 transition-all hover:shadow-lg hover:border-[#DB7093] hover:-translate-y-0.5 cursor-pointer", onClick: onStart, children: [_jsx("img", { src: coach.avatar, alt: coach.name, className: "w-16 h-16 rounded-full object-cover" }), _jsxs("div", { className: "flex-1", children: [_jsxs("p", { className: "font-bold text-base text-[#191F28]", children: [coach.name, " \uCF54\uCE58"] }), _jsxs("p", { className: "text-sm font-semibold text-[#4F7ABA]", children: [coach.specialty, " \uC804\uBB38"] }), _jsx("p", { className: "text-xs text-[#8B95A1] mt-1 truncate", children: coach.tagline })] }), _jsx("button", { className: "px-3 py-1.5 bg-[#FDF2F8] text-sm text-[#DB7093] font-bold rounded-full transition-all hover:bg-[#DB7093] hover:text-white", children: "\uC0C1\uB2F4 \uC2DC\uC791" })] }));
 const CoachingTabScreen = ({ onNavigate, onStartCoachChat }) => {
-    const { data: coaches = [], isLoading } = useCoaches();
+    const { data: apiCoaches = [], isLoading } = useCoaches();
+    const coaches = apiCoaches.length > 0 ? apiCoaches : AI_COACHES;
     const { user } = useUserStore();
-    const { data: performanceData } = usePerformance(user?.id);
+    const { data: apiPerformanceData } = usePerformance(user?.id);
+    const performanceData = apiPerformanceData || MOCK_PERFORMANCE_DATA;
     // 기본 데이터 (API 로딩 중이거나 오류 시 사용)
     const defaultData = {
         weeklyScore: 78,

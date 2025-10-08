@@ -1,7 +1,7 @@
 
 
 import React from 'react';
-import { UserProfile, Screen, PerformanceData } from '@qupid/core';
+import { UserProfile, Screen, PerformanceData, PREDEFINED_PERSONAS, MOCK_BADGES, MOCK_PERFORMANCE_DATA } from '@qupid/core';
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
 import { usePersonas } from '../hooks/usePersonas';
 import { useBadges } from '../hooks/useBadges';
@@ -17,11 +17,16 @@ interface HomeScreenProps {
 const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) => {
   const { currentUserId } = useAppStore();
   
-  // API 데이터 페칭
-  const { data: allPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
-  const { data: allBadges = [], isLoading: isLoadingBadges } = useBadges();
-  const { data: performanceData } = usePerformance(currentUserId || '');
+  // API 데이터 페칭 (실패 시 constants 사용)
+  const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
+  const { data: apiBadges = [], isLoading: isLoadingBadges } = useBadges();
+  const { data: apiPerformanceData } = usePerformance(currentUserId || '');
   const { data: userProfile } = useUserProfile(currentUserId || '');
+  
+  // API 데이터가 없으면 constants 사용
+  const allPersonas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
+  const allBadges = apiBadges.length > 0 ? apiBadges : MOCK_BADGES;
+  const performanceData = apiPerformanceData || MOCK_PERFORMANCE_DATA;
   
   // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
   const defaultUserProfile = { 

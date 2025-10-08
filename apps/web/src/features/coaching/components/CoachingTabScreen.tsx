@@ -6,6 +6,7 @@ import { Chart, registerables } from 'chart.js/auto';
 import { useCoaches } from '../../../shared/hooks/useCoaches';
 import { usePerformance } from '../../../shared/hooks/usePerformance';
 import { useUserStore } from '../../../shared/stores/userStore';
+import { AI_COACHES, MOCK_PERFORMANCE_DATA } from '@qupid/core';
 import {} from '@qupid/ui';
 
 Chart.register(...registerables);
@@ -30,9 +31,11 @@ const CoachCard: React.FC<{ coach: AICoach; onStart: () => void; }> = ({ coach, 
 );
 
 const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onStartCoachChat }) => {
-  const { data: coaches = [], isLoading } = useCoaches();
+  const { data: apiCoaches = [], isLoading } = useCoaches();
+  const coaches = apiCoaches.length > 0 ? apiCoaches : AI_COACHES;
   const { user } = useUserStore();
-  const { data: performanceData } = usePerformance(user?.id);
+  const { data: apiPerformanceData } = usePerformance(user?.id);
+  const performanceData = apiPerformanceData || MOCK_PERFORMANCE_DATA;
   
   // 기본 데이터 (API 로딩 중이거나 오류 시 사용)
   const defaultData: PerformanceData = {
