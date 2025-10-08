@@ -14,39 +14,42 @@ interface PerformanceDetailScreenProps {
 
 const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBack }) => {
   const { currentUserId } = useAppStore();
-  const { data: performanceData, isLoading } = usePerformance(currentUserId || '');
+  const { data: performanceData, isLoading, error } = usePerformance(currentUserId || '');
   
-  // 기본 데이터 (로딩 중이거나 에러 시 사용)
-  const defaultData: PerformanceData = {
-    weeklyScore: 78,
-    scoreChange: 12,
-    scoreChangePercentage: 18,
-    dailyScores: [60, 65, 70, 68, 75, 72, 78],
+  console.log('📊 PerformanceDetailScreen - currentUserId:', currentUserId);
+  console.log('📊 PerformanceDetailScreen - performanceData:', performanceData);
+  console.log('📊 PerformanceDetailScreen - isLoading:', isLoading);
+  console.log('📊 PerformanceDetailScreen - error:', error);
+  
+  // 🚀 API 데이터를 우선 사용하고, 없을 때만 기본값 사용
+  const data = performanceData || {
+    weeklyScore: 0,
+    scoreChange: 0,
+    scoreChangePercentage: 0,
+    dailyScores: [0, 0, 0, 0, 0, 0, 0],
     radarData: {
       labels: ['친근함', '호기심', '공감력', '유머', '배려', '적극성'],
       datasets: [{
         label: '이번 주',
-        data: [85, 92, 58, 60, 75, 70],
+        data: [0, 0, 0, 0, 0, 0],
         backgroundColor: 'rgba(240, 147, 176, 0.2)',
         borderColor: 'rgba(240, 147, 176, 1)',
         borderWidth: 2,
       }]
     },
     stats: {
-      totalTime: '2시간 15분',
-      sessionCount: 8,
-      avgTime: '17분',
-      longestSession: { time: '32분', persona: '소연님과' },
-      preferredType: '활발한 성격 (60%)'
+      totalTime: '0분',
+      sessionCount: 0,
+      avgTime: '0분',
+      longestSession: { time: '0분', persona: '' },
+      preferredType: '아직 대화 기록이 없습니다'
     },
     categoryScores: [
-      { title: '친근함', emoji: '😊', score: 85, change: 8, goal: 90 },
-      { title: '호기심', emoji: '🤔', score: 92, change: 15, goal: 90 },
-      { title: '공감력', emoji: '💬', score: 58, change: 3, goal: 70 },
+      { title: '친근함', emoji: '😊', score: 0, change: 0, goal: 90 },
+      { title: '호기심', emoji: '🤔', score: 0, change: 0, goal: 90 },
+      { title: '공감력', emoji: '💬', score: 0, change: 0, goal: 70 },
     ]
   };
-  
-  const data = performanceData || defaultData;
   const lineChartRef = useRef<HTMLCanvasElement>(null);
   const radarChartRef = useRef<HTMLCanvasElement>(null);
 

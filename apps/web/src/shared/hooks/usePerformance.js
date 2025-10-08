@@ -2,26 +2,29 @@ import { useQuery } from '@tanstack/react-query';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
 export function usePerformance(userId) {
     return useQuery({
-        queryKey: ['performance', userId],
+        queryKey: ['performance', userId || 'guest'],
         queryFn: async () => {
-            if (!userId) {
-                throw new Error('User ID is required');
-            }
-            const response = await fetch(`${API_URL}/analytics/performance/${userId}`, {
+            console.log('📊 usePerformance 호출됨, userId:', userId);
+            // 🚀 userId가 없으면 게스트 ID 사용
+            const actualUserId = userId || 'guest-user';
+            const response = await fetch(`${API_URL}/analytics/performance/${actualUserId}`, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
             });
             if (!response.ok) {
+                console.error('❌ 성과 데이터 가져오기 실패:', response.status, response.statusText);
                 throw new Error('Failed to fetch performance data');
             }
             const result = await response.json();
+            console.log('✅ 성과 데이터 가져오기 성공:', result);
             return result.data;
         },
-        enabled: !!userId,
+        enabled: true, // 🚀 항상 활성화 (게스트 모드 지원)
         refetchInterval: 60000, // 1분마다 자동 갱신
         staleTime: 30000, // 30초 동안 캐시 유지
+        retry: 1, // 실패 시 1번만 재시도
     });
 }
 export function useWeeklyStats(userId) {
