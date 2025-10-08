@@ -1,15 +1,11 @@
 
 
-import React, { useEffect, useRef } from 'react';
-import { PerformanceData, AICoach, Screen } from '@qupid/core';
-import { Chart, registerables } from 'chart.js/auto';
+import React from 'react';
+import { AICoach, Screen } from '@qupid/core';
 import { useCoaches } from '../../../shared/hooks/useCoaches';
-import { usePerformance } from '../../../shared/hooks/usePerformance';
 import { useUserStore } from '../../../shared/stores/userStore';
-import { AI_COACHES, MOCK_PERFORMANCE_DATA } from '@qupid/core';
+import { AI_COACHES } from '@qupid/core';
 import {} from '@qupid/ui';
-
-Chart.register(...registerables);
 
 interface CoachingTabScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -33,74 +29,6 @@ const CoachCard: React.FC<{ coach: AICoach; onStart: () => void; }> = ({ coach, 
 const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onStartCoachChat }) => {
   const { data: apiCoaches = [], isLoading } = useCoaches();
   const coaches = apiCoaches.length > 0 ? apiCoaches : AI_COACHES;
-  const { user } = useUserStore();
-  const { data: apiPerformanceData } = usePerformance(user?.id);
-  const performanceData = apiPerformanceData || MOCK_PERFORMANCE_DATA;
-  
-  // 기본 데이터 (API 로딩 중이거나 오류 시 사용)
-  const defaultData: PerformanceData = {
-    weeklyScore: 78,
-    scoreChange: 12,
-    scoreChangePercentage: 18,
-    dailyScores: [60, 65, 70, 68, 75, 72, 78],
-    radarData: {
-      labels: ['친근함', '호기심', '공감력', '유머', '배려', '적극성'],
-      datasets: [{
-        label: '이번 주',
-        data: [85, 92, 58, 60, 75, 70],
-        backgroundColor: 'rgba(240, 147, 176, 0.2)',
-        borderColor: 'rgba(240, 147, 176, 1)',
-        borderWidth: 2,
-      }]
-    },
-    stats: {
-      totalTime: '2시간 15분',
-      sessionCount: 8,
-      avgTime: '17분',
-      longestSession: { time: '32분', persona: '소연님과' },
-      preferredType: '활발한 성격 (60%)'
-    },
-    categoryScores: [
-      { title: '친근함', emoji: '😊', score: 85, change: 8, goal: 90 },
-      { title: '호기심', emoji: '🤔', score: 92, change: 15, goal: 90 },
-      { title: '공감력', emoji: '💬', score: 58, change: 3, goal: 70 },
-    ]
-  };
-  const radarChartRef = useRef<HTMLCanvasElement>(null);
-  
-  // 실제 데이터 또는 기본 데이터 사용
-  const data = performanceData || defaultData;
-
-  useEffect(() => {
-    let radarChart: Chart | null = null;
-    if (radarChartRef.current) {
-      const radarCtx = radarChartRef.current.getContext('2d');
-      if (radarCtx) {
-        radarChart = new Chart(radarCtx, {
-            type: 'radar',
-            data: data.radarData,
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    r: {
-                        angleLines: { color: 'rgba(0,0,0,0.05)' },
-                        suggestedMin: 0,
-                        suggestedMax: 100,
-                        ticks: { display: false },
-                        grid: { circular: true, color: 'rgba(0,0,0,0.05)' },
-                        pointLabels: { font: { size: 14, weight: 'bold' }, color: '#191F28' }
-                    }
-                }
-            }
-        });
-      }
-    }
-    return () => {
-        radarChart?.destroy();
-    };
-  }, [data]);
 
   return (
     <div className="flex flex-col h-full w-full bg-[#F9FAFB]">
@@ -109,33 +37,6 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onSta
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
-        {/* Performance Summary Card */}
-        <section className="p-5 bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-md">
-            <h2 className="font-bold text-lg">이번 주 성과 요약</h2>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                <div className="transition-transform hover:scale-110">
-                    <p className="text-3xl font-black text-[#F093B0]">{data.weeklyScore || 0}</p>
-                    <p className="text-sm font-medium text-gray-500">총점</p>
-                </div>
-                <div className="transition-transform hover:scale-110">
-                    <p className="text-3xl font-black text-[#0AC5A8]">
-                      {data.scoreChangePercentage > 0 ? '+' : ''}{data.scoreChangePercentage || 0}%{data.scoreChangePercentage > 0 ? '↗' : ''}
-                    </p>
-                    <p className="text-sm font-medium text-gray-500">성장률</p>
-                </div>
-                 <div className="transition-transform hover:scale-110">
-                    <p className="text-3xl font-black text-[#4F7ABA]">{Math.round((data.weeklyScore || 0) * 0.85)}%</p>
-                    <p className="text-sm font-medium text-gray-500">목표달성</p>
-                </div>
-            </div>
-        </section>
-
-        {/* Skill Analysis */}
-        <section className="p-5 bg-white rounded-2xl border border-[#F2F4F6]">
-            <h3 className="font-bold text-lg">영역별 분석</h3>
-            <div className="h-64 mt-2"><canvas ref={radarChartRef}></canvas></div>
-        </section>
-
         {/* 1:1 Personalized Coaching */}
         <section>
           <h2 className="text-lg font-bold text-[#191F28] px-1">1:1 맞춤 코칭 🎓</h2>

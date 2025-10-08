@@ -139,6 +139,33 @@ const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBac
       </header>
 
       <main className="flex-1 overflow-y-auto p-5 space-y-4">
+        {/* 이번 주 성과 요약 */}
+        <section className="p-5 bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-md">
+            <h2 className="font-bold text-lg">이번 주 성과 요약</h2>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div className="transition-transform hover:scale-110">
+                    <p className="text-3xl font-black text-[#F093B0]">{data.weeklyScore || 0}</p>
+                    <p className="text-sm font-medium text-gray-500">총점</p>
+                </div>
+                <div className="transition-transform hover:scale-110">
+                    <p className="text-3xl font-black text-[#0AC5A8]">
+                      {data.scoreChangePercentage > 0 ? '+' : ''}{data.scoreChangePercentage || 0}%{data.scoreChangePercentage > 0 ? '↗' : ''}
+                    </p>
+                    <p className="text-sm font-medium text-gray-500">성장률</p>
+                </div>
+                 <div className="transition-transform hover:scale-110">
+                    <p className="text-3xl font-black text-[#4F7ABA]">{Math.round((data.weeklyScore || 0) * 0.85)}%</p>
+                    <p className="text-sm font-medium text-gray-500">목표달성</p>
+                </div>
+            </div>
+        </section>
+
+        {/* 영역별 분석 */}
+        <section className="p-5 bg-white rounded-2xl border border-[#F2F4F6]">
+            <h3 className="font-bold text-lg">영역별 분석</h3>
+            <div className="h-64 mt-2"><canvas ref={radarChartRef}></canvas></div>
+        </section>
+
         <section className="p-6 flex flex-col items-center bg-white rounded-2xl border border-[#F2F4F6]">
             <p className="text-lg font-semibold text-[#8B95A1]">이번 주 평균</p>
             <p className="text-6xl font-black text-[#F093B0] my-1">{data.weeklyScore}점</p>
