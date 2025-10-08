@@ -39,7 +39,7 @@ import { SettingsScreen } from './features/profile/components/SettingsScreen';
 import { BadgesScreen } from './features/profile/components/BadgesScreen';
 import { useBadges } from './shared/hooks/useBadges';
 import { FavoritesScreen } from './features/profile/components/FavoritesScreen';
-import { NotificationSettingsScreen } from './features/profile/components/NotificationSettingsScreen';
+import NotificationSettingsScreen from './features/profile/components/NotificationSettingsScreen';
 import { DeleteAccountScreen } from './features/profile/components/DeleteAccountScreen';
 import { DesignGuideScreen } from './features/profile/components/DesignGuideScreen';
 import { PerformanceDetailScreen } from './features/analytics/components/PerformanceDetailScreen';
@@ -520,6 +520,14 @@ const AppContent: React.FC = () => {
         return (
           <NotificationSettingsScreen
             onBack={() => navigateTo('SETTINGS')}
+            notificationTime={localStorage.getItem('notificationTime') || '19:00'}
+            doNotDisturbStart={localStorage.getItem('doNotDisturbStart') || '22:00'}
+            doNotDisturbEnd={localStorage.getItem('doNotDisturbEnd') || '08:00'}
+            onSave={(notificationTime, doNotDisturbStart, doNotDisturbEnd) => {
+              localStorage.setItem('notificationTime', notificationTime);
+              localStorage.setItem('doNotDisturbStart', doNotDisturbStart);
+              localStorage.setItem('doNotDisturbEnd', doNotDisturbEnd);
+            }}
           />
         );
       

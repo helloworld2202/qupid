@@ -39,6 +39,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   const generateNewPersonas = async () => {
     if (!userProfile || isGeneratingPersonas) return;
     
+    console.log('🚀 동적 페르소나 생성 시작:', userProfile);
     setIsGeneratingPersonas(true);
     try {
       const newPersonas = await generateDynamicPersonasMutation.mutateAsync({
@@ -55,11 +56,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
         count: 3
       });
       
+      console.log('✅ 동적 페르소나 생성 성공:', newPersonas);
       setDynamicPersonas(newPersonas);
       setCurrentSlideIndex(0);
       setHasViewedAllSlides(false);
     } catch (error) {
-      console.error('동적 페르소나 생성 실패:', error);
+      console.error('❌ 동적 페르소나 생성 실패:', error);
     } finally {
       setIsGeneratingPersonas(false);
     }
@@ -107,6 +109,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   
   // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 빈 배열 (동적 생성 대기)
   const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas.slice(0, 3) : [];
+  
+  // 🚀 디버깅 로그 추가
+  console.log('📊 HomeScreen 상태:', {
+    dynamicPersonas: dynamicPersonas.length,
+    recommendedPersonas: recommendedPersonas.length,
+    isGeneratingPersonas,
+    userProfile: userProfile?.name
+  });
   
   // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
   const defaultUserProfile = { 

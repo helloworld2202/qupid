@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, Screen, ConversationMode } from '@qupid/core';
 import { ArrowLeftIcon, ChevronRightIcon } from '@qupid/ui';
+import NotificationSettingsScreen from './NotificationSettingsScreen';
 
 interface SettingsScreenProps {
   onNavigate: (screen: Screen | string) => void;
@@ -65,6 +66,23 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack, onL
     const [soundEffects, setSoundEffects] = useState(true);
     const [hapticFeedback, setHapticFeedback] = useState(true);
     
+    // 🚀 알림 시간 설정 상태 추가
+    const [notificationTime, setNotificationTime] = useState(() => {
+        const saved = localStorage.getItem('notificationTime');
+        return saved || '19:00';
+    });
+    const [doNotDisturbStart, setDoNotDisturbStart] = useState(() => {
+        const saved = localStorage.getItem('doNotDisturbStart');
+        return saved || '22:00';
+    });
+    const [doNotDisturbEnd, setDoNotDisturbEnd] = useState(() => {
+        const saved = localStorage.getItem('doNotDisturbEnd');
+        return saved || '08:00';
+    });
+    
+    // 🚀 알림 설정 화면 표시 상태
+    const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+    
     // 기본 대화 모드 설정
     const [defaultConversationMode, setDefaultConversationMode] = useState<ConversationMode>(() => {
         const saved = localStorage.getItem('defaultConversationMode');
@@ -74,8 +92,38 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack, onL
     useEffect(() => {
         localStorage.setItem('defaultConversationMode', defaultConversationMode);
     }, [defaultConversationMode]);
+    
+    // 🚀 알림 시간 설정을 localStorage에 저장
+    useEffect(() => {
+        localStorage.setItem('notificationTime', notificationTime);
+    }, [notificationTime]);
+    
+    useEffect(() => {
+        localStorage.setItem('doNotDisturbStart', doNotDisturbStart);
+        localStorage.setItem('doNotDisturbEnd', doNotDisturbEnd);
+    }, [doNotDisturbStart, doNotDisturbEnd]);
+    
+    // 🚀 알림 시간 설정 저장 함수
+    const handleNotificationTimeSave = (newNotificationTime: string, newDoNotDisturbStart: string, newDoNotDisturbEnd: string) => {
+        setNotificationTime(newNotificationTime);
+        setDoNotDisturbStart(newDoNotDisturbStart);
+        setDoNotDisturbEnd(newDoNotDisturbEnd);
+    };
 
     const initial = userProfile.name.charAt(0).toUpperCase();
+
+    // 🚀 알림 설정 화면 표시
+    if (showNotificationSettings) {
+        return (
+            <NotificationSettingsScreen
+                onBack={() => setShowNotificationSettings(false)}
+                notificationTime={notificationTime}
+                doNotDisturbStart={doNotDisturbStart}
+                doNotDisturbEnd={doNotDisturbEnd}
+                onSave={handleNotificationTimeSave}
+            />
+        );
+    }
 
     return (
         <div className="flex flex-col h-full w-full bg-[#F9FAFB]">
@@ -112,7 +160,13 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack, onL
                 <SectionContainer>
                     <SettingItem icon="📚" title="학습 목표 설정" onClick={() => onNavigate(Screen.LearningGoals)} rightComponent={<><span className="text-base font-medium">일 3회 대화</span><ChevronRightIcon className="w-4 h-4" /></>} />
                     <SettingItem icon="🎯" title="관심 분야 수정" onClick={() => onNavigate(Screen.ProfileEdit)} rightComponent={<><span className="text-base font-medium">게임, 영화 외 3개</span><ChevronRightIcon className="w-4 h-4" /></>} />
-                    <SettingItem icon="⏰" title="연습 시간 알림" onClick={() => {}} rightComponent={<TossToggle value={practiceNotification} onToggle={() => setPracticeNotification(v => !v)} />} />
+                    <SettingItem 
+                        icon="⏰" 
+                        title="연습 시간 알림" 
+                        subtitle={`${notificationTime} · 방해금지 ${doNotDisturbStart}~${doNotDisturbEnd}`}
+                        onClick={() => setShowNotificationSettings(true)} 
+                        rightComponent={<ChevronRightIcon className="w-4 h-4" />} 
+                    />
                     <SettingItem icon="📊" title="실시간 분석 표시" onClick={() => {}} rightComponent={<TossToggle value={analysisDisplay} onToggle={() => setAnalysisDisplay(v => !v)} />} />
                     <SettingItem 
                         icon="💬" 

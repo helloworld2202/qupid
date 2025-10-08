@@ -166,12 +166,18 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
             return () => clearTimeout(timer);
         }
     }, [tutorialStep, isTutorialMode, onComplete]);
-    // 튜토리얼 단계별 진행 함수
+    // 🚀 튜토리얼 단계별 진행 함수 개선
     const progressTutorialStep = useCallback((userMessage) => {
         if (!isTutorialMode)
             return;
+        console.log('🎯 튜토리얼 단계 진행 체크:', {
+            currentStepIndex: tutorialStepIndex,
+            currentStep: TUTORIAL_STEPS[tutorialStepIndex],
+            userMessage
+        });
         const currentStep = TUTORIAL_STEPS[tutorialStepIndex];
-        if (currentStep && currentStep.successCriteria(userMessage)) {
+        if (currentStep && currentStep.successCriteria(userMessage, messages)) {
+            console.log('✅ 단계 성공! 다음 단계로 진행');
             // 단계 성공 시 다음 단계로 진행
             const nextIndex = tutorialStepIndex + 1;
             if (nextIndex < TUTORIAL_STEPS.length) {
@@ -181,13 +187,14 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                 const nextStep = TUTORIAL_STEPS[nextIndex];
                 setTimeout(() => {
                     setMessages(prev => [...prev,
-                        { sender: 'system', text: `✅ 1단계 완료! 이제 ${nextStep.title}` },
+                        { sender: 'system', text: `✅ ${currentStep.step}단계 완료! 이제 ${nextStep.title}` },
                         { sender: 'system', text: nextStep.description }
                     ]);
                 }, 1000);
             }
             else {
                 // 튜토리얼 완료
+                console.log('🎉 튜토리얼 완료!');
                 setIsTutorialComplete(true);
                 setTimeout(() => {
                     setMessages(prev => [...prev,
@@ -196,7 +203,10 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                 }, 1000);
             }
         }
-    }, [isTutorialMode, tutorialStepIndex]);
+        else {
+            console.log('❌ 단계 조건 미충족');
+        }
+    }, [isTutorialMode, tutorialStepIndex, messages]);
     const handleSend = useCallback(async (messageText) => {
         if (messageText.trim() === '' || isLoading || isAnalyzing || !sessionIdRef.current)
             return;
@@ -214,14 +224,7 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
             lastUserMessage: messageText,
             ...(lastAiMessage ? { lastAiMessage } : {})
         }, { onSuccess: (feedback) => feedback && setRealtimeFeedback(feedback) });
-        if (isTutorialMode) {
-            if (tutorialStep.successCriteria(messageText, messages)) {
-                const nextStepIndex = tutorialStep.step;
-                if (nextStepIndex < TUTORIAL_STEPS.length) {
-                    setTutorialStep(TUTORIAL_STEPS[nextStepIndex]);
-                }
-            }
-        }
+        // 🚀 중복된 튜토리얼 진행 로직 제거 (progressTutorialStep에서 처리)
         try {
             // Mock 응답 생성 (API 실패 시 대체)
             let aiResponse;
