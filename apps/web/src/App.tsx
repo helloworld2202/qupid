@@ -341,8 +341,9 @@ const AppContent: React.FC = () => {
             persona={tutorialPartner}
             onBack={() => navigateTo('HOME')}
             onComplete={() => {
-              // sessionData에 이미 튜토리얼 페르소나가 설정되어 있음
-              navigateTo(Screen.ConversationPrep);
+              // 튜토리얼 페르소나를 persona로 설정하여 PersonaDetail 화면으로 이동
+              setSessionData({ persona: tutorialPartner });
+              navigateTo(Screen.PersonaDetail);
             }}
           />
         );

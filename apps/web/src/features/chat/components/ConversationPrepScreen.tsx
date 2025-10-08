@@ -38,14 +38,14 @@ const ConversationPrepScreen: React.FC<ConversationPrepScreenProps> = ({ partner
   ];
 
   return (
-    <div className="flex flex-col h-full w-full bg-white animate-fade-in">
+    <div className="flex flex-col h-screen w-full bg-white animate-fade-in">
       <header className="flex-shrink-0 flex items-center p-3">
         <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-100">
           <ArrowLeftIcon className="w-6 h-6 text-[#8B95A1]" />
         </button>
       </header>
 
-      <main className="flex-1 px-6">
+      <main className="flex-1 px-6 overflow-y-auto">
         <h1 className="text-[32px] font-bold text-[#191F28]">대화 준비 완료!</h1>
         <p className="text-base text-[#8B95A1] mt-2">{persona.name}님과의 첫 만남이에요</p>
         

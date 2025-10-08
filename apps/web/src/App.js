@@ -276,8 +276,9 @@ const AppContent = () => {
                 // sessionData에서 튜토리얼 페르소나 가져오기
                 const tutorialPartner = sessionData?.partner;
                 return (_jsx(TutorialIntroScreen, { persona: tutorialPartner, onBack: () => navigateTo('HOME'), onComplete: () => {
-                        // sessionData에 이미 튜토리얼 페르소나가 설정되어 있음
-                        navigateTo(Screen.ConversationPrep);
+                        // 튜토리얼 페르소나를 persona로 설정하여 PersonaDetail 화면으로 이동
+                        setSessionData({ persona: tutorialPartner });
+                        navigateTo(Screen.PersonaDetail);
                     } }));
             case 'PERSONA_SELECTION':
                 return (_jsx(PersonaSelection, { personas: [], userProfile: user, onSelect: () => {
