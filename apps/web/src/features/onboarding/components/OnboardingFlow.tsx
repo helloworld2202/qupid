@@ -137,9 +137,13 @@ const SurveyScreen: React.FC<{
   field: keyof NewUserProfile;
   progress: number;
 }> = ({ onComplete, onBack, question, description, options, field, progress }) => {
+    const [selectedValue, setSelectedValue] = useState<string>('');
+    
     const handleSelect = (value: string) => {
+        setSelectedValue(value);
         setTimeout(() => onComplete(field, value), 300);
     };
+    
     return (
         <div className="flex flex-col h-full w-full animate-fade-in p-6">
              <OnboardingHeader onBack={onBack} progress={progress} />
@@ -153,7 +157,7 @@ const SurveyScreen: React.FC<{
                           {...(opt.icon ? { icon: opt.icon } : {})}
                           title={opt.title} 
                           {...(opt.subtitle ? { subtitle: opt.subtitle } : {})}
-                          checked={false} 
+                          checked={selectedValue === opt.title} 
                           onClick={() => handleSelect(opt.title)} 
                         />
                     ))}
