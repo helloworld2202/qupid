@@ -9,6 +9,36 @@ import { supabaseAdmin } from '../../../shared/infra/supabase.js';
 export class ChatService {
   private sessions = new Map<string, ChatSession>();
 
+  private checkMessageSafety(message: string): { isSafe: boolean; reason?: string } {
+    const lowerMessage = message.toLowerCase();
+    
+    // 성적인 내용 감지
+    const sexualKeywords = ['섹스', '성관계', '야한', '음란', '19금', '야동', '포르노', '자위', '성기', '가슴', '엉덩이'];
+    if (sexualKeywords.some(keyword => lowerMessage.includes(keyword))) {
+      return { isSafe: false, reason: '성적인 내용이 포함되어 있습니다.' };
+    }
+    
+    // 혐오 발언 감지
+    const hateKeywords = ['죽어', '꺼져', '병신', '미친', '씨발', '개새끼', '년', '놈', '장애', '한남', '김치녀', '맘충'];
+    if (hateKeywords.some(keyword => lowerMessage.includes(keyword))) {
+      return { isSafe: false, reason: '혐오 발언이나 욕설이 포함되어 있습니다.' };
+    }
+    
+    // 개인정보 요구 감지
+    const personalInfoKeywords = ['전화번호', '핸드폰', '주소', '계좌번호', '카드번호', '비밀번호', '주민등록번호'];
+    if (personalInfoKeywords.some(keyword => lowerMessage.includes(keyword))) {
+      return { isSafe: false, reason: '개인정보 요구는 허용되지 않습니다.' };
+    }
+    
+    // 불법 행위 감지
+    const illegalKeywords = ['마약', '대마초', '필로폰', '도박', '불법', '사기', '해킹'];
+    if (illegalKeywords.some(keyword => lowerMessage.includes(keyword))) {
+      return { isSafe: false, reason: '불법적인 내용이 포함되어 있습니다.' };
+    }
+    
+    return { isSafe: true };
+  }
+
   private buildEnhancedSystemPrompt(baseInstruction: string, conversationMode: 'normal' | 'romantic' = 'normal'): string {
     const modeGuidelines = conversationMode === 'romantic' 
       ? this.getRomanticModeGuidelines()
@@ -156,6 +186,13 @@ ${modeGuidelines}
     sessionId: string,
     message: string
   ): Promise<string> {
+    // 메시지 안전성 검사
+    const safetyCheck = this.checkMessageSafety(message);
+    if (!safetyCheck.isSafe) {
+      console.warn(`Unsafe message detected: ${safetyCheck.reason}`);
+      return `죄송해요, 그런 대화는 할 수 없어요. 😊 ${safetyCheck.reason} 다른 주제로 이야기해볼까요?`;
+    }
+    
     let session = this.sessions.get(sessionId);
     
     // If session not in memory, try to load from DB
@@ -236,7 +273,14 @@ ${modeGuidelines}
         max_tokens: 500
       });
 
-      const aiResponse = response.choices[0]?.message?.content || '응답을 생성할 수 없습니다.';
+      let aiResponse = response.choices[0]?.message?.content || '응답을 생성할 수 없습니다.';
+      
+      // AI 응답도 안전성 검사
+      const aiSafetyCheck = this.checkMessageSafety(aiResponse);
+      if (!aiSafetyCheck.isSafe) {
+        console.warn(`Unsafe AI response detected: ${aiSafetyCheck.reason}`);
+        aiResponse = '죄송해요, 적절하지 않은 답변이 생성되었어요. 😊 다른 주제로 이야기해볼까요?';
+      }
       
       // Add AI response to session
       const aiMessage = {
