@@ -16,10 +16,13 @@ const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBac
   const { currentUserId } = useAppStore();
   const { data: performanceData, isLoading, error } = usePerformance(currentUserId || '');
   
-  console.log('📊 PerformanceDetailScreen - currentUserId:', currentUserId);
-  console.log('📊 PerformanceDetailScreen - performanceData:', performanceData);
-  console.log('📊 PerformanceDetailScreen - isLoading:', isLoading);
-  console.log('📊 PerformanceDetailScreen - error:', error);
+  // 🚀 프로덕션용 로그 정리 - 개발 환경에서만 로그 출력
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📊 PerformanceDetailScreen - currentUserId:', currentUserId);
+    console.log('📊 PerformanceDetailScreen - performanceData:', performanceData);
+    console.log('📊 PerformanceDetailScreen - isLoading:', isLoading);
+    console.log('📊 PerformanceDetailScreen - error:', error);
+  }
   
   // 🚀 API 데이터를 우선 사용하고, 없을 때만 기본값 사용
   const data = performanceData || {

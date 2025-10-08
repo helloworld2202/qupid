@@ -313,37 +313,54 @@ ${modeGuidelines}
     personaId: string,
     systemInstruction: string
   ): Promise<string> {
-    // Create conversation in database
-    const { data: conversation, error } = await supabase
-      .from('conversations')
-      .insert({
-        user_id: userId,
-        partner_type: 'persona',
-        partner_id: personaId,
-        started_at: new Date().toISOString()
-      })
-      .select()
-      .single();
+    try {
+      // Create conversation in database
+      const { data: conversation, error } = await supabase
+        .from('conversations')
+        .insert({
+          user_id: userId,
+          partner_type: 'persona',
+          partner_id: personaId,
+          started_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Failed to create conversation:', error);
-      throw AppError.internal(`Failed to create conversation: ${error.message}`);
-    }
-    
-    if (!conversation) {
-      throw AppError.internal('Failed to create conversation: No data returned');
-    }
+      if (error) {
+        console.error('Failed to create conversation:', error);
+        throw AppError.internal(`Failed to create conversation: ${error.message}`);
+      }
+      
+      if (!conversation) {
+        throw AppError.internal('Failed to create conversation: No data returned');
+      }
 
-    const sessionId = conversation.id;
-    const session = new ChatSession(
-      sessionId,
-      userId,
-      personaId,
-      systemInstruction
-    );
-    
-    this.sessions.set(sessionId, session);
-    return sessionId;
+      const sessionId = conversation.id;
+      const session = new ChatSession(
+        sessionId,
+        userId,
+        personaId,
+        systemInstruction
+      );
+      
+      this.sessions.set(sessionId, session);
+      return sessionId;
+    } catch (error) {
+      console.error('🚨 Supabase connection failed, using fallback session creation:', error);
+      
+      // 🚀 Fallback: Supabase 연결 실패 시 메모리 기반 세션 생성
+      const fallbackSessionId = `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const session = new ChatSession(
+        fallbackSessionId,
+        userId,
+        personaId,
+        systemInstruction
+      );
+      
+      this.sessions.set(fallbackSessionId, session);
+      console.log('✅ Fallback session created:', fallbackSessionId);
+      return fallbackSessionId;
+    }
   }
 
   async sendMessage(

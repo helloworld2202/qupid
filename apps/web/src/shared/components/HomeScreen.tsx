@@ -39,7 +39,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   const generateNewPersonas = async () => {
     if (!userProfile || isGeneratingPersonas) return;
     
-    console.log('🚀 동적 페르소나 생성 시작:', userProfile);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🚀 동적 페르소나 생성 시작:', userProfile);
+    }
     setIsGeneratingPersonas(true);
     try {
       const newPersonas = await generateDynamicPersonasMutation.mutateAsync({
@@ -56,12 +58,66 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
         count: 3
       });
       
-      console.log('✅ 동적 페르소나 생성 성공:', newPersonas);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ 동적 페르소나 생성 성공:', newPersonas);
+      }
       setDynamicPersonas(newPersonas);
       setCurrentSlideIndex(0);
       setHasViewedAllSlides(false);
     } catch (error) {
       console.error('❌ 동적 페르소나 생성 실패:', error);
+      
+      // 🚀 Fallback: 동적 페르소나 생성 실패 시 기본 페르소나 사용
+      const fallbackPersonas = [
+        {
+          id: 'fallback-persona-1',
+          name: '김민지',
+          age: 24,
+          gender: 'female',
+          job: '디자이너',
+          avatar: 'https://avatar.iran.liara.run/public/girl?username=MinjiKim',
+          intro: '안녕하세요! 디자인을 좋아하는 민지예요 😊',
+          tags: ['디자인', '예술', '창의적'],
+          match_rate: 85,
+          systemInstruction: '당신은 24세 디자이너 김민지입니다. 창의적이고 예술적인 대화를 좋아해요.',
+          personality_traits: ['창의적', '감성적', '친근함'],
+          interests: [
+            { emoji: '🎨', topic: '디자인', description: '그래픽 디자인을 좋아해요' },
+            { emoji: '📸', topic: '사진', description: '일상 사진 찍는 걸 좋아해요' }
+          ],
+          conversation_preview: [
+            { sender: 'ai', text: '안녕하세요! 오늘 하루는 어땠나요? 😊' }
+          ]
+        },
+        {
+          id: 'fallback-persona-2',
+          name: '박준호',
+          age: 26,
+          gender: 'male',
+          job: '개발자',
+          avatar: 'https://avatar.iran.liara.run/public/boy?username=JunhoPark',
+          intro: '안녕하세요! 개발자 준호입니다 👨‍💻',
+          tags: ['개발', '기술', '논리적'],
+          match_rate: 82,
+          systemInstruction: '당신은 26세 개발자 박준호입니다. 기술과 논리적인 대화를 선호해요.',
+          personality_traits: ['논리적', '차분함', '친절함'],
+          interests: [
+            { emoji: '💻', topic: '프로그래밍', description: '새로운 기술을 배우는 걸 좋아해요' },
+            { emoji: '🎮', topic: '게임', description: '스팀 게임을 즐겨해요' }
+          ],
+          conversation_preview: [
+            { sender: 'ai', text: '안녕하세요! 어떤 일로 바쁘셨나요? 👋' }
+          ]
+        }
+      ];
+      
+      setDynamicPersonas(fallbackPersonas);
+      setCurrentSlideIndex(0);
+      setHasViewedAllSlides(false);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Fallback 페르소나 사용:', fallbackPersonas);
+      }
     } finally {
       setIsGeneratingPersonas(false);
     }
@@ -110,13 +166,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 빈 배열 (동적 생성 대기)
   const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas.slice(0, 3) : [];
   
-  // 🚀 디버깅 로그 추가
-  console.log('📊 HomeScreen 상태:', {
-    dynamicPersonas: dynamicPersonas.length,
-    recommendedPersonas: recommendedPersonas.length,
-    isGeneratingPersonas,
-    userProfile: userProfile?.name
-  });
+  // 🚀 프로덕션용 로그 정리 - 개발 환경에서만 로그 출력
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📊 HomeScreen 상태:', {
+      dynamicPersonas: dynamicPersonas.length,
+      recommendedPersonas: recommendedPersonas.length,
+      isGeneratingPersonas,
+      userProfile: userProfile?.name
+    });
+  }
   
   // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
   const defaultUserProfile = { 

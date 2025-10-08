@@ -73,7 +73,9 @@ const AppContent = () => {
             try {
                 const session = JSON.parse(tutorialSessionData);
                 setSessionData(session);
-                console.log('튜토리얼 세션 데이터 로드됨:', session);
+                if (process.env.NODE_ENV === 'development') {
+                    console.log('튜토리얼 세션 데이터 로드됨:', session);
+                }
             }
             catch (error) {
                 console.error('튜토리얼 세션 데이터 파싱 오류:', error);
@@ -165,14 +167,20 @@ const AppContent = () => {
         setIsGuest(true);
         setAppState('main');
         // 튜토리얼 페르소나를 sessionData에 저장
-        console.log('🎉 온보딩 완료:', profile);
-        console.log('🤖 튜토리얼 페르소나:', tutorialPersona);
+        if (process.env.NODE_ENV === 'development') {
+            console.log('🎉 온보딩 완료:', profile);
+            console.log('🤖 튜토리얼 페르소나:', tutorialPersona);
+        }
         if (tutorialPersona) {
             setSessionData({ partner: tutorialPersona, isTutorial: true });
-            console.log('✅ 온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
+            if (process.env.NODE_ENV === 'development') {
+                console.log('✅ 온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
+            }
         }
         else {
-            console.log('⚠️ 튜토리얼 페르소나 없음 - 튜토리얼 화면으로 이동');
+            if (process.env.NODE_ENV === 'development') {
+                console.log('⚠️ 튜토리얼 페르소나 없음 - 튜토리얼 화면으로 이동');
+            }
         }
         navigateTo(Screen.TutorialIntro);
     };

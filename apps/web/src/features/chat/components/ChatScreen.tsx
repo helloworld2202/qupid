@@ -248,15 +248,19 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const progressTutorialStep = useCallback((userMessage: string) => {
     if (!isTutorialMode) return;
     
-    console.log('🎯 튜토리얼 단계 진행 체크:', {
-      currentStepIndex: tutorialStepIndex,
-      currentStep: TUTORIAL_STEPS[tutorialStepIndex],
-      userMessage
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🎯 튜토리얼 단계 진행 체크:', {
+        currentStepIndex: tutorialStepIndex,
+        currentStep: TUTORIAL_STEPS[tutorialStepIndex],
+        userMessage
+      });
+    }
     
     const currentStep = TUTORIAL_STEPS[tutorialStepIndex];
     if (currentStep && currentStep.successCriteria(userMessage, messages)) {
-      console.log('✅ 단계 성공! 다음 단계로 진행');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ 단계 성공! 다음 단계로 진행');
+      }
       
       // 단계 성공 시 다음 단계로 진행
       const nextIndex = tutorialStepIndex + 1;
@@ -274,7 +278,9 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         }, 1000);
       } else {
         // 튜토리얼 완료
-        console.log('🎉 튜토리얼 완료!');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🎉 튜토리얼 완료!');
+        }
         setIsTutorialComplete(true);
         setTimeout(() => {
           setMessages(prev => [...prev, 
@@ -283,7 +289,9 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         }, 1000);
       }
     } else {
-      console.log('❌ 단계 조건 미충족');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('❌ 단계 조건 미충족');
+      }
     }
   }, [isTutorialMode, tutorialStepIndex, messages]);
 
