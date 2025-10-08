@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { PersonaGenerationService } from './app/PersonaGenerationService.js';
 import { AppError } from '../../shared/errors/AppError.js';
+import { PREDEFINED_PERSONAS } from '@qupid/core';
 
 export class PersonaController {
   private personaGenerationService: PersonaGenerationService;
@@ -8,6 +9,25 @@ export class PersonaController {
   constructor() {
     this.personaGenerationService = new PersonaGenerationService();
   }
+
+  /**
+   * 모든 페르소나 조회 (constants에서)
+   */
+  getAllPersonas = async (req: Request, res: Response) => {
+    try {
+      // constants에서 미리 정의된 페르소나 반환
+      res.json({
+        success: true,
+        data: PREDEFINED_PERSONAS
+      });
+    } catch (error) {
+      console.error('Get all personas error:', error);
+      res.status(500).json({
+        success: false,
+        message: '페르소나 조회 중 오류가 발생했습니다.'
+      });
+    }
+  };
 
   /**
    * 사용자 관심사 기반 페르소나 생성

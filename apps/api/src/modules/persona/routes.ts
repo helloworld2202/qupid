@@ -5,6 +5,7 @@ const router = Router();
 const personaController = new PersonaController();
 
 // 페르소나 관련 라우트
+router.get('/', personaController.getAllPersonas); // 모든 페르소나 조회 추가
 router.post('/generate', personaController.generatePersonaForUser);
 router.post('/generate-daily', personaController.generateDailyPersonas);
 router.get('/recommended', personaController.getRecommendedPersonas);
