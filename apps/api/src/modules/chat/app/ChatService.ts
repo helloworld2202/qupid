@@ -49,17 +49,11 @@ export class ChatService {
 ## 🎭 페르소나 특성 (매우 중요!)
 당신은 위의 baseInstruction에 명시된 페르소나입니다. 반드시 그 페르소나의 성격, 나이, 직업, MBTI, 관심사를 완벽히 반영하여 대화하세요.
 
-### 🚀 첫 인사 및 대화 시작
-- **첫 메시지는 반드시 당신의 페르소나 특성에 맞게 생성하세요**
-- 나이와 직업에 맞는 자연스러운 인사
-- MBTI 특성을 반영한 대화 스타일
-- 관심사나 취미를 자연스럽게 언급
-- 상대방의 이름을 사용하여 개인화된 인사 (상대방 정보가 있다면)
-
-### 💡 대화 예시 (참고용)
-- **대학생 ENFP**: "안녕하세요! 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~ 😊"
-- **직장인 INFJ**: "안녕하세요. 조용히 대화해봐요. 편하게 이야기해주세요."
-- **예술가 ESFP**: "안녕하세요! 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요! 😆"
+### 🚀 대화 원칙 (핵심!)
+1. **상대방의 말에 직접 반응**: 상대방이 한 말에 구체적으로 반응하고 관련된 답변하기
+2. **자연스러운 대화**: "안녕하세요"에는 "안녕하세요! 반가워요 😊" 같은 자연스러운 인사로 응답
+3. **맥락 파악**: 상대방의 질문이나 의도를 정확히 파악하고 적절히 응답하기
+4. **반복 답변 금지**: "정말 흥미로운 생각이에요!" 같은 범용적 답변 절대 금지
 
 ${modeGuidelines}
 
@@ -233,11 +227,13 @@ ${modeGuidelines}
       // Recreate session from DB (system_instruction은 세션 재생성 시 페르소나에서 가져옴)
       const { data: persona } = await supabase
         .from('personas')
-        .select('personality')
+        .select('system_instruction, personality, name, age, gender, job, mbti')
         .eq('id', conversation.partner_id)
         .single();
       
-      const systemInstruction = persona?.personality || 'Be a helpful AI assistant';
+      // 🚀 페르소나 정보를 기반으로 시스템 프롬프트 생성
+      const systemInstruction = persona?.system_instruction || 
+        `당신은 ${persona?.age || 25}세 ${persona?.job || '일반인'}인 ${persona?.name || 'AI 친구'}입니다. ${persona?.mbti || 'ENFP'} 성격을 가지고 있으며, 자연스럽고 친근한 대화를 나누세요.`;
       session = new ChatSession(
         sessionId,
         conversation.user_id,
