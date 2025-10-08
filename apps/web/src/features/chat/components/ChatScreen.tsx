@@ -80,6 +80,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const [isTutorialMode, setIsTutorialMode] = useState(isTutorial);
   const [tutorialStep, setTutorialStep] = useState<TutorialStep>(TUTORIAL_STEPS[0]);
   const [isTutorialComplete, setIsTutorialComplete] = useState(false);
+  const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
   
   const [showCoachHint, setShowCoachHint] = useState(false);
   const [coachSuggestion, setCoachSuggestion] = useState<{reason: string, suggestion: string} | null>(null);
@@ -91,49 +92,34 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const feedbackTimeoutRef = useRef<number | null>(null);
 
-  // 사용자 프로필에 맞춘 맞춤형 첫 메시지 생성
-  const generatePersonalizedFirstMessage = (partner: Persona, userProfile: any) => {
-    if (!userProfile) {
-      return `안녕하세요! 처음 뵙네요 😊 반갑습니다!`;
-    }
+  // 페르소나의 성격에 맞는 자연스러운 첫 메시지 생성
+  const generatePersonaStyleFirstMessage = (partner: Persona) => {
+    const mbti = partner.mbti || 'ENFP';
+    const age = partner.age;
+    const job = partner.job || '학생';
+    const name = partner.name;
+    
+    // MBTI별 대화 스타일
+    const mbtiStyles = {
+      'ENFP': `안녕하세요! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
+      'ENFJ': `안녕하세요! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! 어떤 이야기든 들어드릴게요.`,
+      'ENTP': `어? 안녕하세요! ${name}이에요 😄 ${age}세 ${job}인데, 뭔가 재미있는 이야기 들려주실 것 같은데요?`,
+      'ENTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 시간이 있으니 편하게 대화해봐요.`,
+      'INFP': `안녕하세요... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조금 부끄럽지만... 편하게 대화해요.`,
+      'INFJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 조용히 대화해봐요.`,
+      'INTP': `안녕하세요. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요 😅`,
+      'INTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 효율적으로 대화해봅시다.`,
+      'ESFP': `안녕하세요! ${name}이에요! 😆 ${age}세 ${job}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
+      'ESFJ': `안녕하세요! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! 뭔가 도움이 될 이야기 해봐요.`,
+      'ESTP': `어! 안녕하세요! ${name}이에요 😎 ${age}세 ${job}인데, 뭔가 재미있는 일 있나요?`,
+      'ESTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 체계적으로 대화해봅시다.`,
+      'ISFP': `안녕하세요... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조용히 대화해요...`,
+      'ISFJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 편하게 대화해요.`,
+      'ISTP': `안녕하세요. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요.`,
+      'ISTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 차근차근 대화해봅시다.`
+    };
 
-    const userName = userProfile.name || '친구';
-    const userGender = userProfile.user_gender === 'male' ? '남성' : '여성';
-    const userExperience = userProfile.experience || '없음';
-    const userInterests = userProfile.interests || [];
-
-    // 경험 수준에 따른 맞춤형 인사
-    let experienceGreeting = '';
-    switch (userExperience) {
-      case '전혀 없어요':
-        experienceGreeting = '처음이시라니 조금 긴장되실 것 같아요 😊';
-        break;
-      case '1-2번 정도':
-        experienceGreeting = '조금씩 경험을 쌓아가고 계시는군요!';
-        break;
-      case '몇 번 있어요':
-        experienceGreeting = '어느 정도 경험이 있으시네요!';
-        break;
-      case '많은 편이에요':
-        experienceGreeting = '경험이 풍부하시군요!';
-        break;
-      default:
-        experienceGreeting = '처음 뵙네요!';
-    }
-
-    // 관심사 기반 맞춤형 메시지
-    let interestMessage = '';
-    if (userInterests.length > 0) {
-      const mainInterest = userInterests[0].split(' ')[1] || userInterests[0];
-      interestMessage = `저도 ${mainInterest}에 관심이 많아요!`;
-    }
-
-    // 페르소나의 성격에 따른 맞춤형 인사
-    const partnerName = partner.name;
-    const partnerAge = partner.age;
-    const partnerJob = partner.job || '학생';
-
-    return `안녕하세요 ${userName}님! 저는 ${partnerAge}세 ${partnerJob}인 ${partnerName}이에요 😊 ${experienceGreeting} ${interestMessage} 편하게 대화해요!`;
+    return mbtiStyles[mbti as keyof typeof mbtiStyles] || `안녕하세요! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 편하게 대화해요!`;
   };
 
   // API hooks
@@ -209,14 +195,16 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         initialMessages.push({ sender: 'ai', text: partner.intro });
     } else { // It's a Persona
         if (isTutorial) {
+            const currentStep = TUTORIAL_STEPS[0];
             initialMessages.push(
-                { sender: 'system', text: `${partner.name}님과의 첫 만남이에요. 편안하게 인사해보세요 😊` },
+                { sender: 'system', text: `🎯 튜토리얼 시작! ${currentStep.title}` },
+                { sender: 'system', text: currentStep.description },
                 { sender: 'system', text: 'COACH_HINT_INTRO' }
             );
         }
-        // 튜토리얼에서는 사용자 프로필에 맞춘 맞춤형 메시지 사용
+        // 튜토리얼에서는 페르소나의 성격에 맞는 자연스러운 메시지 사용
         const firstMessage = isTutorial 
-          ? generatePersonalizedFirstMessage(partner, userProfile)
+          ? generatePersonaStyleFirstMessage(partner)
           : (partner.conversation_preview && partner.conversation_preview.length > 0
             ? partner.conversation_preview[0].text
             : `안녕하세요! 처음 뵙네요 😊 반갑습니다!`);
@@ -250,6 +238,38 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     }
   }, [tutorialStep, isTutorialMode, onComplete]);
 
+  // 튜토리얼 단계별 진행 함수
+  const progressTutorialStep = useCallback((userMessage: string) => {
+    if (!isTutorialMode) return;
+    
+    const currentStep = TUTORIAL_STEPS[tutorialStepIndex];
+    if (currentStep && currentStep.successCriteria(userMessage)) {
+      // 단계 성공 시 다음 단계로 진행
+      const nextIndex = tutorialStepIndex + 1;
+      if (nextIndex < TUTORIAL_STEPS.length) {
+        setTutorialStepIndex(nextIndex);
+        setTutorialStep(TUTORIAL_STEPS[nextIndex]);
+        
+        // 다음 단계 안내 메시지 추가
+        const nextStep = TUTORIAL_STEPS[nextIndex];
+        setTimeout(() => {
+          setMessages(prev => [...prev, 
+            { sender: 'system', text: `✅ 1단계 완료! 이제 ${nextStep.title}` },
+            { sender: 'system', text: nextStep.description }
+          ]);
+        }, 1000);
+      } else {
+        // 튜토리얼 완료
+        setIsTutorialComplete(true);
+        setTimeout(() => {
+          setMessages(prev => [...prev, 
+            { sender: 'system', text: '🎉 튜토리얼 완료! 이제 자유롭게 대화해보세요!' }
+          ]);
+        }, 1000);
+      }
+    }
+  }, [isTutorialMode, tutorialStepIndex]);
+
   const handleSend = useCallback(async (messageText: string) => {
     if (messageText.trim() === '' || isLoading || isAnalyzing || !sessionIdRef.current) return;
 
@@ -260,6 +280,9 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    
+    // 튜토리얼 단계 진행 체크
+    progressTutorialStep(messageText);
 
     // Get realtime feedback
     const lastAiMessage = messages.filter(m => m.sender === 'ai').pop()?.text;
