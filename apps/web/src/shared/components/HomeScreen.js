@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useState, useEffect } from 'react';
-import { Screen, PREDEFINED_PERSONAS, MOCK_BADGES, MOCK_PERFORMANCE_DATA } from '@qupid/core';
+import { Screen, PREDEFINED_PERSONAS, MOCK_BADGES } from '@qupid/core';
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
 import { usePersonas } from '../hooks/usePersonas';
 import { useBadges } from '../hooks/useBadges';
@@ -62,7 +62,35 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
     // API 데이터가 없으면 constants 사용
     const allPersonas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
     const allBadges = apiBadges.length > 0 ? apiBadges : MOCK_BADGES;
-    const performanceData = apiPerformanceData || MOCK_PERFORMANCE_DATA;
+    // 🚀 실제 성과 데이터 사용 (API에서 가져온 데이터 또는 기본값)
+    const performanceData = apiPerformanceData || {
+        weeklyScore: 0,
+        scoreChange: 0,
+        scoreChangePercentage: 0,
+        dailyScores: [0, 0, 0, 0, 0, 0, 0],
+        radarData: {
+            labels: ['친근함', '호기심', '공감력', '유머', '배려', '적극성'],
+            datasets: [{
+                    label: '이번 주',
+                    data: [0, 0, 0, 0, 0, 0],
+                    backgroundColor: 'rgba(240, 147, 176, 0.2)',
+                    borderColor: 'rgba(240, 147, 176, 1)',
+                    borderWidth: 2,
+                }]
+        },
+        stats: {
+            totalTime: '0분',
+            sessionCount: 0,
+            avgTime: '0분',
+            longestSession: { time: '0분', persona: '' },
+            preferredType: '아직 대화 기록이 없습니다'
+        },
+        categoryScores: [
+            { title: '친근함', emoji: '😊', score: 0, change: 0, goal: 90 },
+            { title: '호기심', emoji: '🤔', score: 0, change: 0, goal: 90 },
+            { title: '공감력', emoji: '💬', score: 0, change: 0, goal: 70 },
+        ]
+    };
     // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 기본 페르소나 사용
     const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas : allPersonas.slice(0, 3);
     // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
@@ -99,36 +127,8 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
     const personas = allPersonas.filter(p => p.gender === (currentUser.partner_gender || 'female'));
     // 획득한 뱃지만 필터링
     const badges = allBadges.filter(b => b.acquired);
-    // 기본 성과 데이터 (API 로딩 중일 때 사용)
-    const defaultPerformanceData = {
-        weeklyScore: 0,
-        scoreChange: 0,
-        scoreChangePercentage: 0,
-        dailyScores: [60, 65, 70, 68, 75, 72, 78],
-        radarData: {
-            labels: ['친근함', '호기심', '공감력', '유머', '배려', '적극성'],
-            datasets: [{
-                    label: '이번 주',
-                    data: [85, 92, 58, 60, 75, 70],
-                    backgroundColor: 'rgba(240, 147, 176, 0.2)',
-                    borderColor: 'rgba(240, 147, 176, 1)',
-                    borderWidth: 2,
-                }]
-        },
-        stats: {
-            totalTime: '2시간 15분',
-            sessionCount: 8,
-            avgTime: '17분',
-            longestSession: { time: '32분', persona: '소연님과' },
-            preferredType: '활발한 성격 (60%)'
-        },
-        categoryScores: [
-            { title: '친근함', emoji: '😊', score: 85, change: 8, goal: 90 },
-            { title: '호기심', emoji: '🤔', score: 92, change: 15, goal: 90 },
-            { title: '공감력', emoji: '💬', score: 58, change: 3, goal: 70 },
-        ]
-    };
-    const displayPerformanceData = performanceData || defaultPerformanceData;
+    // 🚀 하드코딩된 데이터 제거 - 이제 API 데이터만 사용
+    const displayPerformanceData = performanceData;
     const recentBadge = badges && badges.length > 0 ? badges.find(b => b.featured) : undefined;
     const partnerGender = currentUser.user_gender === 'female' ? 'male' : 'female';
     // 슬라이드 함수들
