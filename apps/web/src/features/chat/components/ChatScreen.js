@@ -23,6 +23,10 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [realtimeFeedback, setRealtimeFeedback] = useState(null);
     const [isTutorialMode, setIsTutorialMode] = useState(isTutorial);
+    // isTutorial prop이 변경되면 isTutorialMode 상태도 업데이트
+    useEffect(() => {
+        setIsTutorialMode(isTutorial);
+    }, [isTutorial]);
     const [tutorialStep, setTutorialStep] = useState(TUTORIAL_STEPS[0]);
     const [isTutorialComplete, setIsTutorialComplete] = useState(false);
     const [tutorialStepIndex, setTutorialStepIndex] = useState(0);

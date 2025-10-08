@@ -216,7 +216,7 @@ const AppContent = () => {
                     } }));
             case Screen.ConversationPrep:
                 return (_jsx(ConversationPrepScreen, { partner: sessionData?.partner, onStart: (mode) => {
-                        setSessionData({ ...sessionData, conversationMode: mode });
+                        setSessionData({ ...sessionData, conversationMode: mode, isTutorial: sessionData?.isTutorial || false });
                         navigateTo(Screen.Chat);
                     }, onBack: () => navigateTo('CHAT_TAB') }));
             case Screen.Chat:
@@ -270,7 +270,9 @@ const AppContent = () => {
                 return (_jsx(ConversationAnalysisScreen, { analysis: sessionData?.analysis, tutorialJustCompleted: sessionData?.tutorialCompleted, onHome: () => navigateTo('HOME'), onBack: () => navigateTo(isCoachChat ? 'COACHING_TAB' : 'CHAT_TAB') }));
             case Screen.PersonaDetail:
                 return (_jsx(PersonaDetailScreen, { persona: sessionData?.persona, onBack: () => navigateTo('CHAT_TAB'), onStartChat: (persona) => {
-                        setSessionData({ partner: persona, isTutorial: false });
+                        // 튜토리얼 모드인 경우 isTutorial 유지
+                        const isTutorialMode = sessionData?.isTutorial || false;
+                        setSessionData({ partner: persona, isTutorial: isTutorialMode });
                         navigateTo(Screen.ConversationPrep);
                     } }));
             case Screen.CustomPersona:
@@ -279,8 +281,8 @@ const AppContent = () => {
                 // sessionData에서 튜토리얼 페르소나 가져오기
                 const tutorialPartner = sessionData?.partner;
                 return (_jsx(TutorialIntroScreen, { persona: tutorialPartner, onBack: () => navigateTo('HOME'), onComplete: () => {
-                        // 튜토리얼 페르소나를 persona로 설정하여 PersonaDetail 화면으로 이동
-                        setSessionData({ persona: tutorialPartner });
+                        // 튜토리얼 페르소나를 설정하고 튜토리얼 모드로 표시
+                        setSessionData({ partner: tutorialPartner, isTutorial: true });
                         navigateTo(Screen.PersonaDetail);
                     } }));
             case 'PERSONA_SELECTION':

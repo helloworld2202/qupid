@@ -78,6 +78,11 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [realtimeFeedback, setRealtimeFeedback] = useState<RealtimeFeedback | null>(null);
   const [isTutorialMode, setIsTutorialMode] = useState(isTutorial);
+  
+  // isTutorial prop이 변경되면 isTutorialMode 상태도 업데이트
+  useEffect(() => {
+    setIsTutorialMode(isTutorial);
+  }, [isTutorial]);
   const [tutorialStep, setTutorialStep] = useState<TutorialStep>(TUTORIAL_STEPS[0]);
   const [isTutorialComplete, setIsTutorialComplete] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
