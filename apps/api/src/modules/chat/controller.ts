@@ -204,13 +204,13 @@ export const getCoachSuggestion = async (
   next: NextFunction
 ) => {
   try {
-    const { messages } = req.body;
+    const { messages, persona } = req.body;
     
     if (!messages || !Array.isArray(messages)) {
       throw AppError.badRequest('Messages array is required');
     }
 
-    const suggestion = await chatService.getCoachSuggestion(messages);
+    const suggestion = await chatService.getCoachSuggestion(messages, persona);
     
     res.json({
       ok: true,

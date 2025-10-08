@@ -54,8 +54,8 @@ export const useRealtimeFeedback = () => {
 
 export const useCoachSuggestion = () => {
   return useMutation({
-    mutationFn: async (messages: Message[]) => {
-      return await apiClient.getCoachSuggestion(messages);
+    mutationFn: async ({ messages, persona }: { messages: Message[]; persona?: any }) => {
+      return await apiClient.getCoachSuggestion(messages, persona);
     },
   });
 };

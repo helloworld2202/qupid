@@ -49,7 +49,10 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, on
         setShowCoachHint(true);
         setIsFetchingSuggestion(true);
         setCoachSuggestion(null);
-        const suggestion = await coachMutation.mutateAsync(messages);
+        const suggestion = await coachMutation.mutateAsync({
+            messages,
+            persona: partner
+        });
         setCoachSuggestion(suggestion);
         setIsFetchingSuggestion(false);
     }, [messages, isFetchingSuggestion, showCoachHint, coachMutation]);

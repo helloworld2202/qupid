@@ -307,23 +307,39 @@ export class ChatService {
   }
 
   async getCoachSuggestion(
-    messages: Message[]
+    messages: Message[],
+    persona?: any
   ): Promise<{ reason: string; suggestion: string }> {
     const conversationText = messages
       .filter((msg) => msg.sender !== 'system')
       .map((msg) => `${msg.sender === 'user' ? '나' : '상대'}: ${msg.text}`)
       .join('\n');
 
+    // 페르소나 정보를 활용한 맞춤형 프롬프트 생성
+    const personaInfo = persona ? `
+    상대방 페르소나 정보:
+    - 이름: ${persona.name}
+    - 나이: ${persona.age}세
+    - 직업: ${persona.job}
+    - 성격: ${persona.mbti}
+    - 관심사: ${persona.tags?.join(', ') || '일반적인 관심사'}
+    - 소개: ${persona.intro || ''}
+    - 대화 스타일: ${persona.conversationStyle || ''}
+    ` : '';
+
     const prompt = `
     사용자가 대화를 이어가는데 도움이 필요합니다.
+    ${personaInfo}
     
     대화:
     ${conversationText}
     
+    위 페르소나 정보를 바탕으로 상대방의 성격, 관심사, 대화 스타일에 맞는 구체적인 메시지를 제안해주세요.
+    
     JSON 응답:
     {
-      "reason": "왜 이 제안이 좋은지 (1-2 문장)",
-      "suggestion": "구체적인 메시지 제안"
+      "reason": "왜 이 제안이 좋은지 (페르소나 특성을 고려한 이유)",
+      "suggestion": "상대방의 관심사와 성격에 맞는 구체적인 메시지 제안"
     }
     `;
 

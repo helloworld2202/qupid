@@ -108,7 +108,10 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     setIsFetchingSuggestion(true);
     setCoachSuggestion(null);
 
-    const suggestion = await coachMutation.mutateAsync(messages);
+    const suggestion = await coachMutation.mutateAsync({ 
+      messages, 
+      persona: partner 
+    });
     
     setCoachSuggestion(suggestion);
     setIsFetchingSuggestion(false);

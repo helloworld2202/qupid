@@ -58,11 +58,11 @@ class ApiClient {
             return null;
         }
     }
-    async getCoachSuggestion(messages) {
+    async getCoachSuggestion(messages, persona) {
         try {
             const suggestion = await this.request('/chat/coach-suggestion', {
                 method: 'POST',
-                body: JSON.stringify({ messages }),
+                body: JSON.stringify({ messages, persona }),
             });
             return suggestion;
         }
