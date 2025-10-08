@@ -35,3 +35,11 @@ export const useCoachSuggestion = () => {
         },
     });
 };
+// 🚀 동적 페르소나 생성 훅
+export const useGenerateDynamicPersonas = () => {
+    return useMutation({
+        mutationFn: async ({ userProfile, count = 3 }) => {
+            return await apiClient.generateDynamicPersonas(userProfile, count);
+        },
+    });
+};

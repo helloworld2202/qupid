@@ -1,6 +1,6 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile, Screen, PerformanceData, PREDEFINED_PERSONAS, MOCK_BADGES, MOCK_PERFORMANCE_DATA } from '@qupid/core';
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
 import { usePersonas } from '../hooks/usePersonas';
@@ -8,6 +8,7 @@ import { useBadges } from '../hooks/useBadges';
 import { usePerformance } from '../hooks/usePerformance';
 import { useAppStore } from '../stores/useAppStore';
 import { useUserProfile } from '../hooks/api/useUser';
+import { useGenerateDynamicPersonas } from '../../features/chat/hooks/useChatQueries';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen | string) => void;
@@ -21,16 +22,63 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [hasViewedAllSlides, setHasViewedAllSlides] = useState(false);
   
+  // 🚀 동적 페르소나 상태 관리
+  const [dynamicPersonas, setDynamicPersonas] = useState<any[]>([]);
+  const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
+  
   // API 데이터 페칭 (실패 시 constants 사용)
   const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
   const { data: apiBadges = [], isLoading: isLoadingBadges } = useBadges();
   const { data: apiPerformanceData, isLoading: isLoadingPerformance } = usePerformance(currentUserId || '');
   const { data: userProfile } = useUserProfile(currentUserId || '');
   
+  // 🚀 동적 페르소나 생성 훅
+  const generateDynamicPersonasMutation = useGenerateDynamicPersonas();
+  
+  // 🚀 동적 페르소나 생성 함수
+  const generateNewPersonas = async () => {
+    if (!userProfile || isGeneratingPersonas) return;
+    
+    setIsGeneratingPersonas(true);
+    try {
+      const newPersonas = await generateDynamicPersonasMutation.mutateAsync({
+        userProfile: {
+          name: userProfile.name,
+          age: 25, // 기본값
+          gender: userProfile.user_gender,
+          job: '학생', // 기본값
+          interests: userProfile.interests || [],
+          experience: userProfile.experience,
+          mbti: 'ENFP', // 기본값
+          personality: ['친근함', '긍정적'] // 기본값
+        },
+        count: 3
+      });
+      
+      setDynamicPersonas(newPersonas);
+      setCurrentSlideIndex(0);
+      setHasViewedAllSlides(false);
+    } catch (error) {
+      console.error('동적 페르소나 생성 실패:', error);
+    } finally {
+      setIsGeneratingPersonas(false);
+    }
+  };
+
+  // 🚀 초기 동적 페르소나 생성
+  useEffect(() => {
+    if (userProfile && dynamicPersonas.length === 0 && !isGeneratingPersonas) {
+      generateNewPersonas();
+    }
+  }, [userProfile]);
+
   // API 데이터가 없으면 constants 사용
   const allPersonas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
   const allBadges = apiBadges.length > 0 ? apiBadges : MOCK_BADGES;
   const performanceData = apiPerformanceData || MOCK_PERFORMANCE_DATA;
+  
+  // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 기본 페르소나 사용
+  const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas : allPersonas.slice(0, 3);
   
   // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
   const defaultUserProfile = { 
@@ -105,9 +153,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   const displayPerformanceData = performanceData || defaultPerformanceData;
   const recentBadge = badges && badges.length > 0 ? badges.find(b => b.featured) : undefined;
   const partnerGender = currentUser.user_gender === 'female' ? 'male' : 'female';
-  const recommendedPersonas = personas && personas.length > 0 
-    ? personas.filter(p => p.gender === partnerGender).slice(0, 3) 
-    : [];
   
   // 슬라이드 함수들
   const handleSlideNext = () => {
@@ -126,12 +171,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
     }
   };
   
-  const handleRefreshRecommendations = () => {
-    // 새로고침 시 비용 지출 로직 (추후 구현)
-    console.log('새로운 추천 AI를 위해 비용을 지불합니다...');
-    setCurrentSlideIndex(0);
-    setHasViewedAllSlides(false);
-    // TODO: 실제로는 새로운 페르소나 데이터를 가져와야 함
+  const handleRefreshRecommendations = async () => {
+    // 🚀 새로운 동적 페르소나 생성
+    console.log('🔄 새로운 추천 AI를 위해 비용을 지불합니다...');
+    await generateNewPersonas();
   };
   
   // 로딩 상태 처리
@@ -225,10 +268,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
                     {hasViewedAllSlides && (
                         <button 
                           onClick={handleRefreshRecommendations}
-                          className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105"
+                          disabled={isGeneratingPersonas}
+                          className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{backgroundColor: '#F093B0'}}
                         >
-                          새로고침 💎
+                          {isGeneratingPersonas ? '생성 중... ⏳' : '새로고침 💎'}
                         </button>
                     )}
                 </div>
@@ -261,7 +305,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
                             <h3 className="font-bold text-lg mb-1">{p.name}</h3>
                             <p className="text-sm text-gray-600 mb-2">{p.age}세 • {p.job}</p>
                             <div className="flex flex-wrap justify-center gap-1 mb-3">
-                                {p.tags?.slice(0, 2).map((tag, tagIndex) => (
+                                {p.tags?.slice(0, 2).map((tag: string, tagIndex: number) => (
                                     <span key={tagIndex} className="px-2 py-1 text-xs bg-[#F093B0] text-white rounded-full">
                                         {tag}
                                     </span>

@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Screen, PREDEFINED_PERSONAS, MOCK_BADGES, MOCK_PERFORMANCE_DATA } from '@qupid/core';
 import { BellIcon, ChevronRightIcon } from '@qupid/ui';
 import { usePersonas } from '../hooks/usePersonas';
@@ -7,20 +7,64 @@ import { useBadges } from '../hooks/useBadges';
 import { usePerformance } from '../hooks/usePerformance';
 import { useAppStore } from '../stores/useAppStore';
 import { useUserProfile } from '../hooks/api/useUser';
+import { useGenerateDynamicPersonas } from '../../features/chat/hooks/useChatQueries';
 const HomeScreen = ({ onNavigate, onSelectPersona }) => {
     const { currentUserId } = useAppStore();
     // 슬라이드 상태 관리
     const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
     const [hasViewedAllSlides, setHasViewedAllSlides] = useState(false);
+    // 🚀 동적 페르소나 상태 관리
+    const [dynamicPersonas, setDynamicPersonas] = useState([]);
+    const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
     // API 데이터 페칭 (실패 시 constants 사용)
     const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
     const { data: apiBadges = [], isLoading: isLoadingBadges } = useBadges();
     const { data: apiPerformanceData, isLoading: isLoadingPerformance } = usePerformance(currentUserId || '');
     const { data: userProfile } = useUserProfile(currentUserId || '');
+    // 🚀 동적 페르소나 생성 훅
+    const generateDynamicPersonasMutation = useGenerateDynamicPersonas();
+    // 🚀 동적 페르소나 생성 함수
+    const generateNewPersonas = async () => {
+        if (!userProfile || isGeneratingPersonas)
+            return;
+        setIsGeneratingPersonas(true);
+        try {
+            const newPersonas = await generateDynamicPersonasMutation.mutateAsync({
+                userProfile: {
+                    name: userProfile.name,
+                    age: 25, // 기본값
+                    gender: userProfile.user_gender,
+                    job: '학생', // 기본값
+                    interests: userProfile.interests || [],
+                    experience: userProfile.experience,
+                    mbti: 'ENFP', // 기본값
+                    personality: ['친근함', '긍정적'] // 기본값
+                },
+                count: 3
+            });
+            setDynamicPersonas(newPersonas);
+            setCurrentSlideIndex(0);
+            setHasViewedAllSlides(false);
+        }
+        catch (error) {
+            console.error('동적 페르소나 생성 실패:', error);
+        }
+        finally {
+            setIsGeneratingPersonas(false);
+        }
+    };
+    // 🚀 초기 동적 페르소나 생성
+    useEffect(() => {
+        if (userProfile && dynamicPersonas.length === 0 && !isGeneratingPersonas) {
+            generateNewPersonas();
+        }
+    }, [userProfile]);
     // API 데이터가 없으면 constants 사용
     const allPersonas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
     const allBadges = apiBadges.length > 0 ? apiBadges : MOCK_BADGES;
     const performanceData = apiPerformanceData || MOCK_PERFORMANCE_DATA;
+    // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 기본 페르소나 사용
+    const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas : allPersonas.slice(0, 3);
     // 로딩 중이거나 사용자 프로필이 없을 때의 기본값
     const defaultUserProfile = {
         name: '사용자',
@@ -87,9 +131,6 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
     const displayPerformanceData = performanceData || defaultPerformanceData;
     const recentBadge = badges && badges.length > 0 ? badges.find(b => b.featured) : undefined;
     const partnerGender = currentUser.user_gender === 'female' ? 'male' : 'female';
-    const recommendedPersonas = personas && personas.length > 0
-        ? personas.filter(p => p.gender === partnerGender).slice(0, 3)
-        : [];
     // 슬라이드 함수들
     const handleSlideNext = () => {
         if (currentSlideIndex < recommendedPersonas.length - 1) {
@@ -106,12 +147,10 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
             setHasViewedAllSlides(false);
         }
     };
-    const handleRefreshRecommendations = () => {
-        // 새로고침 시 비용 지출 로직 (추후 구현)
-        console.log('새로운 추천 AI를 위해 비용을 지불합니다...');
-        setCurrentSlideIndex(0);
-        setHasViewedAllSlides(false);
-        // TODO: 실제로는 새로운 페르소나 데이터를 가져와야 함
+    const handleRefreshRecommendations = async () => {
+        // 🚀 새로운 동적 페르소나 생성
+        console.log('🔄 새로운 추천 AI를 위해 비용을 지불합니다...');
+        await generateNewPersonas();
     };
     // 로딩 상태 처리
     if (isLoadingPersonas || isLoadingBadges || isLoadingPerformance) {
@@ -125,7 +164,7 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
                                                     else {
                                                         onNavigate('CHAT_TAB');
                                                     }
-                                                }, className: "mt-2 h-9 px-4 text-sm font-bold text-white rounded-lg", style: { backgroundColor: '#F093B0' }, children: "\uBC14\uB85C \uB300\uD654\uD558\uAE30" })] })] }), _jsx("div", { className: "w-full bg-white/30 h-1.5 rounded-full mt-3", children: _jsx("div", { className: "bg-[#F093B0] h-1.5 rounded-full", style: { width: `${(todayConversations / 3) * 100}%` } }) })] }), _jsxs("div", { onClick: () => onNavigate(Screen.PerformanceDetail), className: "p-5 bg-white rounded-2xl border cursor-pointer transition-all hover:shadow-lg hover:border-[#0AC5A8]", style: { borderColor: '#F2F4F6' }, children: [_jsxs("div", { className: "flex justify-between items-center", children: [_jsx("h2", { className: "font-bold text-lg", children: "\uD83D\uDCCA \uC774\uBC88 \uC8FC \uC131\uC7A5" }), _jsxs("div", { className: "flex items-center text-sm font-medium transition-transform hover:translate-x-1", style: { color: '#4F7ABA' }, children: ["\uC790\uC138\uD788 \uBCF4\uAE30 ", _jsx(ChevronRightIcon, { className: "w-4 h-4" })] })] }), _jsxs("div", { className: "mt-2 flex items-baseline space-x-2", children: [_jsxs("p", { className: "text-3xl font-bold", style: { color: '#0AC5A8' }, children: [displayPerformanceData.scoreChange > 0 ? '+' : '', displayPerformanceData.scoreChange, "\uC810 \uD5A5\uC0C1"] }), _jsxs("p", { className: "text-sm font-medium", style: { color: '#8B95A1' }, children: ["\uC9C0\uB09C\uC8FC \uB300\uBE44 ", displayPerformanceData.scoreChangePercentage > 0 ? '+' : '', displayPerformanceData.scoreChangePercentage, "%"] })] })] }), _jsxs("div", { className: "p-5 bg-white rounded-2xl border", style: { borderColor: '#F2F4F6' }, children: [_jsxs("div", { className: "flex justify-between items-center mb-4", children: [_jsxs("div", { children: [_jsx("h2", { className: "font-bold text-lg", children: "\uD83D\uDC95 \uC624\uB298\uC758 \uCD94\uCC9C AI" }), _jsx("p", { className: "text-sm text-gray-500", children: "\uC9C0\uAE08 \uB300\uD654\uD558\uAE30 \uC88B\uC740 \uCE5C\uAD6C\uB4E4\uC774\uC5D0\uC694" })] }), _jsxs("div", { className: "flex items-center space-x-2", children: [_jsxs("span", { className: "text-xs text-gray-400", children: [currentSlideIndex + 1, "/", recommendedPersonas.length] }), hasViewedAllSlides && (_jsx("button", { onClick: handleRefreshRecommendations, className: "px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105", style: { backgroundColor: '#F093B0' }, children: "\uC0C8\uB85C\uACE0\uCE68 \uD83D\uDC8E" }))] })] }), _jsxs("div", { className: "relative overflow-hidden rounded-xl", children: [_jsx("div", { className: "flex transition-transform duration-300 ease-in-out", style: { transform: `translateX(-${currentSlideIndex * 100}%)` }, children: recommendedPersonas.map((p, index) => (_jsxs("div", { className: "w-full flex-shrink-0 p-6 rounded-xl bg-gradient-to-br from-[#F9FAFB] to-[#F0F4F8] border border-[#E5E8EB] text-center cursor-pointer transition-all hover:shadow-lg hover:border-[#F093B0] hover:-translate-y-1", onClick: () => {
+                                                }, className: "mt-2 h-9 px-4 text-sm font-bold text-white rounded-lg", style: { backgroundColor: '#F093B0' }, children: "\uBC14\uB85C \uB300\uD654\uD558\uAE30" })] })] }), _jsx("div", { className: "w-full bg-white/30 h-1.5 rounded-full mt-3", children: _jsx("div", { className: "bg-[#F093B0] h-1.5 rounded-full", style: { width: `${(todayConversations / 3) * 100}%` } }) })] }), _jsxs("div", { onClick: () => onNavigate(Screen.PerformanceDetail), className: "p-5 bg-white rounded-2xl border cursor-pointer transition-all hover:shadow-lg hover:border-[#0AC5A8]", style: { borderColor: '#F2F4F6' }, children: [_jsxs("div", { className: "flex justify-between items-center", children: [_jsx("h2", { className: "font-bold text-lg", children: "\uD83D\uDCCA \uC774\uBC88 \uC8FC \uC131\uC7A5" }), _jsxs("div", { className: "flex items-center text-sm font-medium transition-transform hover:translate-x-1", style: { color: '#4F7ABA' }, children: ["\uC790\uC138\uD788 \uBCF4\uAE30 ", _jsx(ChevronRightIcon, { className: "w-4 h-4" })] })] }), _jsxs("div", { className: "mt-2 flex items-baseline space-x-2", children: [_jsxs("p", { className: "text-3xl font-bold", style: { color: '#0AC5A8' }, children: [displayPerformanceData.scoreChange > 0 ? '+' : '', displayPerformanceData.scoreChange, "\uC810 \uD5A5\uC0C1"] }), _jsxs("p", { className: "text-sm font-medium", style: { color: '#8B95A1' }, children: ["\uC9C0\uB09C\uC8FC \uB300\uBE44 ", displayPerformanceData.scoreChangePercentage > 0 ? '+' : '', displayPerformanceData.scoreChangePercentage, "%"] })] })] }), _jsxs("div", { className: "p-5 bg-white rounded-2xl border", style: { borderColor: '#F2F4F6' }, children: [_jsxs("div", { className: "flex justify-between items-center mb-4", children: [_jsxs("div", { children: [_jsx("h2", { className: "font-bold text-lg", children: "\uD83D\uDC95 \uC624\uB298\uC758 \uCD94\uCC9C AI" }), _jsx("p", { className: "text-sm text-gray-500", children: "\uC9C0\uAE08 \uB300\uD654\uD558\uAE30 \uC88B\uC740 \uCE5C\uAD6C\uB4E4\uC774\uC5D0\uC694" })] }), _jsxs("div", { className: "flex items-center space-x-2", children: [_jsxs("span", { className: "text-xs text-gray-400", children: [currentSlideIndex + 1, "/", recommendedPersonas.length] }), hasViewedAllSlides && (_jsx("button", { onClick: handleRefreshRecommendations, disabled: isGeneratingPersonas, className: "px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed", style: { backgroundColor: '#F093B0' }, children: isGeneratingPersonas ? '생성 중... ⏳' : '새로고침 💎' }))] })] }), _jsxs("div", { className: "relative overflow-hidden rounded-xl", children: [_jsx("div", { className: "flex transition-transform duration-300 ease-in-out", style: { transform: `translateX(-${currentSlideIndex * 100}%)` }, children: recommendedPersonas.map((p, index) => (_jsxs("div", { className: "w-full flex-shrink-0 p-6 rounded-xl bg-gradient-to-br from-[#F9FAFB] to-[#F0F4F8] border border-[#E5E8EB] text-center cursor-pointer transition-all hover:shadow-lg hover:border-[#F093B0] hover:-translate-y-1", onClick: () => {
                                                 if (onSelectPersona) {
                                                     onSelectPersona(p);
                                                 }

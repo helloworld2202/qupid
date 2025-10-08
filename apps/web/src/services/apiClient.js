@@ -71,6 +71,20 @@ class ApiClient {
             return null;
         }
     }
+    // 🚀 동적 페르소나 생성
+    async generateDynamicPersonas(userProfile, count = 3) {
+        try {
+            const response = await this.request('/personas/generate-dynamic', {
+                method: 'POST',
+                body: JSON.stringify({ userProfile, count }),
+            });
+            return response.data || [];
+        }
+        catch (error) {
+            console.error('Error generating dynamic personas:', error);
+            return [];
+        }
+    }
     // Styling endpoints
     async getStylingAdvice(prompt) {
         const result = await this.request('/styling/advice', {

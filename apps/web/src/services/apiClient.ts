@@ -100,6 +100,35 @@ class ApiClient {
     }
   }
 
+  // 🚀 동적 페르소나 생성
+  async generateDynamicPersonas(
+    userProfile: {
+      name?: string;
+      age?: number;
+      gender?: string;
+      job?: string;
+      interests?: string[];
+      experience?: string;
+      mbti?: string;
+      personality?: string[];
+    },
+    count: number = 3
+  ): Promise<any[]> {
+    try {
+      const response = await this.request<{ success: boolean; data: any[] }>(
+        '/personas/generate-dynamic',
+        {
+          method: 'POST',
+          body: JSON.stringify({ userProfile, count }),
+        }
+      );
+      return response.data || [];
+    } catch (error) {
+      console.error('Error generating dynamic personas:', error);
+      return [];
+    }
+  }
+
   // Styling endpoints
   async getStylingAdvice(
     prompt: string

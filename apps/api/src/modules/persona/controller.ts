@@ -1,13 +1,16 @@
 import { Request, Response } from 'express';
 import { PersonaGenerationService } from './app/PersonaGenerationService.js';
+import { DynamicPersonaService } from './app/DynamicPersonaService.js';
 import { AppError } from '../../shared/errors/AppError.js';
 import { PREDEFINED_PERSONAS } from '@qupid/core';
 
 export class PersonaController {
   private personaGenerationService: PersonaGenerationService;
+  private dynamicPersonaService: DynamicPersonaService;
 
   constructor() {
     this.personaGenerationService = new PersonaGenerationService();
+    this.dynamicPersonaService = new DynamicPersonaService();
   }
 
   /**
@@ -172,6 +175,47 @@ export class PersonaController {
         res.status(500).json({
           success: false,
           message: '추천 페르소나 조회 중 오류가 발생했습니다.'
+        });
+      }
+    }
+  };
+
+  /**
+   * 🚀 새로운 동적 페르소나 생성 (AI 기반)
+   */
+  generateDynamicPersonas = async (req: Request, res: Response) => {
+    try {
+      const { userProfile, count = 3 } = req.body;
+
+      if (!userProfile) {
+        throw AppError.badRequest('사용자 프로필 정보가 필요합니다.');
+      }
+
+      console.log('🎯 동적 페르소나 생성 요청:', { userProfile, count });
+
+      const personas = await this.dynamicPersonaService.generateDynamicPersona(
+        userProfile,
+        count
+      );
+
+      console.log('✅ 생성된 동적 페르소나:', personas.length, '개');
+
+      res.json({
+        success: true,
+        data: personas,
+        message: `${count}개의 새로운 페르소나가 생성되었습니다!`
+      });
+    } catch (error) {
+      console.error('❌ 동적 페르소나 생성 오류:', error);
+      if (error instanceof AppError) {
+        res.status(error.status).json({
+          success: false,
+          message: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: '동적 페르소나 생성 중 오류가 발생했습니다.'
         });
       }
     }

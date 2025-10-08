@@ -213,12 +213,8 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                 { sender: 'system', text: 'COACH_HINT_INTRO' }
             );
         }
-        // 튜토리얼에서는 항상 페르소나의 성격에 맞는 자연스러운 메시지 사용
-        const firstMessage = isTutorial 
-          ? generatePersonaStyleFirstMessage(partner)
-          : generatePersonaStyleFirstMessage(partner); // 일반 대화에서도 페르소나 스타일 사용
-        
-        initialMessages.push({ sender: 'ai', text: firstMessage });
+        // AI가 페르소나 특성에 맞게 자연스럽게 첫 메시지를 생성하도록 함
+        // 하드코딩된 첫 메시지 대신 AI가 자율적으로 대화를 시작하도록 함
     }
 
     setMessages(initialMessages);

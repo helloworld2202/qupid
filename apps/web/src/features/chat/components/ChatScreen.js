@@ -138,11 +138,8 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                 const currentStep = TUTORIAL_STEPS[0];
                 initialMessages.push({ sender: 'system', text: `🎯 튜토리얼 시작! ${currentStep.title}` }, { sender: 'system', text: currentStep.description }, { sender: 'system', text: 'COACH_HINT_INTRO' });
             }
-            // 튜토리얼에서는 항상 페르소나의 성격에 맞는 자연스러운 메시지 사용
-            const firstMessage = isTutorial
-                ? generatePersonaStyleFirstMessage(partner)
-                : generatePersonaStyleFirstMessage(partner); // 일반 대화에서도 페르소나 스타일 사용
-            initialMessages.push({ sender: 'ai', text: firstMessage });
+            // AI가 페르소나 특성에 맞게 자연스럽게 첫 메시지를 생성하도록 함
+            // 하드코딩된 첫 메시지 대신 AI가 자율적으로 대화를 시작하도록 함
         }
         setMessages(initialMessages);
     }, [isTutorial, userProfile]); // userProfile 의존성 추가
