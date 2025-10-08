@@ -40,6 +40,8 @@ export interface Message {
   timestamp?: number;
 }
 
+export type ConversationMode = 'normal' | 'romantic';
+
 export interface TutorialStep {
     step: number;
     title: string;
