@@ -44,26 +44,31 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
         const age = partner.age;
         const job = partner.job || '학생';
         const name = partner.name;
-        // MBTI별 대화 스타일
+        const userName = userProfile?.name || '사용자님';
+        // 사용자 프로필 정보 활용
+        const userAge = userProfile?.age;
+        const userJob = userProfile?.job;
+        const userExperience = userProfile?.experience;
+        // MBTI별 대화 스타일 (사용자 정보 포함)
         const mbtiStyles = {
-            'ENFP': `안녕하세요! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
-            'ENFJ': `안녕하세요! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! 어떤 이야기든 들어드릴게요.`,
-            'ENTP': `어? 안녕하세요! ${name}이에요 😄 ${age}세 ${job}인데, 뭔가 재미있는 이야기 들려주실 것 같은데요?`,
-            'ENTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 시간이 있으니 편하게 대화해봐요.`,
-            'INFP': `안녕하세요... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조금 부끄럽지만... 편하게 대화해요.`,
-            'INFJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 조용히 대화해봐요.`,
-            'INTP': `안녕하세요. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요 😅`,
-            'INTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 효율적으로 대화해봅시다.`,
-            'ESFP': `안녕하세요! ${name}이에요! 😆 ${age}세 ${job}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
-            'ESFJ': `안녕하세요! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! 뭔가 도움이 될 이야기 해봐요.`,
-            'ESTP': `어! 안녕하세요! ${name}이에요 😎 ${age}세 ${job}인데, 뭔가 재미있는 일 있나요?`,
-            'ESTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 체계적으로 대화해봅시다.`,
-            'ISFP': `안녕하세요... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조용히 대화해요...`,
-            'ISFJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 편하게 대화해요.`,
-            'ISTP': `안녕하세요. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요.`,
-            'ISTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 차근차근 대화해봅시다.`
+            'ENFP': `안녕하세요 ${userName}! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 오늘 처음 만나서 정말 기대돼요! ${userName}님은 어떤 분이실까 궁금해요~`,
+            'ENFJ': `안녕하세요 ${userName}! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! ${userName}님 이야기 들어드릴게요.`,
+            'ENTP': `어? 안녕하세요 ${userName}! ${name}이에요 😄 ${age}세 ${job}인데, 뭔가 재미있는 이야기 들려주실 것 같은데요?`,
+            'ENTJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 시간이 있으니 편하게 대화해봐요.`,
+            'INFP': `안녕하세요 ${userName}... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조금 부끄럽지만... 편하게 대화해요.`,
+            'INFJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 조용히 대화해봐요.`,
+            'INTP': `안녕하세요 ${userName}. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요 😅`,
+            'INTJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 효율적으로 대화해봅시다.`,
+            'ESFP': `안녕하세요 ${userName}! ${name}이에요! 😆 ${age}세 ${job}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
+            'ESFJ': `안녕하세요 ${userName}! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! 뭔가 도움이 될 이야기 해봐요.`,
+            'ESTP': `어! 안녕하세요 ${userName}! ${name}이에요 😎 ${age}세 ${job}인데, 뭔가 재미있는 일 있나요?`,
+            'ESTJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 체계적으로 대화해봅시다.`,
+            'ISFP': `안녕하세요 ${userName}... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조용히 대화해요...`,
+            'ISFJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 편하게 대화해요.`,
+            'ISTP': `안녕하세요 ${userName}. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요.`,
+            'ISTJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 차근차근 대화해봅시다.`
         };
-        return mbtiStyles[mbti] || `안녕하세요! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 편하게 대화해요!`;
+        return mbtiStyles[mbti] || `안녕하세요 ${userName}! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 편하게 대화해요!`;
     };
     // API hooks
     const createSessionMutation = useChatSession();
@@ -133,12 +138,10 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                 const currentStep = TUTORIAL_STEPS[0];
                 initialMessages.push({ sender: 'system', text: `🎯 튜토리얼 시작! ${currentStep.title}` }, { sender: 'system', text: currentStep.description }, { sender: 'system', text: 'COACH_HINT_INTRO' });
             }
-            // 튜토리얼에서는 페르소나의 성격에 맞는 자연스러운 메시지 사용
+            // 튜토리얼에서는 항상 페르소나의 성격에 맞는 자연스러운 메시지 사용
             const firstMessage = isTutorial
                 ? generatePersonaStyleFirstMessage(partner)
-                : (partner.conversation_preview && partner.conversation_preview.length > 0
-                    ? partner.conversation_preview[0].text
-                    : `안녕하세요! 처음 뵙네요 😊 반갑습니다!`);
+                : generatePersonaStyleFirstMessage(partner); // 일반 대화에서도 페르소나 스타일 사용
             initialMessages.push({ sender: 'ai', text: firstMessage });
         }
         setMessages(initialMessages);
@@ -301,7 +304,7 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
     };
     return (_jsxs("div", { className: "flex flex-col h-full w-full bg-white relative", children: [_jsxs("header", { className: "flex-shrink-0 flex flex-col p-3 border-b border-[#F2F4F6] z-10 bg-white", children: [_jsxs("div", { className: "flex items-center", children: [_jsx("button", { onClick: handleComplete, className: "p-2 rounded-full hover:bg-gray-100", children: _jsx(ArrowLeftIcon, { className: "w-6 h-6 text-[#8B95A1]" }) }), _jsx("img", { src: partner.avatar, alt: partner.name, className: "w-10 h-10 rounded-full object-cover ml-2" }), _jsxs("div", { className: "ml-3 flex-1", children: [_jsx("h2", { className: "font-bold text-lg text-[#191F28]", children: partner.name }), _jsxs("div", { className: "flex items-center gap-2", children: [_jsx("p", { className: "text-sm text-[#0AC5A8] font-semibold", children: "\uD83D\uDFE2 \uC628\uB77C\uC778" }), !isTutorialMode && (_jsx("span", { className: `text-xs px-2 py-0.5 rounded-full font-medium ${currentMode === 'normal'
                                                     ? 'bg-[#E6F7F5] text-[#0AC5A8]'
-                                                    : 'bg-[#FDF2F8] text-[#F093B0]'}`, children: currentMode === 'normal' ? '👋 일반' : '💕 연인' }))] })] }), _jsxs("div", { className: "flex items-center gap-2", children: [!isTutorialMode && (_jsx("button", { onClick: () => setCurrentMode(currentMode === 'normal' ? 'romantic' : 'normal'), className: `px-3 py-1.5 text-sm font-medium rounded-lg transition-all hover:scale-105 ${currentMode === 'normal'
+                                                    : 'bg-[#FDF2F8] text-[#F093B0]'}`, children: currentMode === 'normal' ? '👋 친구모드' : '💕 연인모드' }))] })] }), _jsxs("div", { className: "flex items-center gap-2", children: [!isTutorialMode && (_jsx("button", { onClick: () => setCurrentMode(currentMode === 'normal' ? 'romantic' : 'normal'), className: `px-3 py-1.5 text-sm font-medium rounded-lg transition-all hover:scale-105 ${currentMode === 'normal'
                                             ? 'bg-[#FDF2F8] text-[#F093B0] border border-[#F093B0]'
                                             : 'bg-[#E6F7F5] text-[#0AC5A8] border border-[#0AC5A8]'}`, title: "\uB300\uD654 \uBAA8\uB4DC \uC804\uD658", children: currentMode === 'normal' ? '💕 연인 모드로' : '👋 일반 모드로' })), !isTutorialMode && messages.length > 3 && (_jsx("button", { onClick: async () => {
                                             const result = await styleAnalysisMutation.mutateAsync(messages);

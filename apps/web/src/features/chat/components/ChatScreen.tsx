@@ -103,28 +103,34 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     const age = partner.age;
     const job = partner.job || '학생';
     const name = partner.name;
+    const userName = userProfile?.name || '사용자님';
     
-    // MBTI별 대화 스타일
+    // 사용자 프로필 정보 활용
+    const userAge = userProfile?.age;
+    const userJob = userProfile?.job;
+    const userExperience = userProfile?.experience;
+    
+    // MBTI별 대화 스타일 (사용자 정보 포함)
     const mbtiStyles = {
-      'ENFP': `안녕하세요! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
-      'ENFJ': `안녕하세요! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! 어떤 이야기든 들어드릴게요.`,
-      'ENTP': `어? 안녕하세요! ${name}이에요 😄 ${age}세 ${job}인데, 뭔가 재미있는 이야기 들려주실 것 같은데요?`,
-      'ENTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 시간이 있으니 편하게 대화해봐요.`,
-      'INFP': `안녕하세요... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조금 부끄럽지만... 편하게 대화해요.`,
-      'INFJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 조용히 대화해봐요.`,
-      'INTP': `안녕하세요. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요 😅`,
-      'INTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 효율적으로 대화해봅시다.`,
-      'ESFP': `안녕하세요! ${name}이에요! 😆 ${age}세 ${job}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
-      'ESFJ': `안녕하세요! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! 뭔가 도움이 될 이야기 해봐요.`,
-      'ESTP': `어! 안녕하세요! ${name}이에요 😎 ${age}세 ${job}인데, 뭔가 재미있는 일 있나요?`,
-      'ESTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 체계적으로 대화해봅시다.`,
-      'ISFP': `안녕하세요... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조용히 대화해요...`,
-      'ISFJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 편하게 대화해요.`,
-      'ISTP': `안녕하세요. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요.`,
-      'ISTJ': `안녕하세요. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 차근차근 대화해봅시다.`
+      'ENFP': `안녕하세요 ${userName}! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 오늘 처음 만나서 정말 기대돼요! ${userName}님은 어떤 분이실까 궁금해요~`,
+      'ENFJ': `안녕하세요 ${userName}! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! ${userName}님 이야기 들어드릴게요.`,
+      'ENTP': `어? 안녕하세요 ${userName}! ${name}이에요 😄 ${age}세 ${job}인데, 뭔가 재미있는 이야기 들려주실 것 같은데요?`,
+      'ENTJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 시간이 있으니 편하게 대화해봐요.`,
+      'INFP': `안녕하세요 ${userName}... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조금 부끄럽지만... 편하게 대화해요.`,
+      'INFJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 조용히 대화해봐요.`,
+      'INTP': `안녕하세요 ${userName}. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요 😅`,
+      'INTJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 효율적으로 대화해봅시다.`,
+      'ESFP': `안녕하세요 ${userName}! ${name}이에요! 😆 ${age}세 ${job}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
+      'ESFJ': `안녕하세요 ${userName}! ${name}입니다 😊 ${age}세 ${job}로 일하고 있어요. 편하게 대화해요! 뭔가 도움이 될 이야기 해봐요.`,
+      'ESTP': `어! 안녕하세요 ${userName}! ${name}이에요 😎 ${age}세 ${job}인데, 뭔가 재미있는 일 있나요?`,
+      'ESTJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 체계적으로 대화해봅시다.`,
+      'ISFP': `안녕하세요 ${userName}... 저는 ${name}이에요 😊 ${age}세 ${job}인데, 조용히 대화해요...`,
+      'ISFJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 편하게 대화해요.`,
+      'ISTP': `안녕하세요 ${userName}. ${name}이에요. ${age}세 ${job}인데... 음, 뭔가 대화하기 어색하네요.`,
+      'ISTJ': `안녕하세요 ${userName}. ${name}입니다. ${age}세 ${job}로 일하고 있어요. 차근차근 대화해봅시다.`
     };
 
-    return mbtiStyles[mbti as keyof typeof mbtiStyles] || `안녕하세요! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 편하게 대화해요!`;
+    return mbtiStyles[mbti as keyof typeof mbtiStyles] || `안녕하세요 ${userName}! 저는 ${name}이에요 😊 ${age}세 ${job}인데, 편하게 대화해요!`;
   };
 
   // API hooks
@@ -207,12 +213,11 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                 { sender: 'system', text: 'COACH_HINT_INTRO' }
             );
         }
-        // 튜토리얼에서는 페르소나의 성격에 맞는 자연스러운 메시지 사용
+        // 튜토리얼에서는 항상 페르소나의 성격에 맞는 자연스러운 메시지 사용
         const firstMessage = isTutorial 
           ? generatePersonaStyleFirstMessage(partner)
-          : (partner.conversation_preview && partner.conversation_preview.length > 0
-            ? partner.conversation_preview[0].text
-            : `안녕하세요! 처음 뵙네요 😊 반갑습니다!`);
+          : generatePersonaStyleFirstMessage(partner); // 일반 대화에서도 페르소나 스타일 사용
+        
         initialMessages.push({ sender: 'ai', text: firstMessage });
     }
 
@@ -405,7 +410,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                                 ? 'bg-[#E6F7F5] text-[#0AC5A8]' 
                                 : 'bg-[#FDF2F8] text-[#F093B0]'
                         }`}>
-                            {currentMode === 'normal' ? '👋 일반' : '💕 연인'}
+                            {currentMode === 'normal' ? '👋 친구모드' : '💕 연인모드'}
                         </span>
                     )}
                 </div>
