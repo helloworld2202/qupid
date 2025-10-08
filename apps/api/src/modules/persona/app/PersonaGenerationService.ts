@@ -29,6 +29,15 @@ export interface PersonaProfile {
   };
   conversationStyle: string;
   isTutorial?: boolean;
+  // Persona 타입과 호환성을 위한 필드들
+  job: string;
+  mbti: string;
+  intro: string;
+  tags: string[];
+  match_rate: number;
+  system_instruction: string;
+  personality_traits: string[];
+  conversation_preview: { sender: 'ai'; text: string; }[];
 }
 
 export class PersonaGenerationService {
@@ -149,6 +158,15 @@ export class PersonaGenerationService {
       // 대화 스타일 설명 생성
       persona.conversationStyle = this.generateConversationStyleDescription(persona);
       
+      // Persona 타입 호환성 필드들 업데이트
+      persona.tags = commonInterests;
+      persona.intro = `${persona.age}세 ${persona.occupation}인 ${persona.name}입니다. ${persona.personality} 성격을 가지고 있어요.`;
+      persona.system_instruction = `당신은 ${persona.age}세 ${persona.occupation}인 ${persona.name}입니다. ${persona.personality} 성격을 가지고 있으며, 관심사는 ${commonInterests.join(', ')}입니다. 자연스럽고 친근한 대화를 나누세요.`;
+      persona.personality_traits = [persona.personality, persona.communicationStyle, persona.datingStyle];
+      persona.conversation_preview = [
+        { sender: 'ai', text: `안녕하세요! ${persona.name}입니다. ${commonInterests[0]} 좋아하시나요?` }
+      ];
+      
       return persona;
     } catch (error) {
       console.error('Persona generation error:', error);
@@ -189,6 +207,8 @@ export class PersonaGenerationService {
       neuroticism: Math.floor(Math.random() * 10) + 1
     };
 
+    const occupation = this.OCCUPATIONS[Math.floor(Math.random() * this.OCCUPATIONS.length)];
+    
     return {
       id: isTutorial ? 'tutorial-persona-1' : `persona-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name,
@@ -196,7 +216,7 @@ export class PersonaGenerationService {
       gender,
       avatar: this.generateAvatarUrl(gender, age),
       personality: mbti,
-      occupation: this.OCCUPATIONS[Math.floor(Math.random() * this.OCCUPATIONS.length)],
+      occupation,
       education: this.selectEducation(age),
       location,
       height: this.generateHeight(gender),
@@ -211,7 +231,18 @@ export class PersonaGenerationService {
       specialNotes: [],
       bigFiveScores,
       conversationStyle: '',
-      isTutorial
+      isTutorial,
+      // Persona 타입 호환성 필드들
+      job: occupation,
+      mbti: mbti,
+      intro: `${age}세 ${occupation}인 ${name}입니다.`,
+      tags: [],
+      match_rate: Math.floor(Math.random() * 20) + 80, // 80-99%
+      system_instruction: `당신은 ${age}세 ${occupation}인 ${name}입니다. ${mbti} 성격을 가지고 있으며, 자연스럽고 친근한 대화를 나누세요.`,
+      personality_traits: [mbti],
+      conversation_preview: [
+        { sender: 'ai', text: `안녕하세요! ${name}입니다. 반가워요!` }
+      ]
     };
   }
 

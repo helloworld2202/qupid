@@ -32,7 +32,7 @@ const ConversationPrepScreen: React.FC<ConversationPrepScreenProps> = ({ partner
 
   const tips = [
       "자기소개로 시작해보세요",
-      `공통 관심사(${persona.tags.join(', ')})를 물어보세요`,
+      `공통 관심사(${persona.tags?.join(', ') || '영화, 음악'})를 물어보세요`,
       "상대방 이야기에 관심을 보여주세요",
       "긴장하지 마세요, 연습이니까요!",
   ];
