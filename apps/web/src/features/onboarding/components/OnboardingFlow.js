@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { ArrowLeftIcon, CheckIcon } from '@qupid/ui';
 import { useCreateUserProfile } from '../../../shared/hooks/api/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
+import { useGeneratePersona } from '../../../shared/hooks/usePersonaGeneration';
 // import SocialLoginScreen from './SocialLoginScreen'; // 소셜 로그인 기능 임시 비활성화
 const TOTAL_ONBOARDING_STEPS = 4;
 // --- Reusable Components ---
@@ -49,6 +50,7 @@ export const OnboardingFlow = ({ onComplete }) => {
     const [step, setStep] = useState(0);
     const [profile, setProfile] = useState(initialProfile);
     const createUser = useCreateUserProfile();
+    const generatePersona = useGeneratePersona();
     const { setCurrentUserId } = useAppStore();
     // 디버깅을 위한 로그
     console.log('OnboardingFlow rendered, current step:', step);
@@ -82,13 +84,77 @@ export const OnboardingFlow = ({ onComplete }) => {
             const result = await createUser.mutateAsync(userProfile);
             if (result?.id) {
                 setCurrentUserId(result.id);
+                // 관심사 기반 자동 AI 프로필 생성
+                const tutorialPersona = await generateTutorialPersona(profile);
+                // 튜토리얼용 페르소나를 sessionData에 저장
+                const sessionData = {
+                    partner: tutorialPersona,
+                    isTutorial: true,
+                    userProfile: userProfile
+                };
+                // sessionData를 localStorage에 저장
+                localStorage.setItem('tutorialSessionData', JSON.stringify(sessionData));
+                console.log('튜토리얼 세션 데이터 저장됨:', sessionData);
             }
         }
         catch (error) {
             console.error('Failed to create user profile:', error);
         }
-        onComplete(profile);
-    }, [createUser, onComplete, profile, setCurrentUserId]);
+        // onComplete 호출 전에 약간의 지연을 추가하여 localStorage 저장이 완료되도록 함
+        setTimeout(() => {
+            onComplete(profile);
+        }, 100);
+    }, [createUser, onComplete, profile, setCurrentUserId, generatePersona]);
+    // 관심사 기반 튜토리얼 페르소나 생성 함수 (API 사용)
+    const generateTutorialPersona = async (profile) => {
+        try {
+            const interests = profile.interests.map((i) => i.split(' ')[1] || i);
+            const persona = await generatePersona.mutateAsync({
+                userGender: profile.user_gender,
+                userInterests: interests,
+                isTutorial: true
+            });
+            return persona;
+        }
+        catch (error) {
+            console.error('페르소나 생성 실패, 기본 페르소나 사용:', error);
+            // API 실패 시 기본 페르소나 반환
+            const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
+            const interests = profile.interests.map((i) => i.split(' ')[1] || i);
+            return {
+                id: 'tutorial-persona-1',
+                name: partnerGender === 'female' ? '김서현' : '박지훈',
+                age: 25,
+                gender: partnerGender,
+                avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+                personality: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
+                occupation: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
+                education: '대학 졸업',
+                location: '서울 강남구',
+                height: partnerGender === 'female' ? '160-165cm' : '175-180cm',
+                bodyType: '보통',
+                interests: interests.slice(0, 3),
+                values: ['가정 지향', '성장 지향'],
+                communicationStyle: partnerGender === 'female' ? '감성적, 공감적' : '논리적, 신중함',
+                datingStyle: partnerGender === 'female' ? '로맨틱' : '현실적',
+                appearanceStyle: partnerGender === 'female' ? '내추럴' : '캐주얼',
+                speechPattern: partnerGender === 'female' ? '따뜻한 말투, 이모티콘 자주 사용' : '친근한 말투, 신중함',
+                lifestyle: partnerGender === 'female' ? '밖돌이, 사교적' : '집순이, 독립적',
+                specialNotes: ['커피 좋아함', '음악 특기'],
+                bigFiveScores: {
+                    openness: 7,
+                    conscientiousness: 6,
+                    extraversion: partnerGender === 'female' ? 8 : 4,
+                    agreeableness: 8,
+                    neuroticism: 3
+                },
+                conversationStyle: partnerGender === 'female'
+                    ? '따뜻하고 격려하는 말투로 대화하는 교사입니다. 공감 능력이 높고 자연스러운 대화를 좋아해요.'
+                    : '신중하고 배려심 깊은 개발자입니다. 진지한 대화를 선호하며 상대방을 잘 들어주는 편이에요.',
+                isTutorial: true
+            };
+        }
+    };
     const handleGenderSelect = (gender) => {
         setProfile(p => ({ ...p, user_gender: gender }));
         nextStep();

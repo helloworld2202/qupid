@@ -535,3 +535,4 @@ export class ConversationAnalysisService {
     return goals;
   }
 }
+

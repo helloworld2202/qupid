@@ -116,3 +116,4 @@ const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ onLoadingChange
 };
 
 export default SocialLoginButtons;
+

@@ -67,6 +67,18 @@ const AppContent = () => {
         originalNavigateTo(screen);
     }, [currentScreen, originalNavigateTo]);
     useEffect(() => {
+        // 튜토리얼 세션 데이터 로드
+        const tutorialSessionData = localStorage.getItem('tutorialSessionData');
+        if (tutorialSessionData) {
+            try {
+                const session = JSON.parse(tutorialSessionData);
+                setSessionData(session);
+                console.log('튜토리얼 세션 데이터 로드됨:', session);
+            }
+            catch (error) {
+                console.error('튜토리얼 세션 데이터 파싱 오류:', error);
+            }
+        }
         // Check if this is a social login callback
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
@@ -152,7 +164,17 @@ const AppContent = () => {
         setUser(newProfile);
         setIsGuest(true);
         setAppState('main');
-        navigateTo(Screen.TutorialIntro); // 튜토리얼 소개 화면으로 이동
+        // 튜토리얼 세션 데이터가 있으면 튜토리얼 화면으로, 없으면 홈으로
+        const tutorialSessionData = localStorage.getItem('tutorialSessionData');
+        console.log('handleOnboardingComplete - tutorialSessionData:', tutorialSessionData);
+        if (tutorialSessionData) {
+            console.log('튜토리얼 화면으로 이동');
+            navigateTo(Screen.TutorialIntro); // 튜토리얼 소개 화면으로 이동
+        }
+        else {
+            console.log('홈 화면으로 이동');
+            navigateTo('HOME'); // 홈 화면으로 이동
+        }
     };
     // 회원가입/로그인 유도 함수
     const requireAuth = (callback) => {
@@ -177,7 +199,10 @@ const AppContent = () => {
     const renderScreen = () => {
         switch (currentScreen) {
             case 'HOME':
-                return _jsx(HomeScreen, { onNavigate: navigateTo });
+                return _jsx(HomeScreen, { onNavigate: navigateTo, onSelectPersona: (persona) => {
+                        setSessionData({ persona });
+                        navigateTo(Screen.PersonaDetail);
+                    } });
             case 'CHAT_TAB':
                 return (_jsx(ChatTabScreen, { onNavigate: navigateTo, onSelectPersona: (persona) => {
                         // 게스트는 최대 3번의 대화만 가능
@@ -250,8 +275,28 @@ const AppContent = () => {
             case Screen.CustomPersona:
                 return (_jsx(CustomPersonaForm, { onCancel: () => navigateTo('CHAT_TAB') }));
             case Screen.TutorialIntro:
-                return (_jsx(TutorialIntroScreen, { onBack: () => navigateTo('HOME'), onComplete: () => {
-                        navigateTo(Screen.ConversationPrep);
+                // tutorialSessionData에서 페르소나 가져오기
+                const tutorialSessionData = localStorage.getItem('tutorialSessionData');
+                let tutorialPersona = null;
+                if (tutorialSessionData) {
+                    try {
+                        const parsedData = JSON.parse(tutorialSessionData);
+                        tutorialPersona = parsedData.partner;
+                    }
+                    catch (error) {
+                        console.error('Failed to parse tutorialSessionData:', error);
+                    }
+                }
+                return (_jsx(TutorialIntroScreen, { persona: tutorialPersona, onBack: () => navigateTo('HOME'), onComplete: () => {
+                        // 튜토리얼 페르소나를 sessionData에 설정
+                        if (tutorialPersona) {
+                            setSessionData({ partner: tutorialPersona, isTutorial: true });
+                            navigateTo(Screen.ConversationPrep);
+                        }
+                        else {
+                            // 페르소나가 없으면 홈으로
+                            navigateTo('HOME');
+                        }
                     } }));
             case 'PERSONA_SELECTION':
                 return (_jsx(PersonaSelection, { personas: [], userProfile: user, onSelect: () => {

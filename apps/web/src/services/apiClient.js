@@ -79,5 +79,24 @@ class ApiClient {
         });
         return result;
     }
+    // Generic HTTP methods
+    async get(endpoint) {
+        return this.request(endpoint, { method: 'GET' });
+    }
+    async post(endpoint, data) {
+        return this.request(endpoint, {
+            method: 'POST',
+            body: data ? JSON.stringify(data) : undefined,
+        });
+    }
+    async put(endpoint, data) {
+        return this.request(endpoint, {
+            method: 'PUT',
+            body: data ? JSON.stringify(data) : undefined,
+        });
+    }
+    async delete(endpoint) {
+        return this.request(endpoint, { method: 'DELETE' });
+    }
 }
 export const apiClient = new ApiClient();

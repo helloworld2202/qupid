@@ -500,3 +500,4 @@ export class PersonaGenerationService {
     return `https://images.unsplash.com/photo-${Math.random().toString(36).substr(2, 9)}?w=150&h=150&fit=crop&crop=face&auto=format`;
   }
 }
+
