@@ -7,7 +7,7 @@ import { useAppStore } from '../../../shared/stores/useAppStore';
 Chart.register(...registerables);
 const PerformanceDetailScreen = ({ onBack }) => {
     const { currentUserId } = useAppStore();
-    const { data: performanceData } = usePerformance(currentUserId || '');
+    const { data: performanceData, isLoading } = usePerformance(currentUserId || '');
     // 기본 데이터 (로딩 중이거나 에러 시 사용)
     const defaultData = {
         weeklyScore: 78,
@@ -91,7 +91,6 @@ const PerformanceDetailScreen = ({ onBack }) => {
             radarChart?.destroy();
         };
     }, [data]);
-    const isLoading = false;
     if (isLoading) {
         return (_jsxs("div", { className: "flex flex-col h-full w-full bg-[#F9FAFB]", children: [_jsxs("header", { className: "flex-shrink-0 flex items-center justify-between p-3 border-b border-[#F2F4F6] bg-white", children: [_jsx("div", { className: "w-10", children: _jsx("button", { onClick: onBack, className: "p-2 rounded-full hover:bg-gray-100", children: _jsx(ArrowLeftIcon, { className: "w-6 h-6 text-[#8B95A1]" }) }) }), _jsx("h2", { className: "text-center text-lg font-bold text-[#191F28]", children: "\uB0B4 \uB300\uD654 \uC2E4\uB825 \uBD84\uC11D" }), _jsx("div", { className: "w-10" })] }), _jsx("div", { className: "flex-1 flex items-center justify-center", children: _jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#F093B0]" }) })] }));
     }

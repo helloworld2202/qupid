@@ -14,7 +14,7 @@ interface PerformanceDetailScreenProps {
 
 const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBack }) => {
   const { currentUserId } = useAppStore();
-  const { data: performanceData } = usePerformance(currentUserId || '');
+  const { data: performanceData, isLoading } = usePerformance(currentUserId || '');
   
   // 기본 데이터 (로딩 중이거나 에러 시 사용)
   const defaultData: PerformanceData = {
@@ -104,8 +104,6 @@ const PerformanceDetailScreen: React.FC<PerformanceDetailScreenProps> = ({ onBac
         radarChart?.destroy();
     };
   }, [data]);
-
-  const isLoading = false;
   
   if (isLoading) {
     return (

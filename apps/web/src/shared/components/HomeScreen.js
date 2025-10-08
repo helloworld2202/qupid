@@ -12,7 +12,7 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
     // API 데이터 페칭 (실패 시 constants 사용)
     const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
     const { data: apiBadges = [], isLoading: isLoadingBadges } = useBadges();
-    const { data: apiPerformanceData } = usePerformance(currentUserId || '');
+    const { data: apiPerformanceData, isLoading: isLoadingPerformance } = usePerformance(currentUserId || '');
     const { data: userProfile } = useUserProfile(currentUserId || '');
     // API 데이터가 없으면 constants 사용
     const allPersonas = apiPersonas.length > 0 ? apiPersonas : PREDEFINED_PERSONAS;
@@ -88,7 +88,7 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
         ? personas.filter(p => p.gender === partnerGender).slice(0, 5)
         : [];
     // 로딩 상태 처리
-    if (isLoadingPersonas || isLoadingBadges) {
+    if (isLoadingPersonas || isLoadingBadges || isLoadingPerformance) {
         return (_jsx("div", { className: "flex justify-center items-center h-screen", children: _jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]" }) }));
     }
     return (_jsxs("div", { className: "flex flex-col h-full w-full", style: { backgroundColor: 'var(--background)' }, children: [_jsx("header", { className: "flex-shrink-0 p-4 pt-5 bg-white border-b", style: { borderColor: '#F2F4F6' }, children: _jsxs("div", { className: "flex justify-between items-center", children: [_jsxs("div", { className: "flex items-center", children: [_jsx("img", { src: "https://em-content.zobj.net/source/apple/391/waving-hand_1f44b.png", alt: "profile", className: "w-10 h-10 rounded-full" }), _jsxs("div", { className: "ml-3", children: [_jsxs("p", { className: "font-bold text-xl text-[#191F28]", children: ["\uC548\uB155\uD558\uC138\uC694, ", currentUser.name, "\uB2D8!"] }), _jsx("p", { className: "text-sm text-[#8B95A1]", children: "\uC624\uB298\uB3C4 \uB300\uD654 \uC2E4\uB825\uC744 \uD0A4\uC6CC\uBCFC\uAE4C\uC694?" })] })] }), _jsx("div", { className: "flex items-center space-x-1", children: _jsxs("button", { className: "p-2 relative", children: [_jsx(BellIcon, { className: "w-6 h-6", style: { color: '#191F28' } }), _jsx("div", { className: "absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" })] }) })] }) }), _jsxs("main", { className: "flex-1 overflow-y-auto p-4 space-y-4 pb-24", children: [_jsxs("div", { className: "p-5 rounded-2xl", style: { background: 'linear-gradient(135deg, #FDF2F8, #EBF2FF)' }, children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsxs("div", { children: [_jsx("p", { className: "text-sm font-bold text-[#191F28]", children: "\uD83D\uDCC5 \uC624\uB298\uC758 \uBAA9\uD45C" }), _jsxs("p", { className: "text-2xl font-bold mt-1", style: { color: '#F093B0' }, children: [todayConversations, "/3 \uB300\uD654 \uC644\uB8CC"] })] }), _jsxs("div", { className: "text-right", children: [_jsx("p", { className: "text-sm font-medium", style: { color: '#4F7ABA' }, children: todayConversations >= 3 ? '목표 달성!' : `${3 - todayConversations}번 더 대화하면 목표 달성!` }), _jsx("button", { onClick: () => {

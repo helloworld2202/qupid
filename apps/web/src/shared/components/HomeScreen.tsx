@@ -20,7 +20,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   // API 데이터 페칭 (실패 시 constants 사용)
   const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
   const { data: apiBadges = [], isLoading: isLoadingBadges } = useBadges();
-  const { data: apiPerformanceData } = usePerformance(currentUserId || '');
+  const { data: apiPerformanceData, isLoading: isLoadingPerformance } = usePerformance(currentUserId || '');
   const { data: userProfile } = useUserProfile(currentUserId || '');
   
   // API 데이터가 없으면 constants 사용
@@ -106,7 +106,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
     : [];
   
   // 로딩 상태 처리
-  if (isLoadingPersonas || isLoadingBadges) {
+  if (isLoadingPersonas || isLoadingBadges || isLoadingPerformance) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]"></div>
