@@ -215,9 +215,12 @@ const AppContent = () => {
                         navigateTo(Screen.PersonaDetail);
                     } }));
             case Screen.ConversationPrep:
-                return (_jsx(ConversationPrepScreen, { partner: sessionData?.partner, onStart: () => navigateTo(Screen.Chat), onBack: () => navigateTo('CHAT_TAB') }));
+                return (_jsx(ConversationPrepScreen, { partner: sessionData?.partner, onStart: (mode) => {
+                        setSessionData({ ...sessionData, conversationMode: mode });
+                        navigateTo(Screen.Chat);
+                    }, onBack: () => navigateTo('CHAT_TAB') }));
             case Screen.Chat:
-                return (_jsx(ChatScreen, { partner: sessionData?.partner, isTutorial: sessionData?.isTutorial || false, isCoaching: sessionData?.isCoaching || false, onComplete: async (analysis, tutorialCompleted) => {
+                return (_jsx(ChatScreen, { partner: sessionData?.partner, isTutorial: sessionData?.isTutorial || false, isCoaching: sessionData?.isCoaching || false, conversationMode: sessionData?.conversationMode || 'normal', onComplete: async (analysis, tutorialCompleted) => {
                         if (tutorialCompleted && user) {
                             // 튜토리얼 완료 시 처리
                             const updatedProfile = { ...user, isTutorialCompleted: true };

@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { UserProfile, Screen } from '@qupid/core';
+import React, { useState, useEffect } from 'react';
+import { UserProfile, Screen, ConversationMode } from '@qupid/core';
 import { ArrowLeftIcon, ChevronRightIcon } from '@qupid/ui';
 
 interface SettingsScreenProps {
@@ -64,6 +64,16 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack, onL
     const [darkMode, setDarkMode] = useState(false);
     const [soundEffects, setSoundEffects] = useState(true);
     const [hapticFeedback, setHapticFeedback] = useState(true);
+    
+    // 기본 대화 모드 설정
+    const [defaultConversationMode, setDefaultConversationMode] = useState<ConversationMode>(() => {
+        const saved = localStorage.getItem('defaultConversationMode');
+        return (saved as ConversationMode) || 'normal';
+    });
+    
+    useEffect(() => {
+        localStorage.setItem('defaultConversationMode', defaultConversationMode);
+    }, [defaultConversationMode]);
 
     const initial = userProfile.name.charAt(0).toUpperCase();
 
@@ -103,7 +113,24 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onBack, onL
                     <SettingItem icon="📚" title="학습 목표 설정" onClick={() => onNavigate(Screen.LearningGoals)} rightComponent={<><span className="text-base font-medium">일 3회 대화</span><ChevronRightIcon className="w-4 h-4" /></>} />
                     <SettingItem icon="🎯" title="관심 분야 수정" onClick={() => onNavigate(Screen.ProfileEdit)} rightComponent={<><span className="text-base font-medium">게임, 영화 외 3개</span><ChevronRightIcon className="w-4 h-4" /></>} />
                     <SettingItem icon="⏰" title="연습 시간 알림" onClick={() => {}} rightComponent={<TossToggle value={practiceNotification} onToggle={() => setPracticeNotification(v => !v)} />} />
-                    <SettingItem icon="📊" title="실시간 분석 표시" onClick={() => {}} rightComponent={<TossToggle value={analysisDisplay} onToggle={() => setAnalysisDisplay(v => !v)} />} isLast />
+                    <SettingItem icon="📊" title="실시간 분석 표시" onClick={() => {}} rightComponent={<TossToggle value={analysisDisplay} onToggle={() => setAnalysisDisplay(v => !v)} />} />
+                    <SettingItem 
+                        icon="💬" 
+                        title="기본 대화 모드" 
+                        subtitle={defaultConversationMode === 'normal' ? '친구처럼 편안한 대화' : '연인처럼 애정 어린 대화'}
+                        onClick={() => setDefaultConversationMode(defaultConversationMode === 'normal' ? 'romantic' : 'normal')} 
+                        rightComponent={
+                            <div className="flex items-center gap-2">
+                                <span className={`text-base font-medium ${
+                                    defaultConversationMode === 'normal' ? 'text-[#0AC5A8]' : 'text-[#F093B0]'
+                                }`}>
+                                    {defaultConversationMode === 'normal' ? '👋 일반 모드' : '💕 연인 모드'}
+                                </span>
+                                <ChevronRightIcon className="w-4 h-4" />
+                            </div>
+                        } 
+                        isLast 
+                    />
                 </SectionContainer>
                 
                 {/* Personal Info */}

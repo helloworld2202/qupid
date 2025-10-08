@@ -244,7 +244,10 @@ const AppContent: React.FC = () => {
         return (
           <ConversationPrepScreen
             partner={sessionData?.partner}
-            onStart={() => navigateTo(Screen.Chat)}
+            onStart={(mode) => {
+              setSessionData({ ...sessionData, conversationMode: mode });
+              navigateTo(Screen.Chat);
+            }}
             onBack={() => navigateTo('CHAT_TAB')}
           />
         );
@@ -255,6 +258,7 @@ const AppContent: React.FC = () => {
             partner={sessionData?.partner}
             isTutorial={sessionData?.isTutorial || false}
             isCoaching={sessionData?.isCoaching || false}
+            conversationMode={sessionData?.conversationMode || 'normal'}
             onComplete={async (analysis, tutorialCompleted) => {
               if (tutorialCompleted && user) {
                 // 튜토리얼 완료 시 처리

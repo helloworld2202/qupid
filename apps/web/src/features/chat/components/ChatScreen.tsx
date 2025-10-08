@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Persona, Message, RealtimeFeedback, TutorialStep, ConversationAnalysis, AICoach } from '@qupid/core';
+import { Persona, Message, RealtimeFeedback, TutorialStep, ConversationAnalysis, AICoach, ConversationMode } from '@qupid/core';
 import { ArrowLeftIcon, PaperAirplaneIcon, CoachKeyIcon } from '@qupid/ui';
 import { TUTORIAL_STEPS } from '@qupid/core';
 import { useChatSession, useSendMessage, useAnalyzeConversation, useRealtimeFeedback, useCoachSuggestion } from '../hooks/useChatQueries';
@@ -11,6 +11,7 @@ interface ChatScreenProps {
   partner?: Persona | AICoach;
   isTutorial?: boolean;
   isCoaching?: boolean;
+  conversationMode?: ConversationMode;
   onComplete: (analysis: ConversationAnalysis | null, tutorialJustCompleted: boolean) => void;
 }
 
@@ -59,7 +60,7 @@ const CoachHint: React.FC<{
     );
 };
 
-export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = false, isCoaching = false, onComplete }) => {
+export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = false, isCoaching = false, conversationMode = 'normal', onComplete }) => {
   // partner가 없으면 에러 처리
   if (!partner) {
     return (
@@ -70,6 +71,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   }
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [currentMode, setCurrentMode] = useState<ConversationMode>(conversationMode);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -317,11 +319,35 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                 <ArrowLeftIcon className="w-6 h-6 text-[#8B95A1]" />
             </button>
             <img src={partner.avatar} alt={partner.name} className="w-10 h-10 rounded-full object-cover ml-2" />
-            <div className="ml-3">
+            <div className="ml-3 flex-1">
                 <h2 className="font-bold text-lg text-[#191F28]">{partner.name}</h2>
-                <p className="text-sm text-[#0AC5A8] font-semibold">🟢 온라인</p>
+                <div className="flex items-center gap-2">
+                    <p className="text-sm text-[#0AC5A8] font-semibold">🟢 온라인</p>
+                    {!isTutorialMode && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            currentMode === 'normal' 
+                                ? 'bg-[#E6F7F5] text-[#0AC5A8]' 
+                                : 'bg-[#FDF2F8] text-[#F093B0]'
+                        }`}>
+                            {currentMode === 'normal' ? '👋 일반' : '💕 연인'}
+                        </span>
+                    )}
+                </div>
             </div>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex items-center gap-2">
+                {!isTutorialMode && (
+                    <button
+                        onClick={() => setCurrentMode(currentMode === 'normal' ? 'romantic' : 'normal')}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all hover:scale-105 ${
+                            currentMode === 'normal'
+                                ? 'bg-[#FDF2F8] text-[#F093B0] border border-[#F093B0]'
+                                : 'bg-[#E6F7F5] text-[#0AC5A8] border border-[#0AC5A8]'
+                        }`}
+                        title="대화 모드 전환"
+                    >
+                        {currentMode === 'normal' ? '💕 연인 모드로' : '👋 일반 모드로'}
+                    </button>
+                )}
                 {!isTutorialMode && messages.length > 3 && (
                     <button
                         onClick={async () => {
