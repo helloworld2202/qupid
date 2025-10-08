@@ -100,6 +100,16 @@ app.use("/api/v1/users", userRoutes)
 app.use("/api/v1", badgeRoutes)
 app.use("/api/v1/analytics", analyticsRoutes)
 
+// Health check endpoint
+app.get("/api/v1/health", (_req, res) => {
+  res.json({
+    ok: true,
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    environment: env.NODE_ENV
+  })
+})
+
 // 404 handler
 app.use((_req, res) => {
   res.status(404).json({

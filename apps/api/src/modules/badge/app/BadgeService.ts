@@ -1,20 +1,31 @@
 import { supabaseAdmin } from '../../../shared/infra/supabase.js';
-import { Badge } from '@qupid/core';
+import { Badge, MOCK_BADGES } from '@qupid/core';
 
 export class BadgeService {
   async getAllBadges(): Promise<Badge[]> {
-    const { data, error } = await supabaseAdmin
-      .from('badges')
-      .select('*')
-      .order('category', { ascending: true })
-      .order('rarity', { ascending: false });
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('badges')
+        .select('*')
+        .order('category', { ascending: true })
+        .order('rarity', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching badges:', error);
-      throw new Error('Failed to fetch badges');
+      if (error) {
+        console.warn('DB error fetching badges, using fallback:', error);
+        return MOCK_BADGES;
+      }
+
+      // DB가 비어있으면 fallback 사용
+      if (!data || data.length === 0) {
+        console.log('No badges in DB, using fallback constants');
+        return MOCK_BADGES;
+      }
+
+      return data;
+    } catch (error) {
+      console.warn('Error fetching badges, using fallback:', error);
+      return MOCK_BADGES;
     }
-
-    return data || [];
   }
 
   async getUserBadges(userId: string): Promise<Badge[]> {

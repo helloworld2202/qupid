@@ -194,14 +194,14 @@ describe('Chat Query Hooks', () => {
         { sender: 'ai' as const, text: 'Yes, I do!' }
       ];
 
-      result.current.mutate(messages);
+      result.current.mutate({ messages });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
         expect(result.current.data).toEqual(mockSuggestion);
       });
 
-      expect(apiClient.getCoachSuggestion).toHaveBeenCalledWith(messages);
+      expect(apiClient.getCoachSuggestion).toHaveBeenCalledWith(messages, undefined);
     });
 
     it('should handle empty messages', async () => {
@@ -216,7 +216,7 @@ describe('Chat Query Hooks', () => {
         wrapper: createWrapper()
       });
 
-      result.current.mutate([]);
+      result.current.mutate({ messages: [] });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
