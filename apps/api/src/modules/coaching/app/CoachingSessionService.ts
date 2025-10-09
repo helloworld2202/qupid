@@ -2,6 +2,7 @@ import { openai } from '../../../shared/infra/openai.js';
 import { supabaseAdmin } from '../../../shared/infra/supabase.js';
 import { Message } from '@qupid/core';
 import { CoachService } from './CoachService.js';
+import { tavilySearch } from '../../../shared/infra/tavilySearch.js';
 
 // 코칭 분석 결과 타입
 interface CoachingAnalysis {
@@ -74,7 +75,12 @@ export class CoachingSessionService {
 
     const { coach } = session;
 
-    // 🚀 AI 롤플레이 기반 코칭 시스템
+    // 🔍 실시간 전문 자료 검색
+    console.log(`🔍 Searching for coaching resources: "${userMessage}" in ${coach.specialty}`);
+    const researchResults = await tavilySearch.searchForCoaching(userMessage, coach.specialty);
+    console.log(`✅ Research results retrieved`);
+
+    // 🚀 AI 롤플레이 기반 코칭 시스템 + 실시간 연구 자료
     const systemPrompt = `# 코치 정보
 
 **이름**: ${coach.name}
@@ -86,13 +92,16 @@ export class CoachingSessionService {
 
 당신은 위의 ${coach.name} 코치입니다. 이 정보를 바탕으로 자연스럽게 코칭하세요.
 
+## 📚 최신 연구 자료
+${researchResults}
+
 ## 코칭 원칙
+- 위의 최신 연구 자료를 참고하여 과학적 근거 기반 조언 제공
 - 상대방의 말을 정확히 분석하고 전문적 조언 제공
 - 구체적이고 실행 가능한 전략 제시
 - 긍정적이고 격려하는 톤 유지
-- 전문 분야에 맞는 과학적 근거 활용
 
-당신은 ${coach.name} 코치로서 자율적으로 코칭하세요.`;
+당신은 ${coach.name} 코치로서 최신 연구를 바탕으로 전문적으로 코칭하세요.`;
 
     try {
       const completion = await openai.chat.completions.create({
@@ -106,7 +115,7 @@ export class CoachingSessionService {
           { role: 'user', content: userMessage }
         ],
         temperature: 0.8,
-        max_tokens: 200
+        max_tokens: 300 // 연구 자료 포함으로 더 긴 응답 허용
       });
 
       const aiResponse = completion.choices[0].message.content || '죄송합니다. 잠시 후 다시 시도해주세요.';
@@ -139,6 +148,11 @@ export class CoachingSessionService {
 
     const { coach } = session;
 
+    // 🔍 실시간 전문 자료 검색
+    console.log(`🔍 Searching for coaching resources: "${userMessage}" in ${coach.specialty}`);
+    const researchResults = await tavilySearch.searchForCoaching(userMessage, coach.specialty);
+    console.log(`✅ Research results retrieved`);
+
     const systemPrompt = `# 코치 정보
 
 **이름**: ${coach.name}
@@ -150,13 +164,16 @@ export class CoachingSessionService {
 
 당신은 위의 ${coach.name} 코치입니다. 이 정보를 바탕으로 자연스럽게 코칭하세요.
 
+## 📚 최신 연구 자료
+${researchResults}
+
 ## 코칭 원칙
+- 위의 최신 연구 자료를 참고하여 과학적 근거 기반 조언 제공
 - 상대방의 말을 정확히 분석하고 전문적 조언 제공
 - 구체적이고 실행 가능한 전략 제시
 - 긍정적이고 격려하는 톤 유지
-- 전문 분야에 맞는 과학적 근거 활용
 
-당신은 ${coach.name} 코치로서 자율적으로 코칭하세요.`;
+당신은 ${coach.name} 코치로서 최신 연구를 바탕으로 전문적으로 코칭하세요.`;
 
     try {
       const stream = await openai.chat.completions.create({
@@ -170,7 +187,7 @@ export class CoachingSessionService {
           { role: 'user', content: userMessage }
         ],
         temperature: 0.8,
-        max_tokens: 200,
+        max_tokens: 300, // 연구 자료 포함으로 더 긴 응답 허용
         stream: true
       });
 
