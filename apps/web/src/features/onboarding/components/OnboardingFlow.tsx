@@ -292,7 +292,7 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile, tu
           name: partnerGender === 'female' ? '김서현' : '박지훈',
           age: 25,
           gender: partnerGender,
-          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+          avatar: getConsistentAvatar(partnerGender === 'female' ? '김서현' : '박지훈', partnerGender),
           personality: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
           occupation: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
           mbti: partnerGender === 'female' ? 'ENFP' : 'ISFJ',

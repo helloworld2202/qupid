@@ -409,7 +409,11 @@ const AppContent: React.FC = () => {
         return (
           <TutorialIntroScreen
             persona={tutorialPartner}
-            onBack={() => navigateTo('HOME')}
+            onBack={() => {
+              // 튜토리얼에서 뒤로가기 시 온보딩으로 돌아가기
+              setSessionData(null);
+              navigateTo('ONBOARDING');
+            }}
             onComplete={() => {
               // 튜토리얼 페르소나를 설정하고 튜토리얼 모드로 표시
               // persona와 partner 모두 설정하여 PersonaDetail에서도 사용 가능하도록

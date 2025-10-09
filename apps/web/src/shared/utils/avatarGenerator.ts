@@ -1,74 +1,74 @@
 // 페르소나 아바타 이미지 생성기
 // 40개의 고품질 아바타 이미지를 랜덤으로 제공
 
-// 미리 정의된 고품질 아바타 세트
+// 🎨 AI 스타일 아바타 캐릭터 세트 (40개 고품질 아바타)
 const PREDEFINED_AVATARS = {
   female: [
-    // 아바타 캐릭터 스타일 (실제 사람 사진 제거)
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=female1&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=female2&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=female3&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=female4&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=female5&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
+    // 🎭 Avataaars 스타일 (일러스트레이션)
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=anna&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=emma&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=sophia&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=olivia&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=charlotte&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
     
-    // 일러스트레이션 스타일
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=1&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=2&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=3&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=4&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=5&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
+    // 🎨 Personas 스타일 (현실적)
+    'https://api.dicebear.com/7.x/personas/svg?seed=luna&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/personas/svg?seed=zoe&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/personas/svg?seed=maya&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/personas/svg?seed=aria&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/personas/svg?seed=nova&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
     
-    // 모던 스타일
-    'https://source.boringavatars.com/marble/200/1?colors=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9',
-    'https://source.boringavatars.com/marble/200/2?colors=ffb3ba,ffdfba,ffffba,baffc9,bae1ff',
-    'https://source.boringavatars.com/marble/200/3?colors=ffdfba,ffffba,baffc9,bae1ff,ffb3e6',
-    'https://source.boringavatars.com/marble/200/4?colors=ffffba,baffc9,bae1ff,ffb3e6,ff9bb3',
-    'https://source.boringavatars.com/marble/200/5?colors=baffc9,bae1ff,ffb3e6,ff9bb3,ffb3ba',
+    // 🌈 Boring Avatars (모던 아트)
+    'https://source.boringavatars.com/marble/200/luna?colors=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9',
+    'https://source.boringavatars.com/marble/200/zoe?colors=ffb3ba,ffdfba,ffffba,baffc9,bae1ff',
+    'https://source.boringavatars.com/marble/200/maya?colors=ffdfba,ffffba,baffc9,bae1ff,ffb3e6',
+    'https://source.boringavatars.com/marble/200/aria?colors=ffffba,baffc9,bae1ff,ffb3e6,ff9bb3',
+    'https://source.boringavatars.com/marble/200/nova?colors=baffc9,bae1ff,ffb3e6,ff9bb3,ffb3ba',
     
-    // 재미있는 스타일
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=1&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=2&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=3&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=4&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=5&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
+    // 🎪 Fun-emoji 스타일 (재미있는)
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=anna&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=emma&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=sophia&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=olivia&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=charlotte&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
     
-    // 추가 고품질 이미지
-    'https://api.multiavatar.com/female1.png',
-    'https://api.multiavatar.com/female2.png'
+    // 🎭 Multi Avatar (다양한 스타일)
+    'https://api.multiavatar.com/anna.png',
+    'https://api.multiavatar.com/emma.png'
   ],
   
   male: [
-    // 아바타 캐릭터 스타일 (실제 사람 사진 제거)
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=male1&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=male2&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=male3&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=male4&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=male5&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
+    // 🎭 Avataaars 스타일 (일러스트레이션)
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=alex&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=ryan&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=noah&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=liam&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=ethan&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
     
-    // 일러스트레이션 스타일
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=11&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=12&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=13&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=14&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=15&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
+    // 🎨 Personas 스타일 (현실적)
+    'https://api.dicebear.com/7.x/personas/svg?seed=leo&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/personas/svg?seed=kai&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/personas/svg?seed=max&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/personas/svg?seed=jay&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/personas/svg?seed=ace&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
     
-    // 모던 스타일
-    'https://source.boringavatars.com/marble/200/11?colors=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9',
-    'https://source.boringavatars.com/marble/200/12?colors=ffb3ba,ffdfba,ffffba,baffc9,bae1ff',
-    'https://source.boringavatars.com/marble/200/13?colors=ffdfba,ffffba,baffc9,bae1ff,ffb3e6',
-    'https://source.boringavatars.com/marble/200/14?colors=ffffba,baffc9,bae1ff,ffb3e6,ff9bb3',
-    'https://source.boringavatars.com/marble/200/15?colors=baffc9,bae1ff,ffb3e6,ff9bb3,ffb3ba',
+    // 🌈 Boring Avatars (모던 아트)
+    'https://source.boringavatars.com/marble/200/leo?colors=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9',
+    'https://source.boringavatars.com/marble/200/kai?colors=ffb3ba,ffdfba,ffffba,baffc9,bae1ff',
+    'https://source.boringavatars.com/marble/200/max?colors=ffdfba,ffffba,baffc9,bae1ff,ffb3e6',
+    'https://source.boringavatars.com/marble/200/jay?colors=ffffba,baffc9,bae1ff,ffb3e6,ff9bb3',
+    'https://source.boringavatars.com/marble/200/ace?colors=baffc9,bae1ff,ffb3e6,ff9bb3,ffb3ba',
     
-    // 재미있는 스타일
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=11&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=12&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=13&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=14&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=15&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
+    // 🎪 Fun-emoji 스타일 (재미있는)
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=alex&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=ryan&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=noah&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=liam&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/fun-emoji/svg?seed=ethan&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
     
-    // 추가 고품질 이미지
-    'https://api.multiavatar.com/male1.png',
-    'https://api.multiavatar.com/male2.png'
+    // 🎭 Multi Avatar (다양한 스타일)
+    'https://api.multiavatar.com/alex.png',
+    'https://api.multiavatar.com/ryan.png'
   ]
 };
 
