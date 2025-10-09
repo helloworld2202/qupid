@@ -188,6 +188,10 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const [showCoachHint, setShowCoachHint] = useState(false);
   const [coachSuggestion, setCoachSuggestion] = useState<{reason: string, suggestion: string} | null>(null);
   const [isFetchingSuggestion, setIsFetchingSuggestion] = useState(false);
+  
+  // 🚀 실시간 대화 분석 시스템
+  const [conversationAnalysis, setConversationAnalysis] = useState<any>(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [showStyleModal, setShowStyleModal] = useState(false);
   const [styleAnalysis, setStyleAnalysis] = useState<any>(null);
 
@@ -251,14 +255,185 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     setIsFetchingSuggestion(true);
     setCoachSuggestion(null);
 
-    const suggestion = await coachMutation.mutateAsync({ 
-      messages, 
-      persona: partner 
-    });
+    try {
+      // 🚀 맥락 기반 AI 코치 제안 시스템
+      const suggestion = await coachMutation.mutateAsync({ 
+        messages, 
+        persona: partner 
+      });
+      
+      setCoachSuggestion(suggestion);
+    } catch (error) {
+      console.error('Failed to fetch contextual suggestion:', error);
+      // 🚀 맥락 기반 대체 제안 생성
+      const contextualSuggestion = generateContextualSuggestion(messages, partner);
+      setCoachSuggestion({ reason: "맥락 기반 제안", suggestion: contextualSuggestion });
+    } finally {
+      setIsFetchingSuggestion(false);
+    }
+  }, [messages, isFetchingSuggestion, showCoachHint, coachMutation, partner]);
+
+  // 🚀 맥락 기반 제안 생성 함수
+  const generateContextualSuggestion = useCallback((messages: Message[], partner: Persona | AICoach) => {
+    const lastUserMessage = messages.filter(m => m.sender === 'user').pop()?.text || '';
+    const lastAiMessage = messages.filter(m => m.sender === 'ai').pop()?.text || '';
+    const conversationLength = messages.filter(m => m.sender === 'user').length;
     
-    setCoachSuggestion(suggestion);
-    setIsFetchingSuggestion(false);
-  }, [messages, isFetchingSuggestion, showCoachHint, coachMutation]);
+    // 대화 맥락 분석
+    const isFirstMessage = conversationLength === 1;
+    const isShortResponse = lastUserMessage.length < 10;
+    const isQuestion = lastUserMessage.includes('?') || lastUserMessage.includes('어떤') || lastUserMessage.includes('무엇');
+    const isEmotional = lastUserMessage.includes('힘들') || lastUserMessage.includes('좋아') || lastUserMessage.includes('재미');
+    
+    // 맥락별 제안 생성
+    if (isFirstMessage) {
+      return "좋은 시작이에요! 이제 상대방의 관심사를 파악해보세요. '어떤 일을 하시나요?' 같은 질문으로 대화를 이어가보세요 💡";
+    } else if (isShortResponse) {
+      return "대화를 더 풍성하게 만들어보세요! '그렇군요! 저도 비슷한 경험이 있어요. 그때는...'처럼 자신의 경험을 공유해보세요 💭";
+    } else if (isQuestion) {
+      return "좋은 질문이에요! 이제 상대방의 답변에 '정말 흥미롭네요! 어떻게 그런 생각을 하게 되었나요?'처럼 호기심을 보이는 후속 질문을 해보세요 🤔";
+    } else if (isEmotional) {
+      return "감정을 잘 표현하고 있네요! 이제 '그때 어떤 기분이었나요?'처럼 상대방의 감정을 더 깊이 파악하는 질문을 해보세요 😊";
+    } else if (conversationLength >= 5) {
+      return "대화가 잘 이어지고 있어요! 이제 '오늘 정말 좋은 시간이었어요. 다음에 또 이런 이야기 해요'처럼 긍정적인 마무리를 준비해보세요 ✨";
+    } else {
+      return "대화를 더 깊이 있게 만들어보세요! '그 경험에서 무엇을 배웠나요?' 같은 성찰적인 질문을 해보세요 🎯";
+    }
+  }, []);
+
+  // 🚀 실시간 대화 분석 함수
+  const analyzeConversationRealTime = useCallback((messages: Message[]) => {
+    if (messages.length < 2) return null;
+    
+    const userMessages = messages.filter(m => m.sender === 'user');
+    const aiMessages = messages.filter(m => m.sender === 'ai');
+    
+    if (userMessages.length === 0) return null;
+    
+    const lastUserMessage = userMessages[userMessages.length - 1];
+    const conversationLength = userMessages.length;
+    
+    // 대화 품질 분석
+    const analysis = {
+      conversationLength,
+      messageQuality: analyzeMessageQuality(lastUserMessage.text),
+      conversationFlow: analyzeConversationFlow(messages),
+      improvementSuggestions: generateImprovementSuggestions(messages, lastUserMessage),
+      strengths: identifyStrengths(messages),
+      nextSteps: suggestNextSteps(messages, conversationLength)
+    };
+    
+    return analysis;
+  }, []);
+
+  // 메시지 품질 분석
+  const analyzeMessageQuality = (message: string) => {
+    const length = message.length;
+    const hasQuestion = message.includes('?') || message.includes('어떤') || message.includes('무엇');
+    const hasEmotion = message.includes('좋아') || message.includes('힘들') || message.includes('재미');
+    const isDetailed = length > 20;
+    
+    return {
+      length,
+      hasQuestion,
+      hasEmotion,
+      isDetailed,
+      score: (hasQuestion ? 30 : 0) + (hasEmotion ? 25 : 0) + (isDetailed ? 25 : 0) + Math.min(length / 2, 20)
+    };
+  };
+
+  // 대화 흐름 분석
+  const analyzeConversationFlow = (messages: Message[]) => {
+    const userMessages = messages.filter(m => m.sender === 'user');
+    const aiMessages = messages.filter(m => m.sender === 'ai');
+    
+    const responseTime = userMessages.length > 0 && aiMessages.length > 0;
+    const topicConsistency = analyzeTopicConsistency(messages);
+    const engagementLevel = calculateEngagementLevel(messages);
+    
+    return {
+      responseTime,
+      topicConsistency,
+      engagementLevel,
+      flowScore: (responseTime ? 40 : 0) + topicConsistency + engagementLevel
+    };
+  };
+
+  // 주제 일관성 분석
+  const analyzeTopicConsistency = (messages: Message[]) => {
+    const recentMessages = messages.slice(-4);
+    const topics = recentMessages.map(m => extractTopic(m.text));
+    const uniqueTopics = new Set(topics.filter(t => t));
+    return Math.max(0, 30 - (uniqueTopics.size - 1) * 10);
+  };
+
+  // 주제 추출
+  const extractTopic = (text: string) => {
+    if (text.includes('영화') || text.includes('영상')) return 'entertainment';
+    if (text.includes('음악') || text.includes('노래')) return 'music';
+    if (text.includes('일') || text.includes('직장')) return 'work';
+    if (text.includes('취미') || text.includes('관심')) return 'hobby';
+    if (text.includes('감정') || text.includes('기분')) return 'emotion';
+    return 'general';
+  };
+
+  // 참여도 계산
+  const calculateEngagementLevel = (messages: Message[]) => {
+    const userMessages = messages.filter(m => m.sender === 'user');
+    const avgLength = userMessages.reduce((sum, m) => sum + m.text.length, 0) / userMessages.length;
+    return Math.min(30, avgLength / 2);
+  };
+
+  // 개선 제안 생성
+  const generateImprovementSuggestions = (messages: Message[], lastMessage: Message) => {
+    const suggestions = [];
+    const messageQuality = analyzeMessageQuality(lastMessage.text);
+    
+    if (!messageQuality.hasQuestion) {
+      suggestions.push("상대방에게 질문을 해보세요. '어떤 생각이세요?' 같은 질문으로 대화를 이어가보세요.");
+    }
+    
+    if (!messageQuality.hasEmotion) {
+      suggestions.push("감정을 표현해보세요. '정말 좋아요!' 같은 감정 표현으로 대화를 풍성하게 만들어보세요.");
+    }
+    
+    if (!messageQuality.isDetailed) {
+      suggestions.push("더 자세한 이야기를 해보세요. 구체적인 경험이나 생각을 공유하면 대화가 더 흥미로워집니다.");
+    }
+    
+    return suggestions;
+  };
+
+  // 강점 식별
+  const identifyStrengths = (messages: Message[]) => {
+    const strengths = [];
+    const userMessages = messages.filter(m => m.sender === 'user');
+    
+    if (userMessages.some(m => m.text.includes('?'))) {
+      strengths.push("적극적인 질문");
+    }
+    
+    if (userMessages.some(m => m.text.length > 30)) {
+      strengths.push("상세한 설명");
+    }
+    
+    if (userMessages.some(m => m.text.includes('좋아') || m.text.includes('재미'))) {
+      strengths.push("긍정적 표현");
+    }
+    
+    return strengths.length > 0 ? strengths : ["대화 참여"];
+  };
+
+  // 다음 단계 제안
+  const suggestNextSteps = (messages: Message[], conversationLength: number) => {
+    if (conversationLength < 3) {
+      return ["상대방의 관심사를 더 파악해보세요", "자신의 경험을 공유해보세요"];
+    } else if (conversationLength < 6) {
+      return ["대화를 더 깊이 있게 만들어보세요", "감정을 나누어보세요"];
+    } else {
+      return ["대화를 자연스럽게 마무리해보세요", "다음 만남을 기약해보세요"];
+    }
+  };
 
   useEffect(() => {
     // Initialize chat session
@@ -479,7 +654,18 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
       }
       
       const aiMessage: Message = { sender: 'ai', text: aiResponse };
-      setMessages(prev => [...prev, aiMessage]);
+      const updatedMessages = [...messages, userMessage, aiMessage];
+      setMessages(updatedMessages);
+      
+      // 🚀 실시간 대화 분석 실행
+      const analysis = analyzeConversationRealTime(updatedMessages);
+      if (analysis) {
+        setConversationAnalysis(analysis);
+        // 3초 후 분석 결과 표시
+        setTimeout(() => {
+          setShowAnalysisModal(true);
+        }, 3000);
+      }
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {
@@ -749,6 +935,93 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         analysis={styleAnalysis}
         isLoading={styleAnalysisMutation.isPending}
       />
+      
+      {/* 🚀 실시간 대화 분석 모달 */}
+      {showAnalysisModal && conversationAnalysis && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-30">
+          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-[#191F28]">📊 실시간 대화 분석</h3>
+              <button 
+                onClick={() => setShowAnalysisModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {/* 대화 품질 점수 */}
+              <div className="p-4 bg-[#F0F9FF] rounded-xl">
+                <h4 className="font-semibold text-[#191F28] mb-2">💬 대화 품질</h4>
+                <div className="flex items-center gap-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-[#0AC5A8] h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(conversationAnalysis.messageQuality.score, 100)}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-sm font-bold text-[#0AC5A8]">
+                    {Math.round(conversationAnalysis.messageQuality.score)}점
+                  </span>
+                </div>
+              </div>
+              
+              {/* 강점 */}
+              <div className="p-4 bg-[#F0FDF4] rounded-xl">
+                <h4 className="font-semibold text-[#191F28] mb-2">✨ 강점</h4>
+                <div className="flex flex-wrap gap-2">
+                  {conversationAnalysis.strengths.map((strength: string, index: number) => (
+                    <span key={index} className="px-3 py-1 bg-[#22C55E] text-white text-sm rounded-full">
+                      {strength}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              {/* 개선 제안 */}
+              {conversationAnalysis.improvementSuggestions.length > 0 && (
+                <div className="p-4 bg-[#FEF3C7] rounded-xl">
+                  <h4 className="font-semibold text-[#191F28] mb-2">💡 개선 제안</h4>
+                  <ul className="space-y-1">
+                    {conversationAnalysis.improvementSuggestions.map((suggestion: string, index: number) => (
+                      <li key={index} className="text-sm text-[#92400E]">• {suggestion}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {/* 다음 단계 */}
+              <div className="p-4 bg-[#FDF2F8] rounded-xl">
+                <h4 className="font-semibold text-[#191F28] mb-2">🚀 다음 단계</h4>
+                <ul className="space-y-1">
+                  {conversationAnalysis.nextSteps.map((step: string, index: number) => (
+                    <li key={index} className="text-sm text-[#BE185D]">• {step}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => setShowAnalysisModal(false)}
+                className="flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                확인
+              </button>
+              <button
+                onClick={() => {
+                  setShowAnalysisModal(false);
+                  fetchAndShowSuggestion();
+                }}
+                className="flex-1 py-2 px-4 bg-[#F093B0] text-white rounded-lg font-medium hover:bg-[#E085A3] transition-colors"
+              >
+                코치 제안 받기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

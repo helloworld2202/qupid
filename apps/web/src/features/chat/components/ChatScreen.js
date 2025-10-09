@@ -126,6 +126,9 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
     const [showCoachHint, setShowCoachHint] = useState(false);
     const [coachSuggestion, setCoachSuggestion] = useState(null);
     const [isFetchingSuggestion, setIsFetchingSuggestion] = useState(false);
+    // 🚀 실시간 대화 분석 시스템
+    const [conversationAnalysis, setConversationAnalysis] = useState(null);
+    const [showAnalysisModal, setShowAnalysisModal] = useState(false);
     const [showStyleModal, setShowStyleModal] = useState(false);
     const [styleAnalysis, setStyleAnalysis] = useState(null);
     const sessionIdRef = useRef(null);
@@ -180,13 +183,172 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
         setShowCoachHint(true);
         setIsFetchingSuggestion(true);
         setCoachSuggestion(null);
-        const suggestion = await coachMutation.mutateAsync({
-            messages,
-            persona: partner
-        });
-        setCoachSuggestion(suggestion);
-        setIsFetchingSuggestion(false);
-    }, [messages, isFetchingSuggestion, showCoachHint, coachMutation]);
+        try {
+            // 🚀 맥락 기반 AI 코치 제안 시스템
+            const suggestion = await coachMutation.mutateAsync({
+                messages,
+                persona: partner
+            });
+            setCoachSuggestion(suggestion);
+        }
+        catch (error) {
+            console.error('Failed to fetch contextual suggestion:', error);
+            // 🚀 맥락 기반 대체 제안 생성
+            const contextualSuggestion = generateContextualSuggestion(messages, partner);
+            setCoachSuggestion({ reason: "맥락 기반 제안", suggestion: contextualSuggestion });
+        }
+        finally {
+            setIsFetchingSuggestion(false);
+        }
+    }, [messages, isFetchingSuggestion, showCoachHint, coachMutation, partner]);
+    // 🚀 맥락 기반 제안 생성 함수
+    const generateContextualSuggestion = useCallback((messages, partner) => {
+        const lastUserMessage = messages.filter(m => m.sender === 'user').pop()?.text || '';
+        const lastAiMessage = messages.filter(m => m.sender === 'ai').pop()?.text || '';
+        const conversationLength = messages.filter(m => m.sender === 'user').length;
+        // 대화 맥락 분석
+        const isFirstMessage = conversationLength === 1;
+        const isShortResponse = lastUserMessage.length < 10;
+        const isQuestion = lastUserMessage.includes('?') || lastUserMessage.includes('어떤') || lastUserMessage.includes('무엇');
+        const isEmotional = lastUserMessage.includes('힘들') || lastUserMessage.includes('좋아') || lastUserMessage.includes('재미');
+        // 맥락별 제안 생성
+        if (isFirstMessage) {
+            return "좋은 시작이에요! 이제 상대방의 관심사를 파악해보세요. '어떤 일을 하시나요?' 같은 질문으로 대화를 이어가보세요 💡";
+        }
+        else if (isShortResponse) {
+            return "대화를 더 풍성하게 만들어보세요! '그렇군요! 저도 비슷한 경험이 있어요. 그때는...'처럼 자신의 경험을 공유해보세요 💭";
+        }
+        else if (isQuestion) {
+            return "좋은 질문이에요! 이제 상대방의 답변에 '정말 흥미롭네요! 어떻게 그런 생각을 하게 되었나요?'처럼 호기심을 보이는 후속 질문을 해보세요 🤔";
+        }
+        else if (isEmotional) {
+            return "감정을 잘 표현하고 있네요! 이제 '그때 어떤 기분이었나요?'처럼 상대방의 감정을 더 깊이 파악하는 질문을 해보세요 😊";
+        }
+        else if (conversationLength >= 5) {
+            return "대화가 잘 이어지고 있어요! 이제 '오늘 정말 좋은 시간이었어요. 다음에 또 이런 이야기 해요'처럼 긍정적인 마무리를 준비해보세요 ✨";
+        }
+        else {
+            return "대화를 더 깊이 있게 만들어보세요! '그 경험에서 무엇을 배웠나요?' 같은 성찰적인 질문을 해보세요 🎯";
+        }
+    }, []);
+    // 🚀 실시간 대화 분석 함수
+    const analyzeConversationRealTime = useCallback((messages) => {
+        if (messages.length < 2)
+            return null;
+        const userMessages = messages.filter(m => m.sender === 'user');
+        const aiMessages = messages.filter(m => m.sender === 'ai');
+        if (userMessages.length === 0)
+            return null;
+        const lastUserMessage = userMessages[userMessages.length - 1];
+        const conversationLength = userMessages.length;
+        // 대화 품질 분석
+        const analysis = {
+            conversationLength,
+            messageQuality: analyzeMessageQuality(lastUserMessage.text),
+            conversationFlow: analyzeConversationFlow(messages),
+            improvementSuggestions: generateImprovementSuggestions(messages, lastUserMessage),
+            strengths: identifyStrengths(messages),
+            nextSteps: suggestNextSteps(messages, conversationLength)
+        };
+        return analysis;
+    }, []);
+    // 메시지 품질 분석
+    const analyzeMessageQuality = (message) => {
+        const length = message.length;
+        const hasQuestion = message.includes('?') || message.includes('어떤') || message.includes('무엇');
+        const hasEmotion = message.includes('좋아') || message.includes('힘들') || message.includes('재미');
+        const isDetailed = length > 20;
+        return {
+            length,
+            hasQuestion,
+            hasEmotion,
+            isDetailed,
+            score: (hasQuestion ? 30 : 0) + (hasEmotion ? 25 : 0) + (isDetailed ? 25 : 0) + Math.min(length / 2, 20)
+        };
+    };
+    // 대화 흐름 분석
+    const analyzeConversationFlow = (messages) => {
+        const userMessages = messages.filter(m => m.sender === 'user');
+        const aiMessages = messages.filter(m => m.sender === 'ai');
+        const responseTime = userMessages.length > 0 && aiMessages.length > 0;
+        const topicConsistency = analyzeTopicConsistency(messages);
+        const engagementLevel = calculateEngagementLevel(messages);
+        return {
+            responseTime,
+            topicConsistency,
+            engagementLevel,
+            flowScore: (responseTime ? 40 : 0) + topicConsistency + engagementLevel
+        };
+    };
+    // 주제 일관성 분석
+    const analyzeTopicConsistency = (messages) => {
+        const recentMessages = messages.slice(-4);
+        const topics = recentMessages.map(m => extractTopic(m.text));
+        const uniqueTopics = new Set(topics.filter(t => t));
+        return Math.max(0, 30 - (uniqueTopics.size - 1) * 10);
+    };
+    // 주제 추출
+    const extractTopic = (text) => {
+        if (text.includes('영화') || text.includes('영상'))
+            return 'entertainment';
+        if (text.includes('음악') || text.includes('노래'))
+            return 'music';
+        if (text.includes('일') || text.includes('직장'))
+            return 'work';
+        if (text.includes('취미') || text.includes('관심'))
+            return 'hobby';
+        if (text.includes('감정') || text.includes('기분'))
+            return 'emotion';
+        return 'general';
+    };
+    // 참여도 계산
+    const calculateEngagementLevel = (messages) => {
+        const userMessages = messages.filter(m => m.sender === 'user');
+        const avgLength = userMessages.reduce((sum, m) => sum + m.text.length, 0) / userMessages.length;
+        return Math.min(30, avgLength / 2);
+    };
+    // 개선 제안 생성
+    const generateImprovementSuggestions = (messages, lastMessage) => {
+        const suggestions = [];
+        const messageQuality = analyzeMessageQuality(lastMessage.text);
+        if (!messageQuality.hasQuestion) {
+            suggestions.push("상대방에게 질문을 해보세요. '어떤 생각이세요?' 같은 질문으로 대화를 이어가보세요.");
+        }
+        if (!messageQuality.hasEmotion) {
+            suggestions.push("감정을 표현해보세요. '정말 좋아요!' 같은 감정 표현으로 대화를 풍성하게 만들어보세요.");
+        }
+        if (!messageQuality.isDetailed) {
+            suggestions.push("더 자세한 이야기를 해보세요. 구체적인 경험이나 생각을 공유하면 대화가 더 흥미로워집니다.");
+        }
+        return suggestions;
+    };
+    // 강점 식별
+    const identifyStrengths = (messages) => {
+        const strengths = [];
+        const userMessages = messages.filter(m => m.sender === 'user');
+        if (userMessages.some(m => m.text.includes('?'))) {
+            strengths.push("적극적인 질문");
+        }
+        if (userMessages.some(m => m.text.length > 30)) {
+            strengths.push("상세한 설명");
+        }
+        if (userMessages.some(m => m.text.includes('좋아') || m.text.includes('재미'))) {
+            strengths.push("긍정적 표현");
+        }
+        return strengths.length > 0 ? strengths : ["대화 참여"];
+    };
+    // 다음 단계 제안
+    const suggestNextSteps = (messages, conversationLength) => {
+        if (conversationLength < 3) {
+            return ["상대방의 관심사를 더 파악해보세요", "자신의 경험을 공유해보세요"];
+        }
+        else if (conversationLength < 6) {
+            return ["대화를 더 깊이 있게 만들어보세요", "감정을 나누어보세요"];
+        }
+        else {
+            return ["대화를 자연스럽게 마무리해보세요", "다음 만남을 기약해보세요"];
+        }
+    };
     useEffect(() => {
         // Initialize chat session
         if (!sessionIdRef.current) {
@@ -390,7 +552,17 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                 aiResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
             }
             const aiMessage = { sender: 'ai', text: aiResponse };
-            setMessages(prev => [...prev, aiMessage]);
+            const updatedMessages = [...messages, userMessage, aiMessage];
+            setMessages(updatedMessages);
+            // 🚀 실시간 대화 분석 실행
+            const analysis = analyzeConversationRealTime(updatedMessages);
+            if (analysis) {
+                setConversationAnalysis(analysis);
+                // 3초 후 분석 결과 표시
+                setTimeout(() => {
+                    setShowAnalysisModal(true);
+                }, 3000);
+            }
         }
         catch (error) {
             console.error('Failed to send message:', error);
@@ -440,6 +612,9 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                                         }, className: "px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity", children: "\uD83D\uDCA1 \uC2A4\uD0C0\uC77C \uBD84\uC11D" })), !isTutorialMode && isCoaching && 'specialty' in partner && (_jsxs("span", { className: "px-3 py-1.5 bg-[#E6F7F5] text-[#0AC5A8] border border-[#0AC5A8] text-sm font-medium rounded-lg", children: ["\uD83D\uDCDA ", partner.specialty, " \uCF54\uCE6D"] })), isTutorialMode && tutorialStep.step < 5 && _jsxs("span", { className: "font-bold text-[#F093B0]", children: [tutorialStep.step, "/", TUTORIAL_STEPS.length - 1, " \uB2E8\uACC4"] })] })] }), isTutorialMode && tutorialStep.step < 5 && (_jsx("div", { className: "w-full bg-[#F2F4F6] h-1 rounded-full mt-2", children: _jsx("div", { className: "bg-[#F093B0] h-1 rounded-full transition-all duration-500", style: { width: `${((tutorialStep.step) / (TUTORIAL_STEPS.length - 1)) * 100}%` } }) }))] }), isTutorialMode && tutorialStep.step < 5 && (_jsxs("div", { className: "p-4 bg-gradient-to-r from-[#FDF2F8] to-[#EBF2FF] animate-fade-in z-10", children: [_jsxs("p", { className: "font-bold text-base flex items-center text-[#191F28]", children: [_jsx(CoachKeyIcon, { className: "w-5 h-5 mr-2 text-[#F093B0]" }), tutorialStep.title] }), _jsx("p", { className: "text-sm text-[#8B95A1] mt-1", children: tutorialStep.description })] })), _jsxs("div", { className: "flex-1 overflow-y-auto p-4 space-y-4", children: [messages.map((msg, index) => (_jsxs("div", { className: `flex items-end gap-2 animate-fade-in-up ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`, children: [msg.sender === 'ai' && _jsx("img", { src: partner.avatar, alt: "ai", className: "w-8 h-8 rounded-full self-start" }), msg.sender === 'system' ? (_jsx("div", { className: "w-full text-center text-sm text-[#4F7ABA] p-3 bg-[#F9FAFB] rounded-xl my-2", children: msg.text === 'COACH_HINT_INTRO' ? (_jsxs("span", { className: "flex items-center justify-center", children: ["\uB300\uD654\uAC00 \uB9C9\uD790 \uB550 \uC5B8\uC81C\uB4E0 ", _jsx(CoachKeyIcon, { className: "w-4 h-4 mx-1 inline-block text-yellow-500" }), " \uD78C\uD2B8 \uBC84\uD2BC\uC744 \uB20C\uB7EC AI \uCF54\uCE58\uC758 \uB3C4\uC6C0\uC744 \uBC1B\uC544\uBCF4\uC138\uC694!"] })) : msg.text })) : (_jsx("div", { className: `max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 shadow-sm ${msg.sender === 'user' ? 'text-white rounded-t-[18px] rounded-l-[18px] rounded-br-[6px] bg-[#F093B0]' : 'rounded-t-[18px] rounded-r-[18px] rounded-bl-[6px] bg-[#F9FAFB] text-[#191F28]'}`, children: _jsx("p", { className: "whitespace-pre-wrap leading-relaxed", children: msg.text }) }))] }, index))), isLoading && (_jsxs("div", { className: "flex items-end gap-2 justify-start", children: [_jsx("img", { src: partner.avatar, alt: "ai", className: "w-8 h-8 rounded-full self-start" }), _jsx("div", { className: "max-w-xs px-4 py-3 rounded-2xl rounded-bl-none bg-[#F9FAFB]", children: _jsx(TypingIndicator, {}) })] })), _jsx("div", { ref: messagesEndRef })] }), realtimeFeedback && _jsx(RealtimeFeedbackToast, { feedback: realtimeFeedback }), showCoachHint && (_jsx("div", { className: "absolute inset-0 bg-black/50 flex items-center justify-center z-20", children: _jsxs("div", { className: "bg-white p-6 rounded-2xl shadow-xl max-w-md w-full mx-4", children: [_jsxs("div", { className: "flex items-center justify-between mb-4", children: [_jsx("h3", { className: "text-lg font-bold text-[#191F28]", children: "\uD83D\uDCA1 \uCF54\uCE58 \uC81C\uC548" }), _jsx("button", { onClick: handleCloseHint, className: "text-gray-400 hover:text-gray-600", children: "\u2715" })] }), isFetchingSuggestion ? (_jsxs("div", { className: "flex items-center justify-center py-8", children: [_jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 border-[#F093B0]" }), _jsx("p", { className: "ml-3 text-sm text-gray-500", children: "\uCF54\uCE58\uAC00 \uC81C\uC548\uC744 \uC900\uBE44\uD558\uACE0 \uC788\uC5B4\uC694..." })] })) : coachSuggestion ? (_jsxs("div", { className: "space-y-4", children: [_jsx("div", { className: "p-4 bg-[#FDF2F8] rounded-xl border border-[#F093B0]", children: _jsx("p", { className: "text-sm text-[#191F28] leading-relaxed", children: coachSuggestion.suggestion }) }), _jsxs("div", { className: "flex gap-2", children: [_jsx("button", { onClick: () => {
                                                 setInput(coachSuggestion.suggestion);
                                                 handleCloseHint();
-                                            }, className: "flex-1 py-2 px-4 bg-[#F093B0] text-white rounded-lg font-medium hover:bg-[#E085A3] transition-colors", children: "\uC801\uC6A9\uD558\uAE30" }), _jsx("button", { onClick: handleCloseHint, className: "flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors", children: "\uC9C1\uC811 \uC785\uB825" })] })] })) : (_jsxs("div", { className: "text-center py-8", children: [_jsx("p", { className: "text-sm text-gray-500", children: "\uC81C\uC548\uC744 \uBD88\uB7EC\uC62C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4." }), _jsx("button", { onClick: handleCloseHint, className: "mt-4 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors", children: "\uB2EB\uAE30" })] }))] }) })), isAnalyzing && (_jsxs("div", { className: "absolute inset-0 bg-white bg-opacity-70 flex flex-col items-center justify-center z-20", children: [_jsx("div", { className: "w-8 h-8 border-4 border-t-transparent border-[#F093B0] rounded-full animate-spin" }), _jsx("p", { className: "mt-4 text-base font-semibold text-[#191F28]", children: "\uB300\uD654 \uBD84\uC11D \uC911..." })] })), isTutorialComplete && (_jsx("div", { className: "absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-20 animate-fade-in", children: _jsxs("div", { className: "bg-white p-8 rounded-2xl text-center shadow-xl animate-scale-in", children: [_jsx("div", { className: "text-6xl mb-4", children: "\uD83C\uDF89" }), _jsx("h2", { className: "text-2xl font-bold text-[#191F28] mb-2", children: "\uD29C\uD1A0\uB9AC\uC5BC \uC644\uB8CC!" }), _jsx("p", { className: "text-[#8B95A1] text-base", children: "\uB300\uD654\uC758 \uAE30\uBCF8\uC744 \uB9C8\uC2A4\uD130\uD558\uC168\uC5B4\uC694!" }), _jsx("p", { className: "text-[#4F7ABA] text-sm mt-2", children: "\uACE7 \uD648 \uD654\uBA74\uC73C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4..." })] }) })), _jsxs("div", { className: "flex-shrink-0 p-2 border-t border-[#F2F4F6] bg-white z-10", children: [isTutorialMode && tutorialStep.step < 5 && (_jsx("div", { className: "flex space-x-2 overflow-x-auto pb-2 px-2", children: tutorialStep.quickReplies.map(reply => (_jsx("button", { onClick: () => handleSend(reply), className: "flex-shrink-0 h-10 px-4 bg-[#FDF2F8] border border-[#F093B0] text-[#DB7093] rounded-full text-sm font-medium transition-colors hover:bg-opacity-80", children: reply }, reply))) })), _jsx("div", { className: "p-2", children: _jsxs("div", { className: "flex items-center space-x-2", children: [!isCoaching && (_jsx("button", { onClick: fetchAndShowSuggestion, disabled: isLoading || isAnalyzing || showCoachHint, className: "w-12 h-12 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-full disabled:opacity-50 transition-colors hover:bg-yellow-100", children: _jsx(CoachKeyIcon, { className: "w-6 h-6 text-yellow-500" }) })), _jsx("input", { type: "text", value: input, onChange: e => setInput(e.target.value), onKeyPress: e => e.key === 'Enter' && handleSend(input), placeholder: "\uBA54\uC2DC\uC9C0\uB97C \uC785\uB825\uD558\uC138\uC694...", className: "flex-1 w-full h-12 px-5 bg-[#F9FAFB] rounded-full focus:outline-none focus:ring-2 ring-[#F093B0]", disabled: isLoading || isAnalyzing }), _jsx("button", { onClick: () => handleSend(input), disabled: isLoading || isAnalyzing || input.trim() === '', className: "w-12 h-12 flex-shrink-0 flex items-center justify-center bg-[#F093B0] text-white rounded-full disabled:opacity-50 transition-opacity", children: _jsx(PaperAirplaneIcon, { className: "w-6 h-6" }) })] }) })] }), _jsx(StyleRecommendationModal, { isOpen: showStyleModal, onClose: () => setShowStyleModal(false), analysis: styleAnalysis, isLoading: styleAnalysisMutation.isPending })] }));
+                                            }, className: "flex-1 py-2 px-4 bg-[#F093B0] text-white rounded-lg font-medium hover:bg-[#E085A3] transition-colors", children: "\uC801\uC6A9\uD558\uAE30" }), _jsx("button", { onClick: handleCloseHint, className: "flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors", children: "\uC9C1\uC811 \uC785\uB825" })] })] })) : (_jsxs("div", { className: "text-center py-8", children: [_jsx("p", { className: "text-sm text-gray-500", children: "\uC81C\uC548\uC744 \uBD88\uB7EC\uC62C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4." }), _jsx("button", { onClick: handleCloseHint, className: "mt-4 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors", children: "\uB2EB\uAE30" })] }))] }) })), isAnalyzing && (_jsxs("div", { className: "absolute inset-0 bg-white bg-opacity-70 flex flex-col items-center justify-center z-20", children: [_jsx("div", { className: "w-8 h-8 border-4 border-t-transparent border-[#F093B0] rounded-full animate-spin" }), _jsx("p", { className: "mt-4 text-base font-semibold text-[#191F28]", children: "\uB300\uD654 \uBD84\uC11D \uC911..." })] })), isTutorialComplete && (_jsx("div", { className: "absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-20 animate-fade-in", children: _jsxs("div", { className: "bg-white p-8 rounded-2xl text-center shadow-xl animate-scale-in", children: [_jsx("div", { className: "text-6xl mb-4", children: "\uD83C\uDF89" }), _jsx("h2", { className: "text-2xl font-bold text-[#191F28] mb-2", children: "\uD29C\uD1A0\uB9AC\uC5BC \uC644\uB8CC!" }), _jsx("p", { className: "text-[#8B95A1] text-base", children: "\uB300\uD654\uC758 \uAE30\uBCF8\uC744 \uB9C8\uC2A4\uD130\uD558\uC168\uC5B4\uC694!" }), _jsx("p", { className: "text-[#4F7ABA] text-sm mt-2", children: "\uACE7 \uD648 \uD654\uBA74\uC73C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4..." })] }) })), _jsxs("div", { className: "flex-shrink-0 p-2 border-t border-[#F2F4F6] bg-white z-10", children: [isTutorialMode && tutorialStep.step < 5 && (_jsx("div", { className: "flex space-x-2 overflow-x-auto pb-2 px-2", children: tutorialStep.quickReplies.map(reply => (_jsx("button", { onClick: () => handleSend(reply), className: "flex-shrink-0 h-10 px-4 bg-[#FDF2F8] border border-[#F093B0] text-[#DB7093] rounded-full text-sm font-medium transition-colors hover:bg-opacity-80", children: reply }, reply))) })), _jsx("div", { className: "p-2", children: _jsxs("div", { className: "flex items-center space-x-2", children: [!isCoaching && (_jsx("button", { onClick: fetchAndShowSuggestion, disabled: isLoading || isAnalyzing || showCoachHint, className: "w-12 h-12 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-full disabled:opacity-50 transition-colors hover:bg-yellow-100", children: _jsx(CoachKeyIcon, { className: "w-6 h-6 text-yellow-500" }) })), _jsx("input", { type: "text", value: input, onChange: e => setInput(e.target.value), onKeyPress: e => e.key === 'Enter' && handleSend(input), placeholder: "\uBA54\uC2DC\uC9C0\uB97C \uC785\uB825\uD558\uC138\uC694...", className: "flex-1 w-full h-12 px-5 bg-[#F9FAFB] rounded-full focus:outline-none focus:ring-2 ring-[#F093B0]", disabled: isLoading || isAnalyzing }), _jsx("button", { onClick: () => handleSend(input), disabled: isLoading || isAnalyzing || input.trim() === '', className: "w-12 h-12 flex-shrink-0 flex items-center justify-center bg-[#F093B0] text-white rounded-full disabled:opacity-50 transition-opacity", children: _jsx(PaperAirplaneIcon, { className: "w-6 h-6" }) })] }) })] }), _jsx(StyleRecommendationModal, { isOpen: showStyleModal, onClose: () => setShowStyleModal(false), analysis: styleAnalysis, isLoading: styleAnalysisMutation.isPending }), showAnalysisModal && conversationAnalysis && (_jsx("div", { className: "absolute inset-0 bg-black/50 flex items-center justify-center z-30", children: _jsxs("div", { className: "bg-white p-6 rounded-2xl shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto", children: [_jsxs("div", { className: "flex items-center justify-between mb-4", children: [_jsx("h3", { className: "text-lg font-bold text-[#191F28]", children: "\uD83D\uDCCA \uC2E4\uC2DC\uAC04 \uB300\uD654 \uBD84\uC11D" }), _jsx("button", { onClick: () => setShowAnalysisModal(false), className: "text-gray-400 hover:text-gray-600", children: "\u2715" })] }), _jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "p-4 bg-[#F0F9FF] rounded-xl", children: [_jsx("h4", { className: "font-semibold text-[#191F28] mb-2", children: "\uD83D\uDCAC \uB300\uD654 \uD488\uC9C8" }), _jsxs("div", { className: "flex items-center gap-2", children: [_jsx("div", { className: "w-full bg-gray-200 rounded-full h-2", children: _jsx("div", { className: "bg-[#0AC5A8] h-2 rounded-full transition-all duration-500", style: { width: `${Math.min(conversationAnalysis.messageQuality.score, 100)}%` } }) }), _jsxs("span", { className: "text-sm font-bold text-[#0AC5A8]", children: [Math.round(conversationAnalysis.messageQuality.score), "\uC810"] })] })] }), _jsxs("div", { className: "p-4 bg-[#F0FDF4] rounded-xl", children: [_jsx("h4", { className: "font-semibold text-[#191F28] mb-2", children: "\u2728 \uAC15\uC810" }), _jsx("div", { className: "flex flex-wrap gap-2", children: conversationAnalysis.strengths.map((strength, index) => (_jsx("span", { className: "px-3 py-1 bg-[#22C55E] text-white text-sm rounded-full", children: strength }, index))) })] }), conversationAnalysis.improvementSuggestions.length > 0 && (_jsxs("div", { className: "p-4 bg-[#FEF3C7] rounded-xl", children: [_jsx("h4", { className: "font-semibold text-[#191F28] mb-2", children: "\uD83D\uDCA1 \uAC1C\uC120 \uC81C\uC548" }), _jsx("ul", { className: "space-y-1", children: conversationAnalysis.improvementSuggestions.map((suggestion, index) => (_jsxs("li", { className: "text-sm text-[#92400E]", children: ["\u2022 ", suggestion] }, index))) })] })), _jsxs("div", { className: "p-4 bg-[#FDF2F8] rounded-xl", children: [_jsx("h4", { className: "font-semibold text-[#191F28] mb-2", children: "\uD83D\uDE80 \uB2E4\uC74C \uB2E8\uACC4" }), _jsx("ul", { className: "space-y-1", children: conversationAnalysis.nextSteps.map((step, index) => (_jsxs("li", { className: "text-sm text-[#BE185D]", children: ["\u2022 ", step] }, index))) })] })] }), _jsxs("div", { className: "mt-4 flex gap-2", children: [_jsx("button", { onClick: () => setShowAnalysisModal(false), className: "flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors", children: "\uD655\uC778" }), _jsx("button", { onClick: () => {
+                                        setShowAnalysisModal(false);
+                                        fetchAndShowSuggestion();
+                                    }, className: "flex-1 py-2 px-4 bg-[#F093B0] text-white rounded-lg font-medium hover:bg-[#E085A3] transition-colors", children: "\uCF54\uCE58 \uC81C\uC548 \uBC1B\uAE30" })] })] }) }))] }));
 };
 export default ChatScreen;
