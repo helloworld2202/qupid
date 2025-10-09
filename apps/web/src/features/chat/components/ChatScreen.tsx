@@ -84,32 +84,63 @@ const generateNaturalFirstMessage = (partner: Persona | AICoach, userProfile?: a
   const personaAge = 'age' in partner ? partner.age : 25;
   const personaJob = 'job' in partner ? partner.job : '일반인';
   
-  // MBTI별 다양한 첫 메시지 패턴
+  // 🚀 혁신적인 MBTI별 자연스러운 첫 메시지 패턴 (맥락 기반)
   const messagePatterns: Record<string, string[]> = {
     'ENFP': [
       `${timeGreeting}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
       `안녕하세요! ${personaName}이에요! 오늘 날씨가 정말 좋네요 ☀️ ${personaJob}로 일하고 있는데, 새로운 사람을 만나는 게 항상 즐거워요!`,
-      `반가워요! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 어떤 하루 보내고 계세요?`
+      `반가워요! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 어떤 하루 보내고 계세요?`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 오늘 뭔가 특별한 일이 있을 것 같은 기분이에요 ✨`,
+      `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 어떤 이야기든 재밌게 해봐요!`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 오늘 정말 좋은 하루네요! 🎉`
     ],
     'ISFJ': [
-      `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 편하게 대화해요.`,
-      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 새로운 분과 대화할 수 있어서 좋네요.`,
-      `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}인데, 조용히 대화해봐요.`
+      `안녕하세요 ${userName}. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}로 일하고 있어요. 편하게 대화해요.`,
+      `${timeGreeting}. ${personaName}입니다. ${personaJob}로 일하고 있는데, 새로운 분과 대화할 수 있어서 좋네요.`,
+      `안녕하세요. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 조용히 대화해봐요.`,
+      `반가워요. ${personaName}이에요. ${personaJob}로 일하고 있는데, 깊이 있는 이야기를 나누고 싶어요.`,
+      `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 좋아해요.`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 의미 있는 대화를 해봅시다.`
     ],
     'INTJ': [
       `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 의미 있는 대화를 해봅시다.`,
       `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 깊이 있는 대화를 좋아해요.`,
-      `안녕하세요. ${personaName}입니다. 효율적이고 의미 있는 대화를 해봅시다.`
+      `안녕하세요. ${personaName}입니다. 효율적이고 의미 있는 대화를 해봅시다.`,
+      `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 논리적인 대화를 선호해요.`,
+      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, 전략적인 사고를 좋아해요.`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 창의적인 아이디어를 좋아해요.`
     ],
     'ESFP': [
       `${timeGreeting}! ${personaName}이에요! 😆 ${personaAge}세 ${personaJob}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
       `안녕하세요! ${personaName}이에요! 🎉 ${personaJob}로 일하고 있는데, 새로운 사람 만나는 게 너무 신나요!`,
-      `반가워요! 저는 ${personaName}이에요! 오늘 뭐 재밌는 일 있었어요? 😊`
+      `반가워요! 저는 ${personaName}이에요! 오늘 뭐 재밌는 일 있었어요? 😊`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하는데, 즐거운 대화를 해봐요! 🎊`,
+      `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 오늘 정말 기분이 좋아요!`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 활기찬 대화를 좋아해요!`
     ],
     'INFP': [
       `안녕하세요 ${userName}... 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 조금 부끄럽지만... 편하게 대화해요.`,
       `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 조용한 대화를 좋아해요.`,
-      `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 해봐요.`
+      `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 해봐요.`,
+      `반가워요... 저는 ${personaName}이에요. ${personaJob}로 일하는데, 진심 어린 대화를 좋아해요.`,
+      `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 감성적인 이야기를 좋아해요.`,
+      `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 깊이 있는 대화를 선호해요.`
+    ],
+    'ENTP': [
+      `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 오늘 뭔가 흥미로운 이야기를 해봐요!`,
+      `${timeGreeting}! 저는 ${personaName}이에요. ${personaJob}로 일하는데, 새로운 아이디어를 좋아해요!`,
+      `반가워요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 창의적인 대화를 해봅시다!`,
+      `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 도전적인 주제도 좋아해요!`,
+      `반가워요! 저는 ${personaName}이에요! ${personaJob}로 일하는데, 혁신적인 생각을 좋아해요!`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 논쟁적인 주제도 즐겨요!`
+    ],
+    'ESTJ': [
+      `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 체계적인 대화를 해봅시다.`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 목표 지향적인 대화를 좋아해요.`,
+      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, 실용적인 이야기를 좋아해요.`,
+      `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 효율적인 대화를 선호해요.`,
+      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하는데, 리더십에 관심이 많아요.`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 조직적인 사고를 좋아해요.`
     ]
   };
 
