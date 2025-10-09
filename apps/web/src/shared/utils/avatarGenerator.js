@@ -1,64 +1,52 @@
 // 페르소나 아바타 이미지 생성기
 // 40개의 고품질 아바타 이미지를 랜덤으로 제공
-// 🎨 AI 스타일 아바타 캐릭터 세트 (40개 고품질 아바타)
+// 🎨 코칭 프로필과 동일한 스타일의 아바타 캐릭터 세트 (40개 고품질 아바타)
 const PREDEFINED_AVATARS = {
     female: [
-        // 🎭 Avataaars 스타일 (일러스트레이션)
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=anna&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=emma&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=sophia&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=olivia&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=charlotte&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
-        // 🎨 Personas 스타일 (현실적)
-        'https://api.dicebear.com/7.x/personas/svg?seed=luna&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/personas/svg?seed=zoe&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/personas/svg?seed=maya&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/personas/svg?seed=aria&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/personas/svg?seed=nova&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
-        // 🌈 Boring Avatars (모던 아트)
-        'https://source.boringavatars.com/marble/200/luna?colors=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9',
-        'https://source.boringavatars.com/marble/200/zoe?colors=ffb3ba,ffdfba,ffffba,baffc9,bae1ff',
-        'https://source.boringavatars.com/marble/200/maya?colors=ffdfba,ffffba,baffc9,bae1ff,ffb3e6',
-        'https://source.boringavatars.com/marble/200/aria?colors=ffffba,baffc9,bae1ff,ffb3e6,ff9bb3',
-        'https://source.boringavatars.com/marble/200/nova?colors=baffc9,bae1ff,ffb3e6,ff9bb3,ffb3ba',
-        // 🎪 Fun-emoji 스타일 (재미있는)
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=anna&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=emma&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=sophia&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=olivia&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=charlotte&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
-        // 🎭 Multi Avatar (다양한 스타일)
-        'https://api.multiavatar.com/anna.png',
-        'https://api.multiavatar.com/emma.png'
+        // 🎭 avatar.iran.liara.run 스타일 (코칭 프로필과 동일)
+        'https://avatar.iran.liara.run/public/girl?username=anna',
+        'https://avatar.iran.liara.run/public/girl?username=emma',
+        'https://avatar.iran.liara.run/public/girl?username=sophia',
+        'https://avatar.iran.liara.run/public/girl?username=olivia',
+        'https://avatar.iran.liara.run/public/girl?username=charlotte',
+        'https://avatar.iran.liara.run/public/girl?username=luna',
+        'https://avatar.iran.liara.run/public/girl?username=zoe',
+        'https://avatar.iran.liara.run/public/girl?username=maya',
+        'https://avatar.iran.liara.run/public/girl?username=aria',
+        'https://avatar.iran.liara.run/public/girl?username=nova',
+        'https://avatar.iran.liara.run/public/girl?username=grace',
+        'https://avatar.iran.liara.run/public/girl?username=ruby',
+        'https://avatar.iran.liara.run/public/girl?username=stella',
+        'https://avatar.iran.liara.run/public/girl?username=iris',
+        'https://avatar.iran.liara.run/public/girl?username=vera',
+        'https://avatar.iran.liara.run/public/girl?username=diana',
+        'https://avatar.iran.liara.run/public/girl?username=flora',
+        'https://avatar.iran.liara.run/public/girl?username=cleo',
+        'https://avatar.iran.liara.run/public/girl?username=lyra',
+        'https://avatar.iran.liara.run/public/girl?username=rose'
     ],
     male: [
-        // 🎭 Avataaars 스타일 (일러스트레이션)
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=alex&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=ryan&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=noah&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=liam&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=ethan&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
-        // 🎨 Personas 스타일 (현실적)
-        'https://api.dicebear.com/7.x/personas/svg?seed=leo&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/personas/svg?seed=kai&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/personas/svg?seed=max&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/personas/svg?seed=jay&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/personas/svg?seed=ace&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
-        // 🌈 Boring Avatars (모던 아트)
-        'https://source.boringavatars.com/marble/200/leo?colors=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9',
-        'https://source.boringavatars.com/marble/200/kai?colors=ffb3ba,ffdfba,ffffba,baffc9,bae1ff',
-        'https://source.boringavatars.com/marble/200/max?colors=ffdfba,ffffba,baffc9,bae1ff,ffb3e6',
-        'https://source.boringavatars.com/marble/200/jay?colors=ffffba,baffc9,bae1ff,ffb3e6,ff9bb3',
-        'https://source.boringavatars.com/marble/200/ace?colors=baffc9,bae1ff,ffb3e6,ff9bb3,ffb3ba',
-        // 🎪 Fun-emoji 스타일 (재미있는)
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=alex&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=ryan&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=noah&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=liam&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
-        'https://api.dicebear.com/7.x/fun-emoji/svg?seed=ethan&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
-        // 🎭 Multi Avatar (다양한 스타일)
-        'https://api.multiavatar.com/alex.png',
-        'https://api.multiavatar.com/ryan.png'
+        // 🎭 avatar.iran.liara.run 스타일 (코칭 프로필과 동일)
+        'https://avatar.iran.liara.run/public/boy?username=alex',
+        'https://avatar.iran.liara.run/public/boy?username=ryan',
+        'https://avatar.iran.liara.run/public/boy?username=noah',
+        'https://avatar.iran.liara.run/public/boy?username=liam',
+        'https://avatar.iran.liara.run/public/boy?username=ethan',
+        'https://avatar.iran.liara.run/public/boy?username=leo',
+        'https://avatar.iran.liara.run/public/boy?username=kai',
+        'https://avatar.iran.liara.run/public/boy?username=max',
+        'https://avatar.iran.liara.run/public/boy?username=jay',
+        'https://avatar.iran.liara.run/public/boy?username=ace',
+        'https://avatar.iran.liara.run/public/boy?username=felix',
+        'https://avatar.iran.liara.run/public/boy?username=milo',
+        'https://avatar.iran.liara.run/public/boy?username=axel',
+        'https://avatar.iran.liara.run/public/boy?username=enzo',
+        'https://avatar.iran.liara.run/public/boy?username=otto',
+        'https://avatar.iran.liara.run/public/boy?username=theo',
+        'https://avatar.iran.liara.run/public/boy?username=nero',
+        'https://avatar.iran.liara.run/public/boy?username=zeus',
+        'https://avatar.iran.liara.run/public/boy?username=odin',
+        'https://avatar.iran.liara.run/public/boy?username=loki'
     ]
 };
 // 🚀 간단하고 확실한 아바타 생성 함수
