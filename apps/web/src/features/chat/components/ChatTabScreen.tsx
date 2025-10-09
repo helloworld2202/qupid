@@ -272,7 +272,7 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
     <div className="flex flex-col h-full w-full bg-[#F9FAFB]">
       <header className="flex-shrink-0 p-4 pt-5 bg-white border-b border-[#F2F4F6]">
         <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-[#191F28]">AI 친구들</h1>
+            <h1 className="text-2xl font-bold text-[#191F28]">👥 나의 AI 친구들</h1>
             <div className="flex items-center space-x-2">
                 <button className="p-2 rounded-full hover:bg-gray-100 transition-colors"><SearchIcon className="w-6 h-6 text-[#191F28]" /></button>
                 <button className="p-2 rounded-full hover:bg-gray-100 transition-colors"><SettingsIcon className="w-6 h-6 text-[#191F28]" /></button>
@@ -304,59 +304,102 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
           </section>
         )}
         
-        {/* Persona List */}
-        <section className="space-y-3">
-            <div className="p-4 bg-gradient-to-r from-[#FDF2F8] to-[#EBF2FF] rounded-xl">
-                 <h2 className="text-lg font-bold text-[#191F28]">💬 당신을 위한 추천</h2>
-                 <p className="text-sm text-[#4F7ABA] mt-1">
-                   {isGeneratingPersonas 
-                     ? 'AI가 당신에게 맞는 친구들을 생성하고 있어요...' 
-                     : '설문 결과를 바탕으로, 아래 친구들을 추천해드려요!'}
-                 </p>
-                 {considerations.length > 0 && !isGeneratingPersonas && (
-                   <ul className="mt-2 space-y-1 text-xs list-disc list-inside text-[#DB7093] font-medium">
-                      {considerations.map(c => <li key={c}>{c}</li>)}
-                   </ul>
-                 )}
+        {/* 🚀 카테고리별 AI 친구 섹션 */}
+        <section className="space-y-4">
+            {/* 💕 연애 연습용 */}
+            <div className="p-4 bg-gradient-to-r from-[#FDF2F8] to-[#FCE7F3] rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                    <h2 className="text-lg font-bold text-[#191F28]">💕 연애 연습용</h2>
+                    <button 
+                      onClick={generateNewPersonas}
+                      disabled={isGeneratingPersonas}
+                      className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
+                      style={{backgroundColor: '#F093B0'}}
+                    >
+                      {isGeneratingPersonas ? '생성 중...' : '+ 새로 만들기'}
+                    </button>
+                </div>
+                <p className="text-sm text-[#4F7ABA]">
+                  연애 상황에서의 대화를 연습해보세요
+                </p>
             </div>
-          {isLoadingPersonas || isGeneratingPersonas ? (
-            <div className="flex flex-col justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8] mb-4"></div>
-              <p className="text-sm text-gray-500">
-                {isGeneratingPersonas ? 'AI가 맞춤 친구들을 만들고 있어요...' : '페르소나를 불러오는 중...'}
-              </p>
+
+            {/* 🎯 직장 대화용 */}
+            <div className="p-4 bg-gradient-to-r from-[#EBF2FF] to-[#DBEAFE] rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                    <h2 className="text-lg font-bold text-[#191F28]">🎯 직장 대화용</h2>
+                    <button 
+                      onClick={generateNewPersonas}
+                      disabled={isGeneratingPersonas}
+                      className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
+                      style={{backgroundColor: '#0AC5A8'}}
+                    >
+                      {isGeneratingPersonas ? '생성 중...' : '+ 새로 만들기'}
+                    </button>
+                </div>
+                <p className="text-sm text-[#4F7ABA]">
+                  직장에서의 소통 스킬을 향상시켜보세요
+                </p>
             </div>
-          ) : searchedPersonas.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-6xl mb-4">🤖✨</div>
-              <h3 className="font-bold text-lg mb-2">새로운 AI 친구를 만나보세요!</h3>
-              <p className="text-sm text-gray-500 text-center mb-6">
-                당신의 성격과 관심사에 맞는<br/>
-                특별한 AI 친구들을 생성해드려요
-              </p>
-              <button 
-                onClick={generateNewPersonas}
-                disabled={isGeneratingPersonas}
-                className="px-8 py-4 text-lg font-bold text-white rounded-2xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                style={{backgroundColor: '#0AC5A8'}}
-              >
-                {isGeneratingPersonas ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white inline-block mr-2"></div>
-                    AI 친구 생성 중...
-                  </>
+
+            {/* 🎨 취미 공유용 */}
+            <div className="p-4 bg-gradient-to-r from-[#F0FDF4] to-[#DCFCE7] rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                    <h2 className="text-lg font-bold text-[#191F28]">🎨 취미 공유용</h2>
+                    <button 
+                      onClick={generateNewPersonas}
+                      disabled={isGeneratingPersonas}
+                      className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
+                      style={{backgroundColor: '#22C55E'}}
+                    >
+                      {isGeneratingPersonas ? '생성 중...' : '+ 새로 만들기'}
+                    </button>
+                </div>
+                <p className="text-sm text-[#4F7ABA]">
+                  공통 관심사를 나누며 자연스러운 대화를 연습해보세요
+                </p>
+            </div>
+            {/* 🚀 전체 AI 친구 목록 */}
+            <div className="p-4 bg-white rounded-xl border border-[#F2F4F6]">
+                <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-bold text-base">👥 전체 AI 친구들</h3>
+                    <span className="text-xs text-gray-500">{searchedPersonas.length}명</span>
+                </div>
+                
+                {isLoadingPersonas || isGeneratingPersonas ? (
+                    <div className="flex flex-col justify-center items-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0AC5A8] mb-3"></div>
+                        <p className="text-sm text-gray-500">
+                            {isGeneratingPersonas ? 'AI가 맞춤 친구들을 만들고 있어요...' : '페르소나를 불러오는 중...'}
+                        </p>
+                    </div>
+                ) : searchedPersonas.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                        <div className="text-4xl mb-3">🤖✨</div>
+                        <h4 className="font-bold text-base mb-2">아직 AI 친구가 없어요!</h4>
+                        <p className="text-sm text-gray-500 text-center mb-4">
+                            위의 카테고리에서<br/>
+                            새로운 AI 친구를 만들어보세요
+                        </p>
+                    </div>
                 ) : (
-                  '💕 AI 친구 만나보기'
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {searchedPersonas.slice(0, 6).map((persona, i) => (
+                            <div key={persona.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 50}ms` }}>
+                                <PersonaCard persona={persona} onSelect={() => onSelectPersona(persona)} />
+                            </div>
+                        ))}
+                        {searchedPersonas.length > 6 && (
+                            <button 
+                                onClick={() => {/* 전체 보기 로직 */}}
+                                className="w-full py-2 text-sm font-bold text-[#F093B0] hover:underline"
+                            >
+                                + {searchedPersonas.length - 6}명 더 보기
+                            </button>
+                        )}
+                    </div>
                 )}
-              </button>
             </div>
-          ) : (
-            searchedPersonas.map((persona, i) => (
-              <div key={persona.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 80}ms` }}>
-                <PersonaCard persona={persona} onSelect={() => onSelectPersona(persona)} />
-              </div>
-            ))
-          )}
         </section>
 
         <section>
