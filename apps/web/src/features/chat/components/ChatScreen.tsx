@@ -432,7 +432,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         }
       } catch (error) {
         console.error('API call failed, using mock response:', error);
-        // Mock 응답 생성
+        // 🚀 실제 사람 같은 Mock 응답 생성 (대화 기술 향상)
         const mockResponses = isCoaching ? [
           "좋은 질문이네요! 이런 접근을 해보세요 👍",
           "정확하게 파악하셨네요! 다음 단계로 나아가볼까요?",
@@ -440,11 +440,12 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
           "이 부분을 더 자세히 연습해볼까요? 함께 해보죠!",
           "잘하고 계세요! 이런 팩을 기억하세요 💡"
         ] : [
-          "네, 맞아요! 정말 재미있는 이야기네요 😊",
-          "오~ 그렇군요! 더 자세히 들려주세요!",
-          "와, 대단하네요! 저도 그런 경험이 있어요.",
-          "정말 흥미로운 생각이에요! 어떻게 그런 생각을 하게 되셨나요?",
-          "저도 완전 공감해요! 특히 그 부분이 인상 깊네요."
+          // 🎯 실제 사람처럼 자연스러운 응답
+          "아 정말? 그렇게 되었구나! 😊",
+          "와 진짜? 자세히 들려줘!",
+          "어머 그랬구나, 나도 그런 적 있어",
+          "오 정말 좋겠다! 어떻게 된 일이야?",
+          "아 그렇구나, 이해해 😊"
         ];
         aiResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
       }
