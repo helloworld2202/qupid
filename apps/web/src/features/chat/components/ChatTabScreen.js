@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Screen } from '@qupid/core';
 import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
 import { usePersonas } from '../../../shared/hooks/usePersonas';
@@ -7,7 +7,6 @@ import { useFavorites } from '../../../shared/hooks/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
 import { useGenerateDynamicPersonas } from '../hooks/useChatQueries';
 import { useUserProfile } from '../../../shared/hooks/api/useUser';
-import { getRandomAvatar } from '../../../shared/utils/avatarGenerator';
 const PersonaCard = ({ persona, onSelect }) => {
     return (_jsxs("div", { className: "w-full p-4 flex bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-lg hover:border-[#F093B0] hover:-translate-y-0.5 cursor-pointer", onClick: onSelect, children: [_jsx("img", { src: persona.avatar, alt: persona.name, className: "w-20 h-20 rounded-xl object-cover" }), _jsxs("div", { className: "ml-4 flex-1 flex flex-col", children: [_jsxs("div", { className: "flex justify-between items-start", children: [_jsxs("div", { children: [_jsxs("p", { className: "font-bold text-lg text-[#191F28]", children: [persona.name, ", ", persona.age] }), _jsxs("p", { className: "text-sm text-[#8B95A1] mt-0.5", children: [persona.job, " \u00B7 ", persona.mbti] })] }), _jsxs("p", { className: "font-bold text-sm text-[#0AC5A8]", children: [persona.match_rate, "% \uB9DE\uC74C"] })] }), _jsx("div", { className: "mt-2 flex flex-wrap gap-1.5", children: persona.tags.map(tag => (_jsxs("span", { className: "px-2 py-0.5 bg-[#EBF2FF] text-[#4F7ABA] text-xs font-medium rounded-md", children: ["#", tag] }, tag))) })] })] }));
 };
@@ -26,62 +25,7 @@ const ChatTabScreen = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => 
         if (!userProfile || isGeneratingPersonas)
             return;
         setIsGeneratingPersonas(true);
-        // 🚀 즉시 fallback 페르소나 표시 (사용자 경험 개선)
-        const immediateFallbackPersonas = [
-            {
-                id: 'immediate-persona-1',
-                name: userProfile.user_gender === 'male' ? '김민지' : '박준호',
-                age: userProfile.user_gender === 'male' ? 24 : 26,
-                gender: userProfile.user_gender === 'male' ? 'female' : 'male',
-                job: userProfile.user_gender === 'male' ? '디자이너' : '개발자',
-                avatar: getRandomAvatar(userProfile.user_gender === 'male' ? 'female' : 'male'),
-                intro: userProfile.user_gender === 'male' ? '안녕하세요! 디자인을 좋아하는 민지예요 😊' : '안녕하세요! 개발자 준호입니다 👨‍💻',
-                tags: userProfile.user_gender === 'male' ? ['디자인', '예술', '창의적'] : ['개발', '기술', '논리적'],
-                match_rate: 85,
-                systemInstruction: userProfile.user_gender === 'male' ? '당신은 24세 디자이너 김민지입니다. 창의적이고 예술적인 대화를 좋아해요.' : '당신은 26세 개발자 박준호입니다. 기술과 논리적인 대화를 선호해요.',
-                personality_traits: userProfile.user_gender === 'male' ? ['창의적', '감성적', '친근함'] : ['논리적', '차분함', '친절함'],
-                interests: userProfile.user_gender === 'male' ? [
-                    { emoji: '🎨', topic: '디자인', description: 'UI/UX 디자인에 관심이 있어요' },
-                    { emoji: '📱', topic: '모바일', description: '모바일 앱 디자인을 좋아해요' },
-                    { emoji: '☕', topic: '카페', description: '예쁜 카페에서 작업하는 걸 좋아해요' }
-                ] : [
-                    { emoji: '💻', topic: '개발', description: '새로운 기술을 배우는 걸 좋아해요' },
-                    { emoji: '🎮', topic: '게임', description: '게임 개발에 관심이 있어요' },
-                    { emoji: '🏃', topic: '운동', description: '러닝과 헬스장을 자주 가요' }
-                ],
-                conversation_preview: [
-                    { sender: 'ai', text: userProfile.user_gender === 'male' ? '안녕하세요! 오늘 하루는 어땠나요? 😊' : '안녕하세요! 오늘 날씨가 정말 좋네요 😊' }
-                ]
-            },
-            {
-                id: 'immediate-persona-2',
-                name: userProfile.user_gender === 'male' ? '이서연' : '최민수',
-                age: userProfile.user_gender === 'male' ? 26 : 28,
-                gender: userProfile.user_gender === 'male' ? 'female' : 'male',
-                job: userProfile.user_gender === 'male' ? '마케터' : '기획자',
-                avatar: getRandomAvatar(userProfile.user_gender === 'male' ? 'female' : 'male'),
-                intro: userProfile.user_gender === 'male' ? '안녕하세요! 마케팅을 좋아하는 서연이에요 😊' : '안녕하세요! 기획자 민수입니다 👨‍💼',
-                tags: userProfile.user_gender === 'male' ? ['마케팅', '소통', '활발함'] : ['기획', '전략', '분석'],
-                match_rate: 82,
-                systemInstruction: userProfile.user_gender === 'male' ? '당신은 26세 마케터 이서연입니다. 소통과 마케팅에 관심이 많아요.' : '당신은 28세 기획자 최민수입니다. 전략적 사고와 분석을 좋아해요.',
-                personality_traits: userProfile.user_gender === 'male' ? ['활발함', '소통', '창의적'] : ['논리적', '체계적', '친절함'],
-                interests: userProfile.user_gender === 'male' ? [
-                    { emoji: '📊', topic: '마케팅', description: '디지털 마케팅에 관심이 있어요' },
-                    { emoji: '📱', topic: 'SNS', description: '소셜미디어를 자주 사용해요' },
-                    { emoji: '🎬', topic: '영화', description: '영화 감상을 좋아해요' }
-                ] : [
-                    { emoji: '📈', topic: '분석', description: '데이터 분석을 좋아해요' },
-                    { emoji: '📚', topic: '독서', description: '경영 서적을 자주 읽어요' },
-                    { emoji: '☕', topic: '커피', description: '카페에서 작업하는 걸 좋아해요' }
-                ],
-                conversation_preview: [
-                    { sender: 'ai', text: userProfile.user_gender === 'male' ? '안녕하세요! 오늘 날씨가 정말 좋네요 ☀️' : '안녕하세요! 오늘 하루는 어땠나요? 😊' }
-                ]
-            }
-        ];
-        // 즉시 fallback 페르소나 표시
-        setDynamicPersonas(immediateFallbackPersonas);
-        console.log('⚡ 즉시 fallback 페르소나 표시 완료');
+        // 🚀 진짜 API 호출만 수행 - 즉시 fallback 제거
         try {
             const newPersonas = await generateDynamicPersonasMutation.mutateAsync({
                 userProfile: {
@@ -108,75 +52,7 @@ const ChatTabScreen = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => 
             setIsGeneratingPersonas(false);
         }
     };
-    // 🚀 초기 동적 페르소나 생성 (즉시 fallback 표시)
-    React.useEffect(() => {
-        if (userProfile && dynamicPersonas.length === 0 && !isGeneratingPersonas) {
-            // 즉시 fallback 페르소나 표시
-            const immediateFallbackPersonas = [
-                {
-                    id: 'immediate-persona-1',
-                    name: userProfile.user_gender === 'male' ? '김민지' : '박준호',
-                    age: userProfile.user_gender === 'male' ? 24 : 26,
-                    gender: userProfile.user_gender === 'male' ? 'female' : 'male',
-                    job: userProfile.user_gender === 'male' ? '디자이너' : '개발자',
-                    avatar: getRandomAvatar(userProfile.user_gender === 'male' ? 'female' : 'male'),
-                    intro: userProfile.user_gender === 'male' ? '안녕하세요! 디자인을 좋아하는 민지예요 😊' : '안녕하세요! 개발자 준호입니다 👨‍💻',
-                    tags: userProfile.user_gender === 'male' ? ['디자인', '예술', '창의적'] : ['개발', '기술', '논리적'],
-                    match_rate: 85,
-                    systemInstruction: userProfile.user_gender === 'male' ? '당신은 24세 디자이너 김민지입니다. 창의적이고 예술적인 대화를 좋아해요.' : '당신은 26세 개발자 박준호입니다. 기술과 논리적인 대화를 선호해요.',
-                    personality_traits: userProfile.user_gender === 'male' ? ['창의적', '감성적', '친근함'] : ['논리적', '차분함', '친절함'],
-                    interests: userProfile.user_gender === 'male' ? [
-                        { emoji: '🎨', topic: '디자인', description: 'UI/UX 디자인에 관심이 있어요' },
-                        { emoji: '📱', topic: '모바일', description: '모바일 앱 디자인을 좋아해요' },
-                        { emoji: '☕', topic: '카페', description: '예쁜 카페에서 작업하는 걸 좋아해요' }
-                    ] : [
-                        { emoji: '💻', topic: '개발', description: '새로운 기술을 배우는 걸 좋아해요' },
-                        { emoji: '🎮', topic: '게임', description: '게임 개발에 관심이 있어요' },
-                        { emoji: '🏃', topic: '운동', description: '러닝과 헬스장을 자주 가요' }
-                    ],
-                    conversation_preview: [
-                        { sender: 'ai', text: userProfile.user_gender === 'male' ? '안녕하세요! 오늘 하루는 어땠나요? 😊' : '안녕하세요! 오늘 날씨가 정말 좋네요 😊' }
-                    ]
-                },
-                {
-                    id: 'immediate-persona-2',
-                    name: userProfile.user_gender === 'male' ? '이서연' : '최민수',
-                    age: userProfile.user_gender === 'male' ? 26 : 28,
-                    gender: userProfile.user_gender === 'male' ? 'female' : 'male',
-                    job: userProfile.user_gender === 'male' ? '마케터' : '기획자',
-                    avatar: getRandomAvatar(userProfile.user_gender === 'male' ? 'female' : 'male'),
-                    intro: userProfile.user_gender === 'male' ? '안녕하세요! 마케팅을 좋아하는 서연이에요 😊' : '안녕하세요! 기획자 민수입니다 👨‍💼',
-                    tags: userProfile.user_gender === 'male' ? ['마케팅', '소통', '활발함'] : ['기획', '전략', '분석'],
-                    match_rate: 82,
-                    systemInstruction: userProfile.user_gender === 'male' ? '당신은 26세 마케터 이서연입니다. 소통과 마케팅에 관심이 많아요.' : '당신은 28세 기획자 최민수입니다. 전략적 사고와 분석을 좋아해요.',
-                    personality_traits: userProfile.user_gender === 'male' ? ['활발함', '소통', '창의적'] : ['논리적', '체계적', '친절함'],
-                    interests: userProfile.user_gender === 'male' ? [
-                        { emoji: '📊', topic: '마케팅', description: '디지털 마케팅에 관심이 있어요' },
-                        { emoji: '📱', topic: 'SNS', description: '소셜미디어를 자주 사용해요' },
-                        { emoji: '🎬', topic: '영화', description: '영화 감상을 좋아해요' }
-                    ] : [
-                        { emoji: '📈', topic: '분석', description: '데이터 분석을 좋아해요' },
-                        { emoji: '📚', topic: '독서', description: '경영 서적을 자주 읽어요' },
-                        { emoji: '☕', topic: '커피', description: '카페에서 작업하는 걸 좋아해요' }
-                    ],
-                    conversation_preview: [
-                        { sender: 'ai', text: userProfile.user_gender === 'male' ? '안녕하세요! 오늘 날씨가 정말 좋네요 ☀️' : '안녕하세요! 오늘 하루는 어땠나요? 😊' }
-                    ]
-                }
-            ];
-            setDynamicPersonas(prev => {
-                if (prev.length === 0) {
-                    console.log('⚡ 대화탭 즉시 fallback 페르소나 표시 완료');
-                    return immediateFallbackPersonas;
-                }
-                return prev;
-            });
-            // 백그라운드에서 동적 페르소나 생성 (중복 방지)
-            if (dynamicPersonas.length === 0) {
-                generateNewPersonas();
-            }
-        }
-    }, [userProfile]);
+    // 🚀 수동 생성 방식으로 변경 - 자동 생성 로직 완전 제거
     // 🚀 동적 페르소나 우선 사용, 없으면 API 데이터 사용
     const personas = dynamicPersonas.length > 0 ? dynamicPersonas : apiPersonas;
     const { data: favoriteIds = [] } = useFavorites(currentUserId || '');
