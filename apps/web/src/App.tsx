@@ -189,7 +189,12 @@ const AppContent: React.FC = () => {
     }
     
     if (tutorialPersona) {
-      setSessionData({ partner: tutorialPersona, isTutorial: true });
+      // persona와 partner 모두 설정하여 모든 화면에서 사용 가능하도록
+      setSessionData({ 
+        persona: tutorialPersona, 
+        partner: tutorialPersona, 
+        isTutorial: true 
+      });
       if (process.env.NODE_ENV === 'development') {
         console.log('✅ 온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
       }
@@ -227,7 +232,12 @@ const AppContent: React.FC = () => {
         return <HomeScreen 
           onNavigate={navigateTo} 
           onSelectPersona={(persona) => {
-            setSessionData({ persona });
+            // persona와 partner 모두 설정하여 일관성 유지
+            setSessionData({ 
+              persona: persona,
+              partner: persona,
+              isTutorial: false 
+            });
             navigateTo(Screen.PersonaDetail);
           }}
         />;
@@ -245,7 +255,12 @@ const AppContent: React.FC = () => {
                   return;
                 }
               }
-              setSessionData({ persona });
+              // persona와 partner 모두 설정하여 일관성 유지
+              setSessionData({ 
+                persona: persona,
+                partner: persona,
+                isTutorial: false 
+              });
               navigateTo(Screen.PersonaDetail);
             }}
           />
@@ -332,12 +347,17 @@ const AppContent: React.FC = () => {
       case Screen.PersonaDetail:
         return (
           <PersonaDetailScreen
-            persona={sessionData?.persona}
-            onBack={() => navigateTo('CHAT_TAB')}
+            persona={sessionData?.persona || sessionData?.partner}
+            onBack={() => navigateTo(sessionData?.isTutorial ? 'HOME' : 'CHAT_TAB')}
             onStartChat={(persona) => {
               // 튜토리얼 모드인 경우 isTutorial 유지
               const isTutorialMode = sessionData?.isTutorial || false;
-              setSessionData({ partner: persona, isTutorial: isTutorialMode });
+              // persona와 partner 모두 설정하여 일관성 유지
+              setSessionData({ 
+                persona: persona,
+                partner: persona, 
+                isTutorial: isTutorialMode 
+              });
               navigateTo(Screen.ConversationPrep);
             }}
           />
@@ -349,7 +369,12 @@ const AppContent: React.FC = () => {
             onCreate={(persona) => {
               // 생성된 페르소나를 sessionData에 저장하고 상세 화면으로 이동
               console.log('✅ 사용자 정의 페르소나 생성 완료:', persona);
-              setSessionData({ persona });
+              // persona와 partner 모두 설정하여 일관성 유지
+              setSessionData({ 
+                persona: persona,
+                partner: persona,
+                isTutorial: false 
+              });
               navigateTo(Screen.PersonaDetail);
             }}
             onCancel={() => navigateTo('CHAT_TAB')}
@@ -387,7 +412,12 @@ const AppContent: React.FC = () => {
             onBack={() => navigateTo('HOME')}
             onComplete={() => {
               // 튜토리얼 페르소나를 설정하고 튜토리얼 모드로 표시
-              setSessionData({ partner: tutorialPartner, isTutorial: true });
+              // persona와 partner 모두 설정하여 PersonaDetail에서도 사용 가능하도록
+              setSessionData({ 
+                persona: tutorialPartner, 
+                partner: tutorialPartner, 
+                isTutorial: true 
+              });
               navigateTo(Screen.PersonaDetail);
             }}
           />
@@ -524,7 +554,12 @@ const AppContent: React.FC = () => {
             personas={favoritePersonas}
             onBack={() => navigateTo('MY_TAB')}
             onSelectPersona={(persona) => {
-              setSessionData({ persona });
+              // persona와 partner 모두 설정하여 일관성 유지
+              setSessionData({ 
+                persona: persona,
+                partner: persona,
+                isTutorial: false 
+              });
               navigateTo(Screen.PersonaDetail);
             }}
           />
