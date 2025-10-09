@@ -593,8 +593,7 @@ ${modeGuidelines}
         max_tokens: 200, // 간결하면서도 의미 있는 답변
         frequency_penalty: 0.3, // 자연스러운 반복 허용
         presence_penalty: 0.1, // 자연스러운 표현 유지
-        top_p: 0.95, // 최대 다양성 허용
-        top_k: 50 // 창의적 선택권 확대
+        top_p: 0.95 // 최대 다양성 허용
       });
 
       let aiResponse = response.choices[0]?.message?.content || '응답을 생성할 수 없습니다.';
@@ -651,7 +650,6 @@ ${modeGuidelines}
         frequency_penalty: 0.3, // 자연스러운 반복 허용
         presence_penalty: 0.1, // 자연스러운 표현 유지
         top_p: 0.95, // 최대 다양성 허용
-        top_k: 50, // 창의적 선택권 확대
         stream: true
       });
 
