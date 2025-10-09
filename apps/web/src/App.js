@@ -347,11 +347,7 @@ const AppContent = () => {
                 return (_jsx(PersonaRecommendationIntro, { onContinue: () => navigateTo('PERSONA_SELECTION') }));
             case 'COACHING_TAB':
                 return (_jsx(CoachingTabScreen, { onNavigate: navigateTo, onStartCoachChat: (coach) => {
-                        // 게스트는 코칭 기능 사용 불가
-                        if (isGuest) {
-                            requireAuth();
-                            return;
-                        }
+                        // 🚀 테스트 중이므로 게스트도 코칭 기능 사용 가능
                         // 코치와의 채팅 시작 (프렉 화면 건너뛰고 바로 채팅으로)
                         setSessionData({ partner: coach, isTutorial: false, isCoaching: true });
                         navigateTo(Screen.Chat);

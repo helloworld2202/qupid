@@ -233,12 +233,11 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                 initialMessages.push({ sender: 'system', text: `🎯 ${currentStep.title}` });
                 // 🚀 튜토리얼 시작 시 AI가 첫 메시지를 보내도록 함 (중복 방지)
                 setTimeout(() => {
-                    const firstMessage = partner.conversation_preview?.[0]?.text ||
-                        generateNaturalFirstMessage(partner, userProfile);
+                    const firstMessage = generateNaturalFirstMessage(partner, userProfile);
                     setMessages(prev => {
-                        // 이미 같은 첫 메시지가 있는지 확인
-                        const hasFirstMessage = prev.some(msg => msg.sender === 'ai' && msg.text === firstMessage);
-                        if (hasFirstMessage)
+                        // 이미 AI 메시지가 있는지 확인
+                        const hasAIMessage = prev.some(msg => msg.sender === 'ai');
+                        if (hasAIMessage)
                             return prev;
                         return [...prev, { sender: 'ai', text: firstMessage }];
                     });
@@ -247,12 +246,11 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
             else {
                 // 일반 모드에서도 AI 첫 메시지 추가 (중복 방지)
                 setTimeout(() => {
-                    const firstMessage = partner.conversation_preview?.[0]?.text ||
-                        generateNaturalFirstMessage(partner, userProfile);
+                    const firstMessage = generateNaturalFirstMessage(partner, userProfile);
                     setMessages(prev => {
-                        // 이미 같은 첫 메시지가 있는지 확인
-                        const hasFirstMessage = prev.some(msg => msg.sender === 'ai' && msg.text === firstMessage);
-                        if (hasFirstMessage)
+                        // 이미 AI 메시지가 있는지 확인
+                        const hasAIMessage = prev.some(msg => msg.sender === 'ai');
+                        if (hasAIMessage)
                             return prev;
                         return [...prev, { sender: 'ai', text: firstMessage }];
                     });

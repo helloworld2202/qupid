@@ -165,8 +165,69 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
     ]
   };
   
-  // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 빈 배열 (동적 생성 대기)
-  const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas.slice(0, 3) : [];
+  // 🚀 동적 페르소나가 있으면 우선 사용, 없으면 즉시 fallback 페르소나 표시
+  const recommendedPersonas = dynamicPersonas.length > 0 ? dynamicPersonas.slice(0, 3) : [
+    {
+      id: 'fallback-persona-1',
+      name: '김민지',
+      age: 24,
+      gender: 'female',
+      job: '디자이너',
+      avatar: getRandomAvatar('female'),
+      intro: '안녕하세요! 디자인을 좋아하는 민지예요 😊',
+      tags: ['디자인', '예술', '창의적'],
+      match_rate: 85,
+      systemInstruction: '당신은 24세 디자이너 김민지입니다. 창의적이고 예술적인 대화를 좋아해요.',
+      personality_traits: ['창의적', '감성적', '친근함'],
+      interests: [
+        { emoji: '🎨', topic: '디자인', description: '그래픽 디자인을 좋아해요' },
+        { emoji: '📸', topic: '사진', description: '일상 사진 찍는 걸 좋아해요' }
+      ],
+      conversation_preview: [
+        { sender: 'ai', text: '안녕하세요! 오늘 하루는 어땠나요? 😊' }
+      ]
+    },
+    {
+      id: 'fallback-persona-2',
+      name: '박준호',
+      age: 26,
+      gender: 'male',
+      job: '개발자',
+      avatar: getRandomAvatar('male'),
+      intro: '안녕하세요! 개발자 준호입니다 👨‍💻',
+      tags: ['개발', '기술', '논리적'],
+      match_rate: 82,
+      systemInstruction: '당신은 26세 개발자 박준호입니다. 기술과 논리적인 대화를 선호해요.',
+      personality_traits: ['논리적', '차분함', '친절함'],
+      interests: [
+        { emoji: '💻', topic: '프로그래밍', description: '새로운 기술을 배우는 걸 좋아해요' },
+        { emoji: '🎮', topic: '게임', description: '스팀 게임을 즐겨해요' }
+      ],
+      conversation_preview: [
+        { sender: 'ai', text: '안녕하세요! 어떤 일로 바쁘셨나요? 👋' }
+      ]
+    },
+    {
+      id: 'fallback-persona-3',
+      name: '이서영',
+      age: 23,
+      gender: 'female',
+      job: '학생',
+      avatar: getRandomAvatar('female'),
+      intro: '안녕하세요! 대학생 서영이에요 📚',
+      tags: ['학습', '독서', '활발함'],
+      match_rate: 88,
+      systemInstruction: '당신은 23세 대학생 이서영입니다. 활발하고 호기심이 많아요.',
+      personality_traits: ['활발함', '호기심', '친근함'],
+      interests: [
+        { emoji: '📚', topic: '독서', description: '소설과 에세이를 좋아해요' },
+        { emoji: '🎵', topic: '음악', description: 'K-pop을 즐겨 들어요' }
+      ],
+      conversation_preview: [
+        { sender: 'ai', text: '안녕하세요! 오늘 뭐 재밌는 일 있었어요? 😊' }
+      ]
+    }
+  ];
   
   // 🚀 프로덕션용 로그 정리 - 개발 환경에서만 로그 출력
   if (process.env.NODE_ENV === 'development') {
