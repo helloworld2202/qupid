@@ -35,6 +35,12 @@ router.post(
   controller.streamMessage
 );
 
+// 🚀 새로운 스트리밍 엔드포인트 (POST body로 데이터 전송)
+router.post(
+  '/stream',
+  controller.streamMessageNew
+);
+
 // Get session information
 router.get(
   '/sessions/:sessionId',

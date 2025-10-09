@@ -381,3 +381,49 @@ export const analyzeConversationStyle = async (
     next(error);
   }
 };
+
+/**
+ * 🚀 POST /api/v1/chat/stream
+ * 새로운 스트리밍 메시지 엔드포인트
+ */
+export const streamMessageNew = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sessionId, message, isCoaching = false } = req.body;
+
+    if (!sessionId || !message) {
+      throw AppError.badRequest('SessionId and message are required');
+    }
+
+    // SSE 헤더 설정
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Cache-Control'
+    });
+
+    // 스트리밍 시작
+    await chatService.streamMessage(
+      sessionId,
+      message,
+      (chunk: string) => {
+        // SSE 형식으로 데이터 전송
+        res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+      }
+    );
+
+    // 스트리밍 완료
+    res.write('data: [DONE]\n\n');
+    res.end();
+
+  } catch (error) {
+    console.error('Streaming error:', error);
+    res.write(`data: ${JSON.stringify({ error: 'Streaming failed' })}\n\n`);
+    res.end();
+  }
+};

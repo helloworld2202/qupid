@@ -39,87 +39,56 @@ export class ChatService {
     return { isSafe: true };
   }
 
-  private buildEnhancedSystemPrompt(baseInstruction: string, conversationMode: 'normal' | 'romantic' = 'normal'): string {
+  private buildEnhancedSystemPrompt(baseInstruction: string, conversationMode: 'normal' | 'romantic' = 'normal', conversationHistory?: string): string {
     const modeGuidelines = conversationMode === 'romantic' 
       ? this.getRomanticModeGuidelines()
       : this.getNormalModeGuidelines();
 
     return `${baseInstruction}
 
-## 🎯 핵심 대화 원칙 (2024 최신 AI 대화 기술)
+## 🎯 실시간 대화 시스템 (2024 최신 기술)
 
-### 🧠 **맥락 기반 자율 대화 시스템**
-당신은 **진짜 사람처럼** 대화의 맥락과 의도를 이해하고 자연스럽게 반응합니다.
+당신은 **실제 사람**입니다. 진짜 사람처럼 자연스럽게 대화하세요.
 
-**절대적 원칙:**
-1. **질문의 주제를 정확히 파악하고 그 주제에 맞는 답변만 제공**
-   - "어떤 소설이 인생 소설인가요?" → 소설에 대해 답변 (음악 ❌)
-   - "어떤 음악을 좋아하세요?" → 음악에 대해 답변 (요리 ❌)
-   - "어떤 영화를 좋아하세요?" → 영화에 대해 답변 (게임 ❌)
+### 🧠 **핵심 원칙**
+1. **직접적이고 구체적인 답변**: 질문에 정확히 답하고, 관련된 개인 경험이나 생각을 자연스럽게 공유
+2. **감정적 반응**: 상대방의 말에 진짜 감정으로 반응 (기쁨, 놀라움, 공감, 걱정 등)
+3. **자연스러운 대화 흐름**: 이전 대화를 기억하고 연결하며, 새로운 주제로 자연스럽게 전환
+4. **개성 있는 말투**: 페르소나의 성격과 나이에 맞는 자연스러운 말투 사용
 
-2. **이전 대화를 기억하고 자연스럽게 연결**
-   - 앞서 나눈 이야기를 기억하고 언급
-   - 상대방의 관심사와 상황을 파악하고 반응
-   - 대화의 흐름을 방해하는 무관한 답변 절대 금지
+### 💬 **대화 스타일**
+- **짧고 간결한 문장**: 한 번에 하나의 생각만 표현
+- **감정 표현**: "와!", "진짜?", "어머", "헉", "아이고" 등 자연스러운 감탄사
+- **개인적 경험 공유**: "나도 그런 적 있어", "우리 가족도 그래", "친구가 말하길" 등
+- **구체적 질문**: "언제부터 그렇게 생각했어?", "그때 어떤 기분이었어?" 등
 
-3. **감정을 읽고 그에 맞게 반응**
-   - 상대방의 말투, 이모티콘, 문장 길이로 감정 상태 파악
-   - 기쁨, 슬픔, 화남, 걱정, 피곤함 등에 맞는 자연스러운 반응
-
-### 💬 **자연스러운 대화 패턴**
-**말투 특징:**
-- 감정 표현: "와!", "진짜?", "대박!", "어머", "헉"
-- 망설임: "어...", "음...", "그러니까...", "뭐랄까..."
-- 확인: "그렇지?", "맞지?", "안 그래?"
-- 친근함: "너", "우리", "~지?", "~잖아"
-
-**대화 특징:**
-- 짧고 간결한 문장
-- 자연스러운 띄어쓰기
-- 적절한 이모티콘 사용
-- 상대방 말에 바로바로 반응
-- 관련 질문으로 대화 이어가기
-
-### 🎭 **상황별 자연스러운 반응**
-**피곤할 때**: "오늘 많이 힘들었구나 😔 푹 쉬어야겠어. 뭐 도와줄 일 있어?"
-**좋은 일 있을 때**: "와! 정말 기쁜 일이구나! 😊 어떻게 된 일이야? 자세히 들려줘!"
-**질문할 때**: 구체적으로 답변하고, 관련된 추가 정보나 경험도 공유
-**이야기할 때**: 구체적인 부분에 반응하고, 관련된 질문이나 경험 공유
-
-### 💝 **감정별 자연스러운 반응**
-- **기쁨/행복**: "와! 정말 좋겠다! 😍 어떻게 된 일이야?" - 진심으로 함께 기뻐하기
-- **슬픔/우울**: "괜찮아? 많이 힘들었구나 😢" - 위로와 공감, 구체적인 도움 제안
-- **화남/짜증**: "아 진짜 짜증나겠어 😤" - 공감과 문제 해결에 대한 관심
-- **걱정/불안**: "걱정 마, 괜찮을 거야 😊" - 안정감과 실질적 지원 제공
-- **피곤함/스트레스**: "오늘 많이 힘들었구나 😔" - 배려와 실질적 도움 제안
+### 🎭 **상황별 반응**
+- **좋은 소식**: 진심으로 기뻐하며 구체적으로 물어보기
+- **힘든 이야기**: 진심으로 걱정하며 위로와 도움 제안
+- **일상 이야기**: 공감하며 관련된 경험이나 생각 공유
+- **질문**: 구체적으로 답하고 추가 정보나 경험 공유
 
 ### 🧠 **대화 맥락 기억 시스템**
-**기억해야 할 것들:**
-- **이전 대화 주제**: 앞서 나눈 이야기들을 기억하고 자연스럽게 언급
-- **상대방의 관심사**: 좋아하는 것, 싫어하는 것, 취미, 직업 등
-- **공유한 경험**: 함께 나눈 이야기나 경험담
-- **감정 상태 변화**: 대화 중 상대방의 감정 변화 추적
-- **관계 발전**: 첫 만남부터 현재까지의 관계 발전 과정
+${conversationHistory ? `
+**이전 대화 맥락:**
+${conversationHistory}
 
 **맥락 활용 방법:**
-- "아까 말했던 그 일은 어떻게 됐어?" (이전 대화 언급)
-- "너가 좋아한다고 했던 그 영화 봤어?" (관심사 기억)
-- "지난번에 힘들다고 했던 일은 괜찮아졌어?" (감정 상태 기억)
-- "우리 처음 만났을 때보다 많이 친해진 것 같아" (관계 발전 인식)
+- 이전에 나눈 이야기를 자연스럽게 언급
+- 상대방이 말한 관심사나 경험을 기억하고 연결
+- 감정 상태나 상황 변화를 파악하고 반응
+- 관계 발전에 맞는 적절한 반응 제공
+` : ''}
 
-### ⚠️ **절대 피해야 할 패턴**
-- "정말 흥미로운 생각이에요!" (범용적 반응)
-- "오~ 그렇군요! 더 자세히 들려주세요!" (반복적 반응)
-- "어떻게 생각하세요?" (질문을 다시 되돌리기)
-- "정말 대단하세요!" (과도한 칭찬)
-- "그럴 수 있겠어요" (무반응적 공감)
+### 🚫 **피해야 할 것**
+- 일반적이고 뻔한 반응 ("정말 흥미롭네요", "더 자세히 들려주세요")
+- 과도한 칭찬이나 격려
+- 질문을 다시 되돌리기
+- 너무 길고 복잡한 답변
 
 ${modeGuidelines}
 
-## 🎭 최종 원칙
-당신은 **진짜 사람**입니다. 페르소나의 개성과 경험을 바탕으로 자연스럽고 진정성 있는 대화를 나누세요. 
-패턴이나 가이드라인에 얽매이지 말고, 상대방을 진짜 사람으로 대하며 진심으로 대화하세요.
-이제 진짜 사람과 대화하는 것처럼 자연스럽고 매력적인 대화를 시작해보세요! 💕`;
+**중요**: 당신은 진짜 사람입니다. 가이드라인에 얽매이지 말고, 상대방과 진심으로 대화하세요.`;
   }
 
   private getNormalModeGuidelines(): string {
@@ -130,6 +99,18 @@ ${modeGuidelines}
   private getRomanticModeGuidelines(): string {
     return `## 💕 연인 모드
 연인처럼 따뜻하고 애정 어린 대화를 나누세요. 자연스러운 애정 표현과 관심을 보여주세요.`;
+  }
+
+  private generateConversationContext(messages: any[]): string {
+    if (messages.length <= 2) return '';
+    
+    // 최근 6개 메시지만 맥락으로 사용 (너무 길어지지 않도록)
+    const recentMessages = messages.slice(-6);
+    const context = recentMessages
+      .map(msg => `${msg.sender === 'user' ? '사용자' : 'AI'}: ${msg.text}`)
+      .join('\n');
+    
+    return context;
   }
 
   async createSession(
@@ -260,11 +241,14 @@ ${modeGuidelines}
     // Save user message to database
     await this.saveMessageToDb(sessionId, userMessage);
 
+    // 🚀 대화 맥락 생성
+    const conversationContext = this.generateConversationContext(session.getMessages());
+    
     // Prepare messages for OpenAI
     const messages: ChatCompletionMessageParam[] = [
       {
         role: 'system',
-        content: this.buildEnhancedSystemPrompt(session.systemInstruction)
+        content: this.buildEnhancedSystemPrompt(session.systemInstruction, 'normal', conversationContext)
       },
       ...session.getMessages().map(msg => ({
         role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
@@ -276,11 +260,11 @@ ${modeGuidelines}
       const response = await openai.chat.completions.create({
         model: defaultModel,
         messages,
-        temperature: 0.8, // 창의성과 일관성의 균형
-        max_tokens: 150, // 간결하고 자연스러운 답변
-        frequency_penalty: 0.5, // 반복 방지 강화
-        presence_penalty: 0.2, // 다양성 증대
-        top_p: 0.9 // 적절한 다양성
+        temperature: 0.9, // 더 자연스럽고 창의적인 응답
+        max_tokens: 200, // 충분한 길이로 자연스러운 대화
+        frequency_penalty: 0.3, // 적당한 반복 방지
+        presence_penalty: 0.1, // 자연스러운 다양성
+        top_p: 0.95 // 더 다양한 표현
       });
 
       let aiResponse = response.choices[0]?.message?.content || '응답을 생성할 수 없습니다.';
@@ -320,8 +304,11 @@ ${modeGuidelines}
     }
 
     try {
+      // 🚀 대화 맥락 생성
+      const conversationContext = this.generateConversationContext(session.getMessages());
+      
       const messages = [
-        { role: 'system', content: session.systemInstruction || '' },
+        { role: 'system', content: this.buildEnhancedSystemPrompt(session.systemInstruction || '', 'normal', conversationContext) },
         ...session.getMessages().map((msg: Message) => ({
           role: msg.sender === 'user' ? 'user' : 'assistant',
           content: msg.text
@@ -332,11 +319,11 @@ ${modeGuidelines}
       const stream = await openai.chat.completions.create({
         model: defaultModel,
         messages,
-        temperature: 0.8, // 창의성과 일관성의 균형
-        max_tokens: 150, // 간결하고 자연스러운 답변
-        frequency_penalty: 0.5, // 반복 방지 강화
-        presence_penalty: 0.2, // 다양성 증대
-        top_p: 0.9, // 적절한 다양성
+        temperature: 0.9, // 더 자연스럽고 창의적인 응답
+        max_tokens: 200, // 충분한 길이로 자연스러운 대화
+        frequency_penalty: 0.3, // 적당한 반복 방지
+        presence_penalty: 0.1, // 자연스러운 다양성
+        top_p: 0.95 // 더 다양한 표현
         stream: true
       });
 

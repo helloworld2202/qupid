@@ -5,6 +5,7 @@ import { TUTORIAL_STEPS } from '@qupid/core';
 import { useChatSession, useSendMessage, useAnalyzeConversation, useRealtimeFeedback, useCoachSuggestion } from '../hooks/useChatQueries';
 import { useCreateCoachingSession, useSendCoachingMessage, useAnalyzeCoachingSession } from '../../coaching/hooks/useCoachingQueries';
 import { useStyleAnalysis } from '../hooks/useStyleAnalysis';
+import { useStreamingChat } from '../../../shared/hooks/useStreamingChat';
 import { StyleRecommendationModal } from './StyleRecommendationModal';
 
 interface ChatScreenProps {
@@ -177,6 +178,18 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
   const [realtimeFeedback, setRealtimeFeedback] = useState<RealtimeFeedback | null>(null);
   const [isTutorialMode, setIsTutorialMode] = useState(isTutorial);
   
+  // 🚀 스트리밍 대화 기능
+  const { isStreaming, streamingMessage, startStreaming, stopStreaming } = useStreamingChat({
+    onMessageComplete: (message) => {
+      setMessages(prev => [...prev, message]);
+      setIsLoading(false);
+    },
+    onError: (error) => {
+      console.error('Streaming error:', error);
+      setIsLoading(false);
+    }
+  });
+  
   // isTutorial prop이 변경되면 isTutorialMode 상태도 업데이트
   useEffect(() => {
     setIsTutorialMode(isTutorial);
@@ -320,6 +333,45 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
       return "상세한 이야기를 잘 해주고 있네요! 이제 상대방의 반응을 확인하고 '어떻게 생각하세요?' 또는 '비슷한 경험이 있으신가요?' 같은 질문을 해보세요 💬";
     } else {
       return "대화를 더 깊이 있게 만들어보세요! '그 경험에서 무엇을 배웠나요?' 또는 '그 일이 당신에게 어떤 의미가 있나요?' 같은 성찰적이고 의미 있는 질문을 해보세요 🎯";
+    }
+  }, []);
+
+  // 🚀 맥락 기반 자연스러운 Mock 응답 생성 함수
+  const generateContextualMockResponse = useCallback((userMessage: string, isCoaching: boolean): string => {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    if (isCoaching) {
+      // 코칭 모드: 구체적이고 실용적인 조언
+      if (lowerMessage.includes('어떻게') || lowerMessage.includes('방법')) {
+        return "좋은 질문이에요! 예를 들어 '그때 어떤 기분이었어요?'처럼 구체적으로 물어보면 대화가 더 깊어져요 💡";
+      } else if (lowerMessage.includes('힘들') || lowerMessage.includes('어려워')) {
+        return "괜찮아요! 처음엔 다 그래요. 작은 것부터 시작해서 점점 늘려가면 돼요 😊";
+      } else if (lowerMessage.includes('좋아') || lowerMessage.includes('잘됐')) {
+        return "와! 정말 잘하고 있네요! 그런 식으로 계속 연습하면 더 좋아질 거예요 ✨";
+      } else {
+        return "좋은 시작이에요! 이제 상대방의 반응을 보고 자연스럽게 대화를 이어가보세요 🎯";
+      }
+    } else {
+      // 일반 대화 모드: 자연스러운 응답
+      if (lowerMessage.includes('안녕') || lowerMessage.includes('하이')) {
+        return "안녕! 오늘 기분이 어때? 😊";
+      } else if (lowerMessage.includes('영화') || lowerMessage.includes('영상')) {
+        return "영화 좋아해? 나는 로맨스 영화를 자주 봐! 최근에 본 영화 중에 뭐가 제일 좋았어?";
+      } else if (lowerMessage.includes('음악') || lowerMessage.includes('노래')) {
+        return "음악 듣는 거 좋아해? 나는 K-pop을 자주 들어! 어떤 장르 좋아해?";
+      } else if (lowerMessage.includes('일') || lowerMessage.includes('직장') || lowerMessage.includes('회사')) {
+        return "일하는 거 어때? 힘들지 않아? 나도 일할 때 스트레스 받을 때가 많아 😅";
+      } else if (lowerMessage.includes('취미') || lowerMessage.includes('관심')) {
+        return "취미가 뭐야? 나는 요리하는 걸 좋아해! 너는 뭘 하면서 시간 보내?";
+      } else if (lowerMessage.includes('피곤') || lowerMessage.includes('힘들')) {
+        return "아, 많이 힘들었구나 😔 푹 쉬어야겠어. 뭐 도와줄 일 있어?";
+      } else if (lowerMessage.includes('좋아') || lowerMessage.includes('기쁘') || lowerMessage.includes('행복')) {
+        return "와! 정말 좋겠다! 😍 어떻게 된 일이야? 자세히 들려줘!";
+      } else if (lowerMessage.includes('?')) {
+        return "음... 좋은 질문이네! 나도 그런 생각 해본 적 있어. 너는 어떻게 생각해?";
+      } else {
+        return "그렇구나! 나도 비슷한 경험이 있어. 그때는 정말... 😊";
+      }
     }
   }, []);
 
@@ -635,62 +687,22 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     // 🚀 중복된 튜토리얼 진행 로직 제거 (progressTutorialStep에서 처리)
 
     try {
-      // Mock 응답 생성 (API 실패 시 대체)
-      let aiResponse: string;
+      // 🚀 스트리밍 대화 시작
+      await startStreaming(sessionIdRef.current, messageText, isCoaching);
       
-      try {
-        if (isCoaching && 'specialty' in partner) {
-          // 코칭 메시지 전송
-          aiResponse = await sendCoachingMessageMutation.mutateAsync({
-            sessionId: sessionIdRef.current,
-            message: messageText
-          });
-        } else {
-          // 일반 페르소나 메시지 전송
-          aiResponse = await sendMessageMutation.mutateAsync({
-            sessionId: sessionIdRef.current,
-            message: messageText
-          });
-        }
-      } catch (error) {
-        console.error('API call failed, using mock response:', error);
-        // 🚀 실제 사람 같은 Mock 응답 생성 (대화 기술 향상)
-        const mockResponses = isCoaching ? [
-          "좋은 시작이에요! 이제 상대방의 관심사를 더 깊이 파악해보세요. '그 일에 대해 더 자세히 들려주세요' 같은 후속 질문을 해보세요 💡",
-          "훌륭해요! 공감 표현이 자연스러워졌네요. 이제 상대방의 감정을 읽고 '그때 많이 힘들었겠어요' 같은 감정 공감도 시도해보세요 😊",
-          "잘하고 계세요! 이제 자신의 경험을 공유할 때 '저도 비슷한 경험이 있어요. 그때는...'처럼 구체적인 이야기를 해보세요 💪",
-          "완벽해요! 대화가 점점 깊어지고 있네요. 이제 '그 경험에서 무엇을 배웠나요?' 같은 성찰적인 질문도 해보세요 🎯",
-          "대단해요! 이제 대화를 마무리할 때 '오늘 정말 좋은 시간이었어요. 다음에 또 이런 이야기 해요' 같은 긍정적인 마무리도 연습해보세요 ✨",
-          "좋은 질문이에요! 이제 상대방의 답변에 '정말 흥미롭네요! 어떻게 그런 생각을 하게 되었나요?'처럼 호기심을 보이는 질문을 해보세요 🤔",
-          "훌륭한 공감이에요! 이제 '저도 그런 적이 있어요. 그때는 정말...'처럼 자신의 경험을 자연스럽게 연결해보세요 💭",
-          "잘하고 계세요! 이제 '그 일이 당신에게 어떤 의미가 있나요?'처럼 상대방의 가치관을 파악하는 질문도 시도해보세요 🌟"
-        ] : [
-          // 🎯 실제 사람처럼 자연스러운 응답 (질문에 맞는 구체적 답변)
-          "저는 로맨스 영화를 좋아해요! 특히 해리포터 시리즈가 기억에 남네요 😊",
-          "네! RPG 게임을 좋아해요. 최근에 젤다의 전설을 하고 있는데 정말 재미있어요",
-          "저는 독서와 영화 감상을 좋아해요. 판타지 소설을 자주 읽어요 📚",
-          "저는 요리하는 걸 좋아해요! 파스타 만드는 게 제일 재미있어요 🍝",
-          "저는 음악 듣는 걸 좋아해요. K-pop과 팝송을 자주 들어요 🎵"
-        ];
-        aiResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+      // 튜토리얼 완료 체크 (스트리밍 완료 후)
+      if (isTutorialMode && messages.length >= 4) {
+        setTimeout(() => {
+          handleComplete();
+        }, 1000);
       }
       
-      const aiMessage: Message = { sender: 'ai', text: aiResponse };
-      const updatedMessages = [...messages, userMessage, aiMessage];
-      setMessages(updatedMessages);
-      
-      // 🚀 실시간 대화 분석 제거 (사용자 요청에 따라)
-      // const analysis = analyzeConversationRealTime(updatedMessages);
-      // if (analysis) {
-      //   setConversationAnalysis(analysis);
-      //   // 3초 후 분석 결과 표시
-      //   setTimeout(() => {
-      //     setShowAnalysisModal(true);
-      //   }, 3000);
-      // }
     } catch (error) {
       console.error('Failed to send message:', error);
-    } finally {
+      // 스트리밍 실패 시 fallback
+      const fallbackResponse = generateContextualMockResponse(messageText, isCoaching);
+      const aiMessage: Message = { sender: 'ai', text: fallbackResponse };
+      setMessages(prev => [...prev, aiMessage]);
       setIsLoading(false);
     }
   }, [isLoading, isAnalyzing, messages, isTutorialMode, tutorialStep, sendMessageMutation, feedbackMutation, partner]);
@@ -822,7 +834,17 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                 )}
             </div>
         ))}
-        {isLoading && (
+        {/* 🚀 스트리밍 메시지 표시 */}
+        {isStreaming && streamingMessage && (
+          <div className="flex items-end gap-2 justify-start">
+            <img src={partner.avatar} alt="ai" className="w-8 h-8 rounded-full self-start" />
+            <div className="max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-t-[18px] rounded-r-[18px] rounded-bl-[6px] bg-[#F9FAFB] text-[#191F28]">
+              <p className="whitespace-pre-wrap leading-relaxed">{streamingMessage}</p>
+              <span className="inline-block w-2 h-4 bg-[#F093B0] ml-1 animate-pulse"></span>
+            </div>
+          </div>
+        )}
+        {isLoading && !isStreaming && (
           <div className="flex items-end gap-2 justify-start">
             <img src={partner.avatar} alt="ai" className="w-8 h-8 rounded-full self-start" />
             <div className="max-w-xs px-4 py-3 rounded-2xl rounded-bl-none bg-[#F9FAFB]"><TypingIndicator /></div>
