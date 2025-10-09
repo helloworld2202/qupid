@@ -2,7 +2,6 @@ import { openai } from '../../../shared/infra/openai.js';
 import { supabaseAdmin } from '../../../shared/infra/supabase.js';
 import { Message } from '@qupid/core';
 import { CoachService } from './CoachService.js';
-import { tavilySearch } from '../../../shared/infra/tavilySearch.js';
 
 // 코칭 분석 결과 타입
 interface CoachingAnalysis {
@@ -75,12 +74,7 @@ export class CoachingSessionService {
 
     const { coach } = session;
 
-    // 🔍 실시간 전문 자료 검색
-    console.log(`🔍 Searching for coaching resources: "${userMessage}" in ${coach.specialty}`);
-    const researchResults = await tavilySearch.searchForCoaching(userMessage, coach.specialty);
-    console.log(`✅ Research results retrieved`);
-
-    // 🚀 AI 롤플레이 기반 코칭 시스템 + 실시간 연구 자료
+    // 🚀 AI 롤플레이 기반 코칭 시스템 (ChatGPT API 내장 지식 활용)
     const systemPrompt = `# 코치 정보
 
 **이름**: ${coach.name}
@@ -92,14 +86,27 @@ export class CoachingSessionService {
 
 당신은 위의 ${coach.name} 코치입니다. 이 정보를 바탕으로 자연스럽게 코칭하세요.
 
-## 📚 최신 연구 자료
-${researchResults}
+## 📚 전문 지식 활용
+당신은 다음 분야의 최신 연구와 이론을 잘 알고 있습니다:
 
-## 코칭 원칙
-- 위의 최신 연구 자료를 참고하여 과학적 근거 기반 조언 제공
-- 상대방의 말을 정확히 분석하고 전문적 조언 제공
+**심리학 & 커뮤니케이션 연구:**
+- Amy Cuddy: 첫인상과 신뢰 형성 (Presence, Power Posing)
+- Brené Brown: 취약성과 진정한 연결 (Vulnerability, Authenticity)
+- John Gottman: 관계와 갈등 해결 (The Four Horsemen, Repair Attempts)
+- Carol Dweck: 성장 마인드셋 (Growth Mindset)
+- Martin Seligman: 긍정 심리학 (PERMA Model)
+- Marshall Rosenberg: 비폭력 대화 (Nonviolent Communication)
+- Daniel Goleman: 감정 지능 (Emotional Intelligence)
+- Arthur Aron: 친밀감 형성 (36 Questions)
+
+**코칭 원칙:**
+- 위의 연구와 이론을 구체적으로 언급하며 과학적 근거 제시
+- 사용자의 상황에 맞는 연구 기반 조언 제공
 - 구체적이고 실행 가능한 전략 제시
 - 긍정적이고 격려하는 톤 유지
+
+**중요**: 연구자 이름과 핵심 개념을 언급하여 전문성을 보여주세요.
+예: "Amy Cuddy의 연구에 따르면, 첫인상의 80%는 신뢰와 능력으로 결정됩니다..."
 
 당신은 ${coach.name} 코치로서 최신 연구를 바탕으로 전문적으로 코칭하세요.`;
 
@@ -115,7 +122,7 @@ ${researchResults}
           { role: 'user', content: userMessage }
         ],
         temperature: 0.8,
-        max_tokens: 300 // 연구 자료 포함으로 더 긴 응답 허용
+        max_tokens: 350 // 연구 인용 포함으로 더 긴 응답 허용
       });
 
       const aiResponse = completion.choices[0].message.content || '죄송합니다. 잠시 후 다시 시도해주세요.';
@@ -148,11 +155,6 @@ ${researchResults}
 
     const { coach } = session;
 
-    // 🔍 실시간 전문 자료 검색
-    console.log(`🔍 Searching for coaching resources: "${userMessage}" in ${coach.specialty}`);
-    const researchResults = await tavilySearch.searchForCoaching(userMessage, coach.specialty);
-    console.log(`✅ Research results retrieved`);
-
     const systemPrompt = `# 코치 정보
 
 **이름**: ${coach.name}
@@ -164,14 +166,27 @@ ${researchResults}
 
 당신은 위의 ${coach.name} 코치입니다. 이 정보를 바탕으로 자연스럽게 코칭하세요.
 
-## 📚 최신 연구 자료
-${researchResults}
+## 📚 전문 지식 활용
+당신은 다음 분야의 최신 연구와 이론을 잘 알고 있습니다:
 
-## 코칭 원칙
-- 위의 최신 연구 자료를 참고하여 과학적 근거 기반 조언 제공
-- 상대방의 말을 정확히 분석하고 전문적 조언 제공
+**심리학 & 커뮤니케이션 연구:**
+- Amy Cuddy: 첫인상과 신뢰 형성 (Presence, Power Posing)
+- Brené Brown: 취약성과 진정한 연결 (Vulnerability, Authenticity)
+- John Gottman: 관계와 갈등 해결 (The Four Horsemen, Repair Attempts)
+- Carol Dweck: 성장 마인드셋 (Growth Mindset)
+- Martin Seligman: 긍정 심리학 (PERMA Model)
+- Marshall Rosenberg: 비폭력 대화 (Nonviolent Communication)
+- Daniel Goleman: 감정 지능 (Emotional Intelligence)
+- Arthur Aron: 친밀감 형성 (36 Questions)
+
+**코칭 원칙:**
+- 위의 연구와 이론을 구체적으로 언급하며 과학적 근거 제시
+- 사용자의 상황에 맞는 연구 기반 조언 제공
 - 구체적이고 실행 가능한 전략 제시
 - 긍정적이고 격려하는 톤 유지
+
+**중요**: 연구자 이름과 핵심 개념을 언급하여 전문성을 보여주세요.
+예: "Amy Cuddy의 연구에 따르면, 첫인상의 80%는 신뢰와 능력으로 결정됩니다..."
 
 당신은 ${coach.name} 코치로서 최신 연구를 바탕으로 전문적으로 코칭하세요.`;
 
@@ -187,7 +202,7 @@ ${researchResults}
           { role: 'user', content: userMessage }
         ],
         temperature: 0.8,
-        max_tokens: 300, // 연구 자료 포함으로 더 긴 응답 허용
+        max_tokens: 350, // 연구 인용 포함으로 더 긴 응답 허용
         stream: true
       });
 
