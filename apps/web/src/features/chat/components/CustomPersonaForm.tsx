@@ -3,6 +3,7 @@ import { ArrowLeftIcon, SparklesIcon } from '@qupid/ui';
 import { useGeneratePersona } from '../../../shared/hooks/usePersonaGeneration';
 import { useAppStore } from '../../../shared/stores/useAppStore';
 import { useUserProfile } from '../../../shared/hooks/api/useUser';
+import { getRandomAvatar } from '../../../shared/utils/avatarGenerator';
 
 interface CustomPersonaFormProps {
   onCreate?: (persona: any) => void;
@@ -41,14 +42,13 @@ const CustomPersonaForm: React.FC<CustomPersonaFormProps> = ({ onCreate, onBack,
         
         // 실패 시 기본 페르소나 생성
         const partnerGender = userProfile?.user_gender === 'male' ? 'female' : 'male';
+        const personaName = partnerGender === 'female' ? '이서영' : '최민수';
         const fallbackPersona = {
           id: `custom-persona-${Date.now()}`,
-          name: partnerGender === 'female' ? '이서영' : '최민수',
+          name: personaName,
           age: 26,
           gender: partnerGender,
-          avatar: partnerGender === 'female' 
-            ? 'https://avatar.iran.liara.run/public/girl?username=SeoYoungLee'
-            : 'https://avatar.iran.liara.run/public/boy?username=MinSooChoi',
+          avatar: getRandomAvatar(partnerGender),
           job: '프리랜서',
           mbti: 'ENFJ',
           intro: description.length > 100 ? `${description.substring(0, 100)}...` : description,

@@ -6,6 +6,7 @@ import { UserProfile } from '@qupid/core';
 import { useCreateUserProfile } from '../../../shared/hooks/api/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
 import { useGeneratePersona } from '../../../shared/hooks/usePersonaGeneration';
+import { getConsistentAvatar } from '../../../shared/utils/avatarGenerator';
 // import SocialLoginScreen from './SocialLoginScreen'; // 소셜 로그인 기능 임시 비활성화
 
 const TOTAL_ONBOARDING_STEPS = 4;
@@ -324,12 +325,13 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile, tu
       // 🚀 완전 실패 시에도 동적 생성된 페르소나로 진행 (하드코딩 제거)
       console.log('🆘 완전 실패, 동적 생성된 기본 페르소나로 진행');
       const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
+      const personaName = partnerGender === 'female' ? '김서현' : '박지훈';
       const fallbackPersona = {
         id: 'tutorial-persona-fallback',
-        name: partnerGender === 'female' ? '김서현' : '박지훈',
+        name: personaName,
         age: 25,
         gender: partnerGender,
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+        avatar: getConsistentAvatar(personaName, partnerGender),
         personality: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
         occupation: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
         mbti: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
@@ -381,14 +383,13 @@ export const OnboardingFlow: React.FC<{ onComplete: (profile: NewUserProfile, tu
       const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
       const interests = profile.interests.map((i: string) => i.split(' ')[1] || i);
       
-      const fallbackPersona = {
-        id: 'tutorial-persona-fallback',
-        name: partnerGender === 'female' ? '김서현' : '박지훈',
-        age: 25,
-        gender: partnerGender,
-        avatar: partnerGender === 'female' 
-          ? 'https://avatar.iran.liara.run/public/girl?username=SeoHyunKim'
-          : 'https://avatar.iran.liara.run/public/boy?username=JiHoonPark',
+        const personaName = partnerGender === 'female' ? '김서현' : '박지훈';
+        const fallbackPersona = {
+          id: 'tutorial-persona-fallback',
+          name: personaName,
+          age: 25,
+          gender: partnerGender,
+          avatar: getConsistentAvatar(personaName, partnerGender),
         personality: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
         occupation: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
         job: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',

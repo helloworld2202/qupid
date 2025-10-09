@@ -204,32 +204,102 @@ Start conversations naturally and authentically as ${persona.name}!`;
   }
 
   /**
-   * 첫 메시지 생성
+   * 첫 메시지 생성 (자연스럽고 다양한 패턴)
    */
   private generateFirstMessage(persona: any, userProfile: UserProfile): string {
     const userName = userProfile.name || '사용자님';
     const userAge = userProfile.age;
     const userJob = userProfile.job;
     
-    // MBTI별 첫 메시지 스타일
-    const mbtiStyles: Record<string, string> = {
-      'ENFP': `안녕하세요 ${userName}! 저는 ${persona.name}이에요 😊 ${persona.age}세 ${persona.job}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
-      'ISFJ': `안녕하세요 ${userName}. ${persona.name}입니다. ${persona.age}세 ${persona.job}로 일하고 있어요. 편하게 대화해요.`,
-      'INTJ': `안녕하세요 ${userName}. ${persona.name}입니다. ${persona.age}세 ${persona.job}로 일하고 있어요. 효율적으로 대화해봅시다.`,
-      'ESFP': `안녕하세요 ${userName}! ${persona.name}이에요! 😆 ${persona.age}세 ${persona.job}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
-      'INFP': `안녕하세요 ${userName}... 저는 ${persona.name}이에요 😊 ${persona.age}세 ${persona.job}인데, 조금 부끄럽지만... 편하게 대화해요.`
+    // 시간대별 인사
+    const currentHour = new Date().getHours();
+    let timeGreeting = '';
+    if (currentHour < 12) {
+      timeGreeting = '좋은 아침이에요';
+    } else if (currentHour < 18) {
+      timeGreeting = '좋은 오후에요';
+    } else {
+      timeGreeting = '좋은 저녁이에요';
+    }
+    
+    // 다양한 첫 메시지 패턴 (MBTI와 성격에 따라)
+    const messagePatterns: Record<string, string[]> = {
+      'ENFP': [
+        `${timeGreeting}! 저는 ${persona.name}이에요 😊 ${persona.age}세 ${persona.job}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
+        `안녕하세요! ${persona.name}이에요! 오늘 날씨가 정말 좋네요 ☀️ ${persona.job}로 일하고 있는데, 새로운 사람을 만나는 게 항상 즐거워요!`,
+        `반가워요! 저는 ${persona.name}이에요 😊 ${persona.age}세 ${persona.job}인데, 오늘 어떤 하루 보내고 계세요?`
+      ],
+      'ISFJ': [
+        `안녕하세요 ${userName}. ${persona.name}입니다. ${persona.age}세 ${persona.job}로 일하고 있어요. 편하게 대화해요.`,
+        `${timeGreeting}. 저는 ${persona.name}이에요. ${persona.job}로 일하고 있는데, 새로운 분과 대화할 수 있어서 좋네요.`,
+        `안녕하세요. ${persona.name}입니다. ${persona.age}세 ${persona.job}인데, 조용히 대화해봐요.`
+      ],
+      'INTJ': [
+        `안녕하세요 ${userName}. ${persona.name}입니다. ${persona.age}세 ${persona.job}로 일하고 있어요. 의미 있는 대화를 해봅시다.`,
+        `${timeGreeting}. 저는 ${persona.name}이에요. ${persona.job}로 일하는데, 깊이 있는 대화를 좋아해요.`,
+        `안녕하세요. ${persona.name}입니다. 효율적이고 의미 있는 대화를 해봅시다.`
+      ],
+      'ESFP': [
+        `${timeGreeting}! ${persona.name}이에요! 😆 ${persona.age}세 ${persona.job}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
+        `안녕하세요! ${persona.name}이에요! 🎉 ${persona.job}로 일하고 있는데, 새로운 사람 만나는 게 너무 신나요!`,
+        `반가워요! 저는 ${persona.name}이에요! 오늘 뭐 재밌는 일 있었어요? 😊`
+      ],
+      'INFP': [
+        `안녕하세요 ${userName}... 저는 ${persona.name}이에요 😊 ${persona.age}세 ${persona.job}인데, 조금 부끄럽지만... 편하게 대화해요.`,
+        `${timeGreeting}... 저는 ${persona.name}이에요. ${persona.job}로 일하고 있는데, 조용한 대화를 좋아해요.`,
+        `안녕하세요. ${persona.name}이에요... ${persona.age}세 ${persona.job}인데, 따뜻한 대화를 해봐요.`
+      ]
     };
 
-    return mbtiStyles[persona.mbti] || `안녕하세요 ${userName}! 저는 ${persona.name}이에요 😊 ${persona.age}세 ${persona.job}인데, 편하게 대화해요!`;
+    const patterns = messagePatterns[persona.mbti] || [
+      `안녕하세요 ${userName}! 저는 ${persona.name}이에요 😊 ${persona.age}세 ${persona.job}인데, 편하게 대화해요!`,
+      `${timeGreeting}! ${persona.name}이에요. ${persona.job}로 일하고 있는데, 새로운 분과 대화할 수 있어서 기뻐요.`,
+      `반가워요! 저는 ${persona.name}이에요. ${persona.age}세 ${persona.job}인데, 어떤 이야기든 편하게 해봐요!`
+    ];
+
+    // 이름 기반으로 패턴 선택 (일관성 유지)
+    let seed = 0;
+    for (let i = 0; i < persona.name.length; i++) {
+      seed += persona.name.charCodeAt(i);
+    }
+    
+    return patterns[seed % patterns.length];
   }
 
   /**
-   * 아바타 URL 생성
+   * 아바타 URL 생성 (다양한 고품질 아바타 제공)
    */
   private generateAvatar(name: string, gender: 'male' | 'female'): string {
-    const baseUrl = 'https://avatar.iran.liara.run/public';
-    const genderParam = gender === 'female' ? 'girl' : 'boy';
-    return `${baseUrl}/${genderParam}?username=${encodeURIComponent(name)}`;
+    // 이름 기반 시드 생성
+    let seed = 0;
+    for (let i = 0; i < name.length; i++) {
+      seed += name.charCodeAt(i);
+    }
+    
+    // 다양한 고품질 아바타 서비스 활용
+    const avatarServices = [
+      // 1. DiceBear (다양한 스타일, 고품질)
+      `https://api.dicebear.com/7.x/${gender === 'male' ? 'male' : 'female'}/svg?seed=${seed}&backgroundColor=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear`,
+      
+      // 2. Avataaars (일러스트레이션 스타일)
+      `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9&backgroundType=gradientLinear`,
+      
+      // 3. Personas (현실적 스타일)
+      `https://api.dicebear.com/7.x/personas/svg?seed=${seed}&backgroundColor=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9&backgroundType=gradientLinear`,
+      
+      // 4. Boring Avatars (모던한 스타일)
+      `https://source.boringavatars.com/marble/200/${seed}?colors=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9`,
+      
+      // 5. Multi Avatar (다양한 옵션)
+      `https://api.multiavatar.com/${seed}.png?apikey=multiavatar`,
+      
+      // 6. Fun-emoji (재미있는 스타일)
+      `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${seed}&backgroundColor=ff9bb3,ffb3ba,ffdfba,ffffba,baffc9&backgroundType=gradientLinear`
+    ];
+    
+    // 시드 기반으로 서비스 선택
+    const selectedService = avatarServices[seed % avatarServices.length];
+    return selectedService;
   }
 
   /**
