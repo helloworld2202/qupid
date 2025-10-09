@@ -160,7 +160,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
 
   // 🚀 초기 동적 페르소나 생성 (즉시 fallback 표시)
   useEffect(() => {
-    if (userProfile && !isGeneratingPersonas) {
+    if (userProfile && !isGeneratingPersonas && dynamicPersonas.length === 0) {
       // 즉시 fallback 페르소나 표시 (조건 완화)
       const immediateFallbackPersonas = [
         {
@@ -203,7 +203,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
         generateNewPersonas();
       }
     }
-  }, [userProfile]);
+  }, [userProfile, isGeneratingPersonas, dynamicPersonas.length]);
 
   // 🚀 동적 페르소나 우선 사용, 없으면 API 데이터 사용
   const allPersonas = dynamicPersonas.length > 0 ? dynamicPersonas : apiPersonas;

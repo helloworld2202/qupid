@@ -1,32 +1,28 @@
 // 페르소나 아바타 이미지 생성기
 // 40개의 고품질 아바타 이미지를 랜덤으로 제공
 
-interface AvatarConfig {
-  gender: 'male' | 'female';
-  style: 'realistic' | 'illustration' | 'anime';
-  seed: number;
-}
+// 🚀 간단하고 확실한 아바타 생성 함수
+export const getRandomAvatar = (gender: 'male' | 'female'): string => {
+  if (gender === 'female') {
+    return PREDEFINED_AVATARS.female[Math.floor(Math.random() * PREDEFINED_AVATARS.female.length)];
+  } else {
+    return PREDEFINED_AVATARS.male[Math.floor(Math.random() * PREDEFINED_AVATARS.male.length)];
+  }
+};
 
-// 고품질 아바타 이미지 생성 함수
+export const getConsistentAvatar = (name: string, gender: 'male' | 'female'): string => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const avatars = gender === 'female' ? PREDEFINED_AVATARS.female : PREDEFINED_AVATARS.male;
+  const index = Math.abs(hash) % avatars.length;
+  return avatars[index];
+};
+
+// 고품질 아바타 이미지 생성 함수 (기존 호환성 유지)
 export const generateAvatarUrl = (gender: 'male' | 'female', seed?: number): string => {
-  // 시드가 없으면 랜덤 생성
-  const avatarSeed = seed || Math.floor(Math.random() * 1000000);
-  
-  // 다양한 스타일의 고품질 아바타 제공
-  const styles = [
-    'realistic',
-    'illustration', 
-    'anime'
-  ];
-  
-  const randomStyle = styles[Math.floor(Math.random() * styles.length)];
-  
-  // 기본 설정
-  const config: AvatarConfig = {
-    gender,
-    style: randomStyle as any,
-    seed: avatarSeed
-  };
+  return getRandomAvatar(gender);
   
   // 여러 고품질 아바타 서비스 활용
   const avatarServices = [
