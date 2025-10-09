@@ -114,8 +114,8 @@ const HomeScreen = ({ onNavigate, onSelectPersona }) => {
             generateNewPersonas();
         }
     }, [userProfile]);
-    // 🚀 하드코딩 제거 - API 데이터만 사용
-    const allPersonas = apiPersonas; // API 데이터만 사용, 하드코딩 제거
+    // 🚀 동적 페르소나 우선 사용, 없으면 API 데이터 사용
+    const allPersonas = dynamicPersonas.length > 0 ? dynamicPersonas : apiPersonas;
     const allBadges = apiBadges.length > 0 ? apiBadges : MOCK_BADGES;
     // 🚀 실제 성과 데이터 사용 (API에서 가져온 데이터 또는 기본값)
     const performanceData = apiPerformanceData || {

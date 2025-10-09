@@ -1,23 +1,63 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Screen } from '@qupid/core';
 import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
 import { usePersonas } from '../../../shared/hooks/usePersonas';
 import { useFavorites } from '../../../shared/hooks/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
+import { useGenerateDynamicPersonas } from '../hooks/useChatQueries';
+import { useUserProfile } from '../../../shared/hooks/api/useUser';
 const PersonaCard = ({ persona, onSelect }) => {
     return (_jsxs("div", { className: "w-full p-4 flex bg-white rounded-2xl border border-[#F2F4F6] transition-all hover:shadow-lg hover:border-[#F093B0] hover:-translate-y-0.5 cursor-pointer", onClick: onSelect, children: [_jsx("img", { src: persona.avatar, alt: persona.name, className: "w-20 h-20 rounded-xl object-cover" }), _jsxs("div", { className: "ml-4 flex-1 flex flex-col", children: [_jsxs("div", { className: "flex justify-between items-start", children: [_jsxs("div", { children: [_jsxs("p", { className: "font-bold text-lg text-[#191F28]", children: [persona.name, ", ", persona.age] }), _jsxs("p", { className: "text-sm text-[#8B95A1] mt-0.5", children: [persona.job, " \u00B7 ", persona.mbti] })] }), _jsxs("p", { className: "font-bold text-sm text-[#0AC5A8]", children: [persona.match_rate, "% \uB9DE\uC74C"] })] }), _jsx("div", { className: "mt-2 flex flex-wrap gap-1.5", children: persona.tags.map(tag => (_jsxs("span", { className: "px-2 py-0.5 bg-[#EBF2FF] text-[#4F7ABA] text-xs font-medium rounded-md", children: ["#", tag] }, tag))) })] })] }));
 };
 const ChatTabScreen = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => {
     const [searchQuery] = useState('');
+    const [dynamicPersonas, setDynamicPersonas] = useState([]);
+    const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
     const { currentUserId } = useAppStore();
     // API 호출
     const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
-    // 🚀 하드코딩 제거 - API 데이터만 사용
-    const personas = apiPersonas;
+    const { data: userProfile } = useUserProfile(currentUserId || '');
+    const generateDynamicPersonasMutation = useGenerateDynamicPersonas();
+    // 🚀 동적 페르소나 생성
+    const generateNewPersonas = async () => {
+        if (!userProfile || isGeneratingPersonas)
+            return;
+        setIsGeneratingPersonas(true);
+        try {
+            const newPersonas = await generateDynamicPersonasMutation.mutateAsync({
+                userProfile: {
+                    name: userProfile.name,
+                    age: 25,
+                    gender: userProfile.user_gender,
+                    job: '학생',
+                    interests: userProfile.interests || [],
+                    experience: userProfile.experience,
+                    mbti: 'ENFP',
+                    personality: ['친근함', '긍정적']
+                },
+                count: 6
+            });
+            setDynamicPersonas(newPersonas);
+        }
+        catch (error) {
+            console.error('❌ 동적 페르소나 생성 실패:', error);
+        }
+        finally {
+            setIsGeneratingPersonas(false);
+        }
+    };
+    // 🚀 초기 동적 페르소나 생성
+    React.useEffect(() => {
+        if (userProfile && dynamicPersonas.length === 0 && !isGeneratingPersonas) {
+            generateNewPersonas();
+        }
+    }, [userProfile]);
+    // 🚀 동적 페르소나 우선 사용, 없으면 API 데이터 사용
+    const personas = dynamicPersonas.length > 0 ? dynamicPersonas : apiPersonas;
     const { data: favoriteIds = [] } = useFavorites(currentUserId || '');
     // 임시 하드코딩 사용자 프로필 (추후 API 구현)
-    const userProfile = {
+    const tempUserProfile = {
         user_gender: 'male',
         partner_gender: 'female',
         experience: 'beginner',
@@ -30,7 +70,7 @@ const ChatTabScreen = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => 
     }, [personas]);
     // 이성 페르소나만 필터링
     const filteredPersonas = useMemo(() => {
-        const oppositeGender = userProfile.partner_gender || (userProfile.user_gender === 'male' ? 'female' : 'male');
+        const oppositeGender = tempUserProfile.partner_gender || (tempUserProfile.user_gender === 'male' ? 'female' : 'male');
         return personas.filter(p => p.gender === oppositeGender);
     }, [personas]);
     // 검색 필터링
@@ -40,7 +80,7 @@ const ChatTabScreen = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => 
         const query = searchQuery.toLowerCase();
         return filteredPersonas.filter(p => p.name.toLowerCase().includes(query) ||
             p.job?.toLowerCase().includes(query) ||
-            p.tags.some(tag => tag.toLowerCase().includes(query)));
+            p.tags.some((tag) => tag.toLowerCase().includes(query)));
     }, [filteredPersonas, searchQuery]);
     const onSelectPersona = (persona) => {
         if (onSelectPersonaProp) {
@@ -51,14 +91,14 @@ const ChatTabScreen = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => 
         }
     };
     const getConsiderations = () => {
-        if (!userProfile)
+        if (!tempUserProfile)
             return [];
         const considerations = [];
-        if (userProfile.experience === '없음' || userProfile.experience === '1-2회') {
+        if (tempUserProfile.experience === '없음' || tempUserProfile.experience === '1-2회') {
             considerations.push('연애 초보자를 위한 친근한 성격');
         }
-        if (userProfile.interests && userProfile.interests.length > 0) {
-            considerations.push(`${userProfile.interests[0].replace(/🎮|🎬|💪|✈️|🍕|📚|🎵|🎨|📱|🐕|☕|📷|🏖️|🎪|💼\s/g, '')} 등 공통 관심사 보유`);
+        if (tempUserProfile.interests && tempUserProfile.interests.length > 0) {
+            considerations.push(`${tempUserProfile.interests[0].replace(/🎮|🎬|💪|✈️|🍕|📚|🎵|🎨|📱|🐕|☕|📷|🏖️|🎪|💼\s/g, '')} 등 공통 관심사 보유`);
         }
         return considerations;
     };

@@ -137,9 +137,21 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
             if (isTutorial) {
                 const currentStep = TUTORIAL_STEPS[0];
                 initialMessages.push({ sender: 'system', text: `🎯 튜토리얼 시작! ${currentStep.title}` }, { sender: 'system', text: currentStep.description }, { sender: 'system', text: 'COACH_HINT_INTRO' });
+                // 🚀 튜토리얼 시작 시 AI가 첫 메시지를 보내도록 함
+                setTimeout(() => {
+                    const firstMessage = partner.conversation_preview?.[0]?.text ||
+                        (partner.gender === 'female' ? '안녕하세요! 반가워요 😊' : '안녕하세요! 처음 뵙네요 👋');
+                    setMessages(prev => [...prev, { sender: 'ai', text: firstMessage }]);
+                }, 1000);
             }
-            // AI가 페르소나 특성에 맞게 자연스럽게 첫 메시지를 생성하도록 함
-            // 하드코딩된 첫 메시지 대신 AI가 자율적으로 대화를 시작하도록 함
+            else {
+                // 일반 모드에서도 AI 첫 메시지 추가
+                setTimeout(() => {
+                    const firstMessage = partner.conversation_preview?.[0]?.text ||
+                        (partner.gender === 'female' ? '안녕하세요! 반가워요 😊' : '안녕하세요! 처음 뵙네요 👋');
+                    setMessages(prev => [...prev, { sender: 'ai', text: firstMessage }]);
+                }, 500);
+            }
         }
         setMessages(initialMessages);
     }, [isTutorial, userProfile]); // userProfile 의존성 추가

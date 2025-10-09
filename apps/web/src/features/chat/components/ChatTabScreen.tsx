@@ -5,6 +5,8 @@ import { SearchIcon, SettingsIcon, PlusCircleIcon } from '@qupid/ui';
 import { usePersonas } from '../../../shared/hooks/usePersonas';
 import { useFavorites } from '../../../shared/hooks/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
+import { useGenerateDynamicPersonas } from '../hooks/useChatQueries';
+import { useUserProfile } from '../../../shared/hooks/api/useUser';
 // 🚀 하드코딩된 페르소나 제거 - 동적 생성 시스템 사용
 
 interface ChatTabScreenProps {
@@ -42,16 +44,56 @@ const PersonaCard: React.FC<{ persona: Persona; onSelect: () => void; }> = ({ pe
 
 const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPersona: onSelectPersonaProp }) => {
   const [searchQuery] = useState('');
+  const [dynamicPersonas, setDynamicPersonas] = useState<any[]>([]);
+  const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
   const { currentUserId } = useAppStore();
   
   // API 호출
   const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
-  // 🚀 하드코딩 제거 - API 데이터만 사용
-  const personas = apiPersonas;
+  const { data: userProfile } = useUserProfile(currentUserId || '');
+  const generateDynamicPersonasMutation = useGenerateDynamicPersonas();
+  
+  // 🚀 동적 페르소나 생성
+  const generateNewPersonas = async () => {
+    if (!userProfile || isGeneratingPersonas) return;
+    
+    setIsGeneratingPersonas(true);
+    try {
+      const newPersonas = await generateDynamicPersonasMutation.mutateAsync({
+        userProfile: {
+          name: userProfile.name,
+          age: 25,
+          gender: userProfile.user_gender,
+          job: '학생',
+          interests: userProfile.interests || [],
+          experience: userProfile.experience,
+          mbti: 'ENFP',
+          personality: ['친근함', '긍정적']
+        },
+        count: 6
+      });
+      
+      setDynamicPersonas(newPersonas);
+    } catch (error) {
+      console.error('❌ 동적 페르소나 생성 실패:', error);
+    } finally {
+      setIsGeneratingPersonas(false);
+    }
+  };
+  
+  // 🚀 초기 동적 페르소나 생성
+  React.useEffect(() => {
+    if (userProfile && dynamicPersonas.length === 0 && !isGeneratingPersonas) {
+      generateNewPersonas();
+    }
+  }, [userProfile]);
+  
+  // 🚀 동적 페르소나 우선 사용, 없으면 API 데이터 사용
+  const personas = dynamicPersonas.length > 0 ? dynamicPersonas : apiPersonas;
   const { data: favoriteIds = [] } = useFavorites(currentUserId || '');
   
   // 임시 하드코딩 사용자 프로필 (추후 API 구현)
-  const userProfile = {
+  const tempUserProfile = {
     user_gender: 'male' as const,
     partner_gender: 'female' as const,
     experience: 'beginner',
@@ -66,7 +108,7 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
   
   // 이성 페르소나만 필터링
   const filteredPersonas = useMemo(() => {
-    const oppositeGender = userProfile.partner_gender || (userProfile.user_gender === 'male' ? 'female' : 'male');
+    const oppositeGender = tempUserProfile.partner_gender || (tempUserProfile.user_gender === 'male' ? 'female' : 'male');
     return personas.filter(p => p.gender === oppositeGender);
   }, [personas]);
   
@@ -77,7 +119,7 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
     return filteredPersonas.filter(p => 
       p.name.toLowerCase().includes(query) ||
       p.job?.toLowerCase().includes(query) ||
-      p.tags.some(tag => tag.toLowerCase().includes(query))
+      p.tags.some((tag: string) => tag.toLowerCase().includes(query))
     );
   }, [filteredPersonas, searchQuery]);
   const onSelectPersona = (persona: Persona) => {
@@ -89,13 +131,13 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
   };
 
   const getConsiderations = () => {
-    if (!userProfile) return [];
+    if (!tempUserProfile) return [];
     const considerations = [];
-    if (userProfile.experience === '없음' || userProfile.experience === '1-2회') {
+    if (tempUserProfile.experience === '없음' || tempUserProfile.experience === '1-2회') {
       considerations.push('연애 초보자를 위한 친근한 성격');
     }
-    if (userProfile.interests && userProfile.interests.length > 0) {
-      considerations.push(`${userProfile.interests[0].replace(/🎮|🎬|💪|✈️|🍕|📚|🎵|🎨|📱|🐕|☕|📷|🏖️|🎪|💼\s/g, '')} 등 공통 관심사 보유`);
+    if (tempUserProfile.interests && tempUserProfile.interests.length > 0) {
+      considerations.push(`${tempUserProfile.interests[0].replace(/🎮|🎬|💪|✈️|🍕|📚|🎵|🎨|📱|🐕|☕|📷|🏖️|🎪|💼\s/g, '')} 등 공통 관심사 보유`);
     }
     return considerations;
   }
