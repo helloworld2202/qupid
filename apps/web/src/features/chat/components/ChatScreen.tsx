@@ -61,6 +61,73 @@ const CoachHint: React.FC<{
     );
 };
 
+// 자연스러운 첫 메시지 생성 함수
+const generateNaturalFirstMessage = (partner: Persona | AICoach, userProfile?: any): string => {
+  const userName = userProfile?.name || '사용자님';
+  const userAge = userProfile?.age;
+  const userJob = userProfile?.job;
+  
+  // 시간대별 인사
+  const currentHour = new Date().getHours();
+  let timeGreeting = '';
+  if (currentHour < 12) {
+    timeGreeting = '좋은 아침이에요';
+  } else if (currentHour < 18) {
+    timeGreeting = '좋은 오후에요';
+  } else {
+    timeGreeting = '좋은 저녁이에요';
+  }
+  
+  // 페르소나의 MBTI와 성격에 따른 다양한 첫 메시지
+  const mbti = partner.mbti || 'ENFP';
+  const personaName = partner.name;
+  const personaAge = partner.age;
+  const personaJob = partner.job;
+  
+  // MBTI별 다양한 첫 메시지 패턴
+  const messagePatterns: Record<string, string[]> = {
+    'ENFP': [
+      `${timeGreeting}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
+      `안녕하세요! ${personaName}이에요! 오늘 날씨가 정말 좋네요 ☀️ ${personaJob}로 일하고 있는데, 새로운 사람을 만나는 게 항상 즐거워요!`,
+      `반가워요! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 어떤 하루 보내고 계세요?`
+    ],
+    'ISFJ': [
+      `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 편하게 대화해요.`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 새로운 분과 대화할 수 있어서 좋네요.`,
+      `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}인데, 조용히 대화해봐요.`
+    ],
+    'INTJ': [
+      `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 의미 있는 대화를 해봅시다.`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 깊이 있는 대화를 좋아해요.`,
+      `안녕하세요. ${personaName}입니다. 효율적이고 의미 있는 대화를 해봅시다.`
+    ],
+    'ESFP': [
+      `${timeGreeting}! ${personaName}이에요! 😆 ${personaAge}세 ${personaJob}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
+      `안녕하세요! ${personaName}이에요! 🎉 ${personaJob}로 일하고 있는데, 새로운 사람 만나는 게 너무 신나요!`,
+      `반가워요! 저는 ${personaName}이에요! 오늘 뭐 재밌는 일 있었어요? 😊`
+    ],
+    'INFP': [
+      `안녕하세요 ${userName}... 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 조금 부끄럽지만... 편하게 대화해요.`,
+      `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 조용한 대화를 좋아해요.`,
+      `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 해봐요.`
+    ]
+  };
+
+  const patterns = messagePatterns[mbti] || [
+    `안녕하세요 ${userName}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 편하게 대화해요!`,
+    `${timeGreeting}! ${personaName}이에요. ${personaJob}로 일하고 있는데, 새로운 분과 대화할 수 있어서 기뻐요.`,
+    `반가워요! 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 어떤 이야기든 편하게 해봐요!`
+  ];
+
+  // 페르소나 이름 기반으로 패턴 선택 (일관성 유지)
+  let seed = 0;
+  for (let i = 0; i < personaName.length; i++) {
+    seed += personaName.charCodeAt(i);
+  }
+  
+  return patterns[seed % patterns.length];
+};
+
 export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = false, isCoaching = false, conversationMode = 'normal', userProfile, onComplete }) => {
   // partner가 없으면 에러 처리
   if (!partner) {
@@ -216,14 +283,14 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
             // 🚀 튜토리얼 시작 시 AI가 첫 메시지를 보내도록 함
             setTimeout(() => {
                 const firstMessage = partner.conversation_preview?.[0]?.text || 
-                    (partner.gender === 'female' ? '안녕하세요! 반가워요 😊' : '안녕하세요! 처음 뵙네요 👋');
+                    generateNaturalFirstMessage(partner, userProfile);
                 setMessages(prev => [...prev, { sender: 'ai', text: firstMessage }]);
             }, 1000);
         } else {
             // 일반 모드에서도 AI 첫 메시지 추가
             setTimeout(() => {
                 const firstMessage = partner.conversation_preview?.[0]?.text || 
-                    (partner.gender === 'female' ? '안녕하세요! 반가워요 😊' : '안녕하세요! 처음 뵙네요 👋');
+                    generateNaturalFirstMessage(partner, userProfile);
                 setMessages(prev => [...prev, { sender: 'ai', text: firstMessage }]);
             }, 500);
         }

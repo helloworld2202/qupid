@@ -158,9 +158,42 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
     }
   };
 
-  // 🚀 초기 동적 페르소나 생성
+  // 🚀 초기 동적 페르소나 생성 (즉시 fallback 표시)
   useEffect(() => {
     if (userProfile && dynamicPersonas.length === 0 && !isGeneratingPersonas) {
+      // 즉시 fallback 페르소나 표시
+      const immediateFallbackPersonas = [
+        {
+          id: 'immediate-persona-1',
+          name: userProfile.user_gender === 'male' ? '김민지' : '박준호',
+          age: userProfile.user_gender === 'male' ? 24 : 26,
+          gender: userProfile.user_gender === 'male' ? 'female' : 'male',
+          job: userProfile.user_gender === 'male' ? '디자이너' : '개발자',
+          avatar: getRandomAvatar(userProfile.user_gender === 'male' ? 'female' : 'male'),
+          intro: userProfile.user_gender === 'male' ? '안녕하세요! 디자인을 좋아하는 민지예요 😊' : '안녕하세요! 개발자 준호입니다 👨‍💻',
+          tags: userProfile.user_gender === 'male' ? ['디자인', '예술', '창의적'] : ['개발', '기술', '논리적'],
+          match_rate: 85,
+          systemInstruction: userProfile.user_gender === 'male' ? '당신은 24세 디자이너 김민지입니다. 창의적이고 예술적인 대화를 좋아해요.' : '당신은 26세 개발자 박준호입니다. 기술과 논리적인 대화를 선호해요.',
+          personality_traits: userProfile.user_gender === 'male' ? ['창의적', '감성적', '친근함'] : ['논리적', '차분함', '친절함'],
+          interests: userProfile.user_gender === 'male' ? [
+            { emoji: '🎨', topic: '디자인', description: 'UI/UX 디자인에 관심이 있어요' },
+            { emoji: '📱', topic: '모바일', description: '모바일 앱 디자인을 좋아해요' },
+            { emoji: '☕', topic: '카페', description: '예쁜 카페에서 작업하는 걸 좋아해요' }
+          ] : [
+            { emoji: '💻', topic: '개발', description: '새로운 기술을 배우는 걸 좋아해요' },
+            { emoji: '🎮', topic: '게임', description: '게임 개발에 관심이 있어요' },
+            { emoji: '🏃', topic: '운동', description: '러닝과 헬스장을 자주 가요' }
+          ],
+          conversation_preview: [
+            { sender: 'ai', text: userProfile.user_gender === 'male' ? '안녕하세요! 오늘 하루는 어땠나요? 😊' : '안녕하세요! 오늘 날씨가 정말 좋네요 😊' }
+          ]
+        }
+      ];
+      
+      setDynamicPersonas(immediateFallbackPersonas);
+      console.log('⚡ 홈탭 즉시 fallback 페르소나 표시 완료');
+      
+      // 백그라운드에서 동적 페르소나 생성
       generateNewPersonas();
     }
   }, [userProfile]);
