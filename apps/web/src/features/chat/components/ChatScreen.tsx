@@ -79,10 +79,10 @@ const generateNaturalFirstMessage = (partner: Persona | AICoach, userProfile?: a
   }
   
   // 페르소나의 MBTI와 성격에 따른 다양한 첫 메시지
-  const mbti = partner.mbti || 'ENFP';
+  const mbti = 'mbti' in partner ? partner.mbti || 'ENFP' : 'ENFP';
   const personaName = partner.name;
-  const personaAge = partner.age;
-  const personaJob = partner.job;
+  const personaAge = 'age' in partner ? partner.age : 25;
+  const personaJob = 'job' in partner ? partner.job : '일반인';
   
   // MBTI별 다양한 첫 메시지 패턴
   const messagePatterns: Record<string, string[]> = {
