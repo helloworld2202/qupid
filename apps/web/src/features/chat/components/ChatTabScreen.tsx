@@ -11,7 +11,7 @@ import { getRandomAvatar } from '../../../shared/utils/avatarGenerator';
 // 🚀 하드코딩된 페르소나 제거 - 동적 생성 시스템 사용
 
 interface ChatTabScreenProps {
-  onNavigate: (screen: Screen) => void;
+  onNavigate: (screen: Screen, category?: 'dating' | 'work' | 'hobby' | 'custom') => void;
   onSelectPersona?: (persona: Persona) => void;
 }
 
@@ -313,8 +313,8 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                     <button 
                       onClick={() => {
                         console.log('💕 연애 연습용 페르소나 생성 요청');
-                        // TODO: 연애 연습용 페르소나 생성 API 호출
-                        onNavigate(Screen.CustomPersona);
+                        // 연애 연습용 카테고리로 CustomPersonaForm 호출
+                        onNavigate(Screen.CustomPersona, 'dating');
                       }}
                       disabled={isGeneratingPersonas}
                       className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
@@ -335,8 +335,8 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                     <button 
                       onClick={() => {
                         console.log('🎯 직장 대화용 페르소나 생성 요청');
-                        // TODO: 직장 대화용 페르소나 생성 API 호출
-                        onNavigate(Screen.CustomPersona);
+                        // 직장 대화용 카테고리로 CustomPersonaForm 호출
+                        onNavigate(Screen.CustomPersona, 'work');
                       }}
                       disabled={isGeneratingPersonas}
                       className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
@@ -357,8 +357,8 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                     <button 
                       onClick={() => {
                         console.log('🎨 취미 공유용 페르소나 생성 요청');
-                        // TODO: 취미 공유용 페르소나 생성 API 호출
-                        onNavigate(Screen.CustomPersona);
+                        // 취미 공유용 카테고리로 CustomPersonaForm 호출
+                        onNavigate(Screen.CustomPersona, 'hobby');
                       }}
                       disabled={isGeneratingPersonas}
                       className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
@@ -375,22 +375,19 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
            <div className="p-4 bg-white rounded-xl border border-[#F2F4F6]">
                <div className="flex justify-between items-center mb-3">
                    <h3 className="font-bold text-base">👥 전체 AI 친구들</h3>
-                   <div className="flex items-center gap-2">
-                       <span className="text-xs text-gray-500">{searchedPersonas.length}명</span>
-                       <button 
-                           onClick={() => {
-                               console.log('🔄 AI 친구 새로고침 요청');
-                               generateNewPersonas();
-                           }}
-                           disabled={isGeneratingPersonas}
-                           className="p-1 text-[#F093B0] hover:bg-[#FDF2F8] rounded-full transition-all disabled:opacity-50"
-                           title="새로운 AI 친구 생성"
-                       >
-                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                           </svg>
-                       </button>
-                   </div>
+                   <button 
+                       onClick={() => {
+                           console.log('🔄 AI 친구 새로고침 요청');
+                           generateNewPersonas();
+                       }}
+                       disabled={isGeneratingPersonas}
+                       className="p-1 text-[#F093B0] hover:bg-[#FDF2F8] rounded-full transition-all disabled:opacity-50"
+                       title="새로운 AI 친구 생성"
+                   >
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                       </svg>
+                   </button>
                </div>
                
                {isLoadingPersonas || isGeneratingPersonas ? (

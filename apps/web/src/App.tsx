@@ -26,7 +26,7 @@ import { ChatScreen } from './features/chat/components/ChatScreen';
 import { ConversationPrepScreen } from './features/chat/components/ConversationPrepScreen';
 import { ConversationAnalysisScreen } from './features/chat/components/ConversationAnalysisScreen';
 import { PersonaDetailScreen } from './features/chat/components/PersonaDetailScreen';
-import { CustomPersonaForm } from './features/chat/components/CustomPersonaForm';
+import CustomPersonaForm from './features/chat/components/CustomPersonaForm';
 import { TutorialIntroScreen } from './features/onboarding/components/TutorialIntroScreen';
 import { PersonaSelection } from './features/onboarding/components/PersonaSelection';
 import { PersonaRecommendationIntro } from './features/onboarding/components/PersonaRecommendationIntro';
@@ -71,6 +71,7 @@ const AppContent: React.FC = () => {
   // const [favoriteIds] = React.useState<string[]>(['persona-1', 'persona-3']);
   const [previousScreen, setPreviousScreen] = React.useState<NavigationScreen>('HOME');
   const [isGuest, setIsGuest] = React.useState(false);
+  const [personaCategory, setPersonaCategory] = React.useState<'dating' | 'work' | 'hobby' | 'custom'>('custom');
 
   // 네비게이션 래퍼 - 이전 화면 추적
   const navigateTo = React.useCallback((screen: NavigationScreen) => {
@@ -245,7 +246,13 @@ const AppContent: React.FC = () => {
       case 'CHAT_TAB':
         return (
           <ChatTabScreen 
-            onNavigate={navigateTo}
+            onNavigate={(screen, category) => {
+              if (screen === Screen.CustomPersona) {
+                // 카테고리별로 CustomPersonaForm 호출 시 category 설정
+                setPersonaCategory(category || 'custom');
+              }
+              navigateTo(screen);
+            }}
             onSelectPersona={(persona) => {
               // 게스트는 최대 3번의 대화만 가능
               if (isGuest) {
@@ -366,7 +373,8 @@ const AppContent: React.FC = () => {
       case Screen.CustomPersona:
         return (
           <CustomPersonaForm
-            onCreate={(persona) => {
+            category={personaCategory}
+            onCreate={(persona: any) => {
               // 생성된 페르소나를 sessionData에 저장하고 상세 화면으로 이동
               console.log('✅ 사용자 정의 페르소나 생성 완료:', persona);
               // persona와 partner 모두 설정하여 일관성 유지

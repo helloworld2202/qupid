@@ -9,62 +9,192 @@ interface CustomPersonaFormProps {
   onCreate?: (persona: any) => void;
   onBack?: () => void;
   onCancel?: () => void;
+  category?: 'dating' | 'work' | 'hobby' | 'custom';
 }
 
-const CustomPersonaForm: React.FC<CustomPersonaFormProps> = ({ onCreate, onBack, onCancel }) => {
-  const [description, setDescription] = useState('');
+// 🚀 카테고리별 페르소나 속성 정의
+const PERSONA_ATTRIBUTES = {
+  dating: {
+    title: '연애 연습용 AI',
+    description: '연애 상황에서의 대화를 연습해보세요',
+    personalities: [
+      { id: 'romantic', name: '로맨틱한', description: '달콤하고 로맨틱한 대화를 좋아해요' },
+      { id: 'cheerful', name: '밝고 긍정적인', description: '항상 밝고 긍정적인 에너지를 가져요' },
+      { id: 'mysterious', name: '신비로운', description: '약간의 신비로움과 매력을 가져요' },
+      { id: 'caring', name: '배려심 많은', description: '상대방을 세심하게 배려해요' }
+    ],
+    ages: [
+      { id: '20s', name: '20대', description: '20-29세' },
+      { id: '30s', name: '30대', description: '30-39세' },
+      { id: '40s', name: '40대', description: '40-49세' }
+    ],
+    jobs: [
+      { id: 'designer', name: '디자이너', description: '창의적인 디자인 작업을 해요' },
+      { id: 'marketer', name: '마케터', description: '브랜드와 제품을 홍보해요' },
+      { id: 'teacher', name: '교사', description: '학생들을 가르치고 있어요' },
+      { id: 'entrepreneur', name: '사업가', description: '자신만의 사업을 운영해요' }
+    ],
+    hobbies: [
+      { id: 'travel', name: '여행', description: '새로운 곳을 탐험하는 걸 좋아해요' },
+      { id: 'cooking', name: '요리', description: '맛있는 음식을 만드는 걸 즐겨요' },
+      { id: 'music', name: '음악', description: '다양한 장르의 음악을 좋아해요' },
+      { id: 'art', name: '예술', description: '그림 그리기나 전시 관람을 좋아해요' }
+    ]
+  },
+  work: {
+    title: '직장 대화용 AI',
+    description: '직장에서의 소통 스킬을 향상시켜보세요',
+    personalities: [
+      { id: 'professional', name: '전문적인', description: '업무에 대한 전문성을 보여줘요' },
+      { id: 'collaborative', name: '협력적인', description: '팀워크를 중시하고 협력을 잘해요' },
+      { id: 'leadership', name: '리더십 있는', description: '팀을 이끌고 동기부여를 잘해요' },
+      { id: 'analytical', name: '분석적인', description: '데이터와 논리로 문제를 해결해요' }
+    ],
+    ages: [
+      { id: '20s', name: '20대', description: '20-29세' },
+      { id: '30s', name: '30대', description: '30-39세' },
+      { id: '40s', name: '40대', description: '40-49세' }
+    ],
+    jobs: [
+      { id: 'manager', name: '팀장', description: '팀을 관리하고 업무를 조율해요' },
+      { id: 'developer', name: '개발자', description: '소프트웨어를 개발하고 있어요' },
+      { id: 'sales', name: '영업', description: '고객과의 관계를 관리해요' },
+      { id: 'hr', name: '인사', description: '인재 채용과 관리업무를 해요' }
+    ],
+    hobbies: [
+      { id: 'networking', name: '네트워킹', description: '업계 사람들과의 교류를 즐겨요' },
+      { id: 'reading', name: '독서', description: '비즈니스 서적을 많이 읽어요' },
+      { id: 'sports', name: '운동', description: '건강 관리를 위해 운동을 해요' },
+      { id: 'conference', name: '컨퍼런스', description: '업계 컨퍼런스 참석을 좋아해요' }
+    ]
+  },
+  hobby: {
+    title: '취미 공유용 AI',
+    description: '공통 관심사를 나누며 자연스러운 대화를 연습해보세요',
+    personalities: [
+      { id: 'enthusiastic', name: '열정적인', description: '취미에 대한 열정이 넘쳐요' },
+      { id: 'creative', name: '창의적인', description: '새로운 아이디어를 잘 생각해내요' },
+      { id: 'patient', name: '차분한', description: '천천히 깊이 있게 대화해요' },
+      { id: 'adventurous', name: '모험적인', description: '새로운 경험을 즐겨요' }
+    ],
+    ages: [
+      { id: '20s', name: '20대', description: '20-29세' },
+      { id: '30s', name: '30대', description: '30-39세' },
+      { id: '40s', name: '40대', description: '40-49세' }
+    ],
+    jobs: [
+      { id: 'artist', name: '예술가', description: '창작 활동을 하고 있어요' },
+      { id: 'photographer', name: '사진작가', description: '아름다운 순간을 담아내요' },
+      { id: 'writer', name: '작가', description: '글을 쓰고 출판해요' },
+      { id: 'musician', name: '음악가', description: '음악을 만들고 연주해요' }
+    ],
+    hobbies: [
+      { id: 'photography', name: '사진', description: '아름다운 순간을 카메라에 담아요' },
+      { id: 'gardening', name: '원예', description: '식물을 키우고 가꾸는 걸 좋아해요' },
+      { id: 'boardgames', name: '보드게임', description: '다양한 보드게임을 즐겨요' },
+      { id: 'fitness', name: '피트니스', description: '운동과 건강 관리를 해요' }
+    ]
+  },
+  custom: {
+    title: '나만의 AI 만들기',
+    description: '대화하고 싶은 이상형의 특징을 자유롭게 작성해주세요',
+    personalities: [
+      { id: 'friendly', name: '친근한', description: '누구와도 쉽게 친해져요' },
+      { id: 'intellectual', name: '지적인', description: '깊이 있는 대화를 좋아해요' },
+      { id: 'humorous', name: '유머러스한', description: '재미있는 이야기를 잘해요' },
+      { id: 'empathetic', name: '공감능력이 뛰어난', description: '상대방의 감정을 잘 이해해요' }
+    ],
+    ages: [
+      { id: '20s', name: '20대', description: '20-29세' },
+      { id: '30s', name: '30대', description: '30-39세' },
+      { id: '40s', name: '40대', description: '40-49세' }
+    ],
+    jobs: [
+      { id: 'doctor', name: '의사', description: '사람들의 건강을 돌봐요' },
+      { id: 'lawyer', name: '변호사', description: '정의를 위해 일해요' },
+      { id: 'engineer', name: '엔지니어', description: '기술로 문제를 해결해요' },
+      { id: 'consultant', name: '컨설턴트', description: '다양한 분야의 조언을 해요' }
+    ],
+    hobbies: [
+      { id: 'movies', name: '영화', description: '다양한 장르의 영화를 좋아해요' },
+      { id: 'books', name: '독서', description: '책 읽는 것을 즐겨요' },
+      { id: 'games', name: '게임', description: '다양한 게임을 즐겨요' },
+      { id: 'volunteer', name: '봉사활동', description: '사회에 도움이 되는 일을 해요' }
+    ]
+  }
+};
+
+const CustomPersonaForm: React.FC<CustomPersonaFormProps> = ({ onCreate, onBack, onCancel, category = 'custom' }) => {
+  const [selectedPersonality, setSelectedPersonality] = useState<string>('');
+  const [selectedAge, setSelectedAge] = useState<string>('');
+  const [selectedJob, setSelectedJob] = useState<string>('');
+  const [selectedHobby, setSelectedHobby] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const generatePersona = useGeneratePersona();
   const { currentUserId } = useAppStore();
   const { data: userProfile } = useUserProfile(currentUserId || '');
 
+  const currentCategory = PERSONA_ATTRIBUTES[category];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (description.trim() && !isGenerating) {
+    
+    // 모든 속성이 선택되었는지 확인
+    if (!selectedPersonality || !selectedAge || !selectedJob || !selectedHobby) {
+      alert('모든 속성을 선택해주세요!');
+      return;
+    }
+    
+    if (!isGenerating) {
       setIsGenerating(true);
       
       try {
-        console.log('🚀 사용자 정의 페르소나 생성 시작:', description);
+        // 선택된 속성들을 기반으로 설명 생성
+        const personality = currentCategory.personalities.find(p => p.id === selectedPersonality);
+        const age = currentCategory.ages.find(a => a.id === selectedAge);
+        const job = currentCategory.jobs.find(j => j.id === selectedJob);
+        const hobby = currentCategory.hobbies.find(h => h.id === selectedHobby);
+        
+        const description = `${age?.name} ${personality?.name} ${job?.name}로, ${hobby?.name}을 좋아해요. ${personality?.description}`;
+        
+        console.log('🚀 카테고리별 페르소나 생성 시작:', { category, description });
         
         // AI로 페르소나 생성
         const persona = await generatePersona.mutateAsync({
           userGender: userProfile?.user_gender || 'male',
-          userInterests: [description], // 사용자 설명을 관심사로 활용
+          userInterests: [description],
           isTutorial: false
         });
         
-        console.log('✅ 사용자 정의 페르소나 생성 성공:', persona);
+        console.log('✅ 카테고리별 페르소나 생성 성공:', persona);
         
         // 생성된 페르소나를 부모 컴포넌트로 전달
         onCreate?.(persona);
       } catch (error) {
         console.error('❌ 페르소나 생성 실패:', error);
         
-        // 실패 시 기본 페르소나 생성
+        // 실패 시 선택된 속성으로 기본 페르소나 생성
         const partnerGender = userProfile?.user_gender === 'male' ? 'female' : 'male';
-        const personaName = partnerGender === 'female' ? '이서영' : '최민수';
+        const personality = currentCategory.personalities.find(p => p.id === selectedPersonality);
+        const age = currentCategory.ages.find(a => a.id === selectedAge);
+        const job = currentCategory.jobs.find(j => j.id === selectedJob);
+        const hobby = currentCategory.hobbies.find(h => h.id === selectedHobby);
+        
         const fallbackPersona = {
           id: `custom-persona-${Date.now()}`,
-          name: personaName,
-          age: 26,
+          name: partnerGender === 'female' ? '이서영' : '최민수',
+          age: selectedAge === '20s' ? 26 : selectedAge === '30s' ? 32 : 38,
           gender: partnerGender,
+          job: job?.name || '디자이너',
+          personality: personality?.name || '친근한',
+          interests: [hobby?.name || '여행'],
           avatar: getRandomAvatar(partnerGender),
-          job: '프리랜서',
-          mbti: 'ENFJ',
-          intro: description.length > 100 ? `${description.substring(0, 100)}...` : description,
-          system_instruction: `당신은 사용자가 요청한 특성을 가진 사람입니다: ${description}`,
-          tags: ['맞춤형', '특별함', '대화'],
-          match_rate: 90,
-          personality_traits: ['친근함', '이해심', '배려'],
-          interests: [
-            { emoji: '✨', topic: '맞춤 대화', description: description.substring(0, 50) }
-          ],
+          match_rate: 85,
           conversation_preview: [
-            { sender: 'ai', text: '안녕하세요! 반갑습니다 😊' }
+            { text: `안녕하세요! ${personality?.description} ${hobby?.name}에 대해 이야기해보고 싶어요 😊` }
           ]
         };
         
-        console.log('🔄 생성된 fallback 페르소나:', fallbackPersona);
         onCreate?.(fallbackPersona);
       } finally {
         setIsGenerating(false);
@@ -72,53 +202,101 @@ const CustomPersonaForm: React.FC<CustomPersonaFormProps> = ({ onCreate, onBack,
     }
   };
 
+  const renderAttributeSelector = (
+    title: string,
+    items: Array<{ id: string; name: string; description: string }>,
+    selectedValue: string,
+    onSelect: (value: string) => void
+  ) => (
+    <div className="mb-6">
+      <h3 className="text-lg font-bold text-[#191F28] mb-3">{title}</h3>
+      <div className="grid grid-cols-2 gap-3">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSelect(item.id)}
+            className={`p-3 rounded-xl border-2 text-left transition-all ${
+              selectedValue === item.id
+                ? 'border-[#F093B0] bg-[#FDF2F8] text-[#F093B0]'
+                : 'border-gray-200 bg-white text-gray-700 hover:border-[#F093B0] hover:bg-[#FDF2F8]'
+            }`}
+          >
+            <div className="font-semibold text-sm mb-1">{item.name}</div>
+            <div className="text-xs text-gray-500">{item.description}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col h-full animate-back-out" style={{ backgroundColor: 'var(--surface)' }}>
-      <header className="flex-shrink-0 flex items-center p-3 border-b" style={{ borderColor: 'var(--border)' }}>
-        <button onClick={onBack || onCancel} className="p-2 rounded-full hover:bg-gray-100 mr-2">
-          <ArrowLeftIcon className="w-6 h-6" style={{ color: 'var(--text-secondary)' }}/>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+      {/* Header */}
+      <div className="bg-white border-b border-[#E2E8F0] px-4 py-3 flex items-center justify-between">
+        <button onClick={onBack} className="p-2 -ml-2">
+          <ArrowLeftIcon className="w-6 h-6 text-[#64748B]" />
         </button>
-        <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>나만의 이상형 만들기</h2>
-      </header>
+        <h1 className="text-lg font-bold text-[#191F28]">{currentCategory.title}</h1>
+        <div className="w-10" />
+      </div>
 
-      <div className="flex-grow flex flex-col p-6">
-        <p className="mb-4 text-base" style={{ color: 'var(--text-secondary)' }}>
-          대화하고 싶은 이상형의 특징을 자유롭게 작성해주세요.
-          <br />
-          <span className="text-sm">(예: 30대 초반의 다정한 사업가, 동물을 좋아하고 여행을 즐김)</span>
-        </p>
+      {/* Content */}
+      <div className="flex-1 p-4">
+        <div className="mb-6">
+          <p className="text-gray-600 text-sm leading-relaxed">
+            {currentCategory.description}
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="flex-grow flex flex-col">
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="성격, 나이, 직업, 취미, 가치관 등을 상세히 적을수록 더 현실적인 AI가 만들어져요."
-            className="w-full flex-grow p-4 border rounded-xl focus:outline-none focus:ring-2 resize-none text-base"
-            style={{ 
-              borderColor: 'var(--border)', 
-              color: 'var(--text-primary)', 
-              backgroundColor: 'var(--background)',
-              '--tw-ring-color': 'var(--secondary-blue-main)'
-            } as React.CSSProperties}
-            rows={10}
-          />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* 성격 선택 */}
+          {renderAttributeSelector(
+            '성격',
+            currentCategory.personalities,
+            selectedPersonality,
+            setSelectedPersonality
+          )}
+
+          {/* 나이 선택 */}
+          {renderAttributeSelector(
+            '나이',
+            currentCategory.ages,
+            selectedAge,
+            setSelectedAge
+          )}
+
+          {/* 직업 선택 */}
+          {renderAttributeSelector(
+            '직업',
+            currentCategory.jobs,
+            selectedJob,
+            setSelectedJob
+          )}
+
+          {/* 취미 선택 */}
+          {renderAttributeSelector(
+            '취미',
+            currentCategory.hobbies,
+            selectedHobby,
+            setSelectedHobby
+          )}
+
+          {/* 생성 버튼 */}
           <button
             type="submit"
-            disabled={!description.trim() || isGenerating}
-            className="w-full mt-6 text-white font-semibold text-lg py-4 px-4 rounded-xl transition-opacity disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center"
-            style={{ 
-                backgroundColor: 'var(--primary-pink-main)',
-            }}
+            disabled={isGenerating || !selectedPersonality || !selectedAge || !selectedJob || !selectedHobby}
+            className="w-full py-4 bg-[#F093B0] text-white font-bold rounded-2xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#E085A3] transition-colors"
           >
             {isGenerating ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                AI가 이상형을 만들고 있어요...
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>AI 생성 중...</span>
               </>
             ) : (
               <>
-                <SparklesIcon className="w-5 h-5 mr-2" />
-                이상형과 대화 시작하기
+                <SparklesIcon className="w-5 h-5" />
+                <span>✨ 이상형과 대화 시작하기</span>
               </>
             )}
           </button>
@@ -128,5 +306,4 @@ const CustomPersonaForm: React.FC<CustomPersonaFormProps> = ({ onCreate, onBack,
   );
 };
 
-export { CustomPersonaForm };
 export default CustomPersonaForm;

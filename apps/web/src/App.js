@@ -24,7 +24,7 @@ import { ChatScreen } from './features/chat/components/ChatScreen';
 import { ConversationPrepScreen } from './features/chat/components/ConversationPrepScreen';
 import { ConversationAnalysisScreen } from './features/chat/components/ConversationAnalysisScreen';
 import { PersonaDetailScreen } from './features/chat/components/PersonaDetailScreen';
-import { CustomPersonaForm } from './features/chat/components/CustomPersonaForm';
+import CustomPersonaForm from './features/chat/components/CustomPersonaForm';
 import { TutorialIntroScreen } from './features/onboarding/components/TutorialIntroScreen';
 import { PersonaSelection } from './features/onboarding/components/PersonaSelection';
 import { PersonaRecommendationIntro } from './features/onboarding/components/PersonaRecommendationIntro';
@@ -61,6 +61,7 @@ const AppContent = () => {
     // const [favoriteIds] = React.useState<string[]>(['persona-1', 'persona-3']);
     const [previousScreen, setPreviousScreen] = React.useState('HOME');
     const [isGuest, setIsGuest] = React.useState(false);
+    const [personaCategory, setPersonaCategory] = React.useState('custom');
     // 네비게이션 래퍼 - 이전 화면 추적
     const navigateTo = React.useCallback((screen) => {
         setPreviousScreen(currentScreen);
@@ -222,7 +223,13 @@ const AppContent = () => {
                         navigateTo(Screen.PersonaDetail);
                     } });
             case 'CHAT_TAB':
-                return (_jsx(ChatTabScreen, { onNavigate: navigateTo, onSelectPersona: (persona) => {
+                return (_jsx(ChatTabScreen, { onNavigate: (screen, category) => {
+                        if (screen === Screen.CustomPersona) {
+                            // 카테고리별로 CustomPersonaForm 호출 시 category 설정
+                            setPersonaCategory(category || 'custom');
+                        }
+                        navigateTo(screen);
+                    }, onSelectPersona: (persona) => {
                         // 게스트는 최대 3번의 대화만 가능
                         if (isGuest) {
                             const guestChatCount = parseInt(localStorage.getItem('guestChatCount') || '0');
@@ -306,7 +313,7 @@ const AppContent = () => {
                         navigateTo(Screen.ConversationPrep);
                     } }));
             case Screen.CustomPersona:
-                return (_jsx(CustomPersonaForm, { onCreate: (persona) => {
+                return (_jsx(CustomPersonaForm, { category: personaCategory, onCreate: (persona) => {
                         // 생성된 페르소나를 sessionData에 저장하고 상세 화면으로 이동
                         console.log('✅ 사용자 정의 페르소나 생성 완료:', persona);
                         // persona와 partner 모두 설정하여 일관성 유지

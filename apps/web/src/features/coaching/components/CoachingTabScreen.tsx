@@ -63,26 +63,20 @@ const CoachingTabScreen: React.FC<CoachingTabScreenProps> = ({ onNavigate, onSta
             <p className="text-sm text-[#8B95A1] leading-relaxed">부족한 부분을 전문 코치와 함께 집중적으로 연습해보세요.</p>
           </div>
           <div className="space-y-3">
-            {isLoading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]"></div>
-              </div>
-            ) : (
-              coaches.map(coach => (
-                <CoachCard 
-                  key={coach.id} 
-                  coach={coach} 
-                  onStart={() => {
-                    if (onStartCoachChat) {
-                      onStartCoachChat(coach);
-                    } else {
-                      // Fallback to navigate to Chat screen
-                      onNavigate(Screen.Chat);
-                    }
-                  }} 
-                />
-              ))
-            )}
+            {coaches.map(coach => (
+              <CoachCard 
+                key={coach.id} 
+                coach={coach} 
+                onStart={() => {
+                  if (onStartCoachChat) {
+                    onStartCoachChat(coach);
+                  } else {
+                    // Fallback to navigate to Chat screen
+                    onNavigate(Screen.Chat);
+                  }
+                }} 
+              />
+            ))}
           </div>
         </section>
 
