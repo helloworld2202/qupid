@@ -200,11 +200,18 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
         }
       ];
       
-      setDynamicPersonas(immediateFallbackPersonas);
-      console.log('⚡ 대화탭 즉시 fallback 페르소나 표시 완료');
+      setDynamicPersonas(prev => {
+        if (prev.length === 0) {
+          console.log('⚡ 대화탭 즉시 fallback 페르소나 표시 완료');
+          return immediateFallbackPersonas;
+        }
+        return prev;
+      });
       
-      // 백그라운드에서 동적 페르소나 생성
-      generateNewPersonas();
+      // 백그라운드에서 동적 페르소나 생성 (중복 방지)
+      if (dynamicPersonas.length === 0) {
+        generateNewPersonas();
+      }
     }
   }, [userProfile]);
   

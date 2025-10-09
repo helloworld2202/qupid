@@ -64,12 +64,12 @@ export const generateAvatarUrl = (gender: 'male' | 'female', seed?: number): str
 // 미리 정의된 고품질 아바타 세트 (캐싱용)
 const PREDEFINED_AVATARS = {
   female: [
-    // 현실적 스타일
-    'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face&auto=format',
-    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face&auto=format',
-    'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face&auto=format',
-    'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=200&h=200&fit=crop&crop=face&auto=format',
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=face&auto=format',
+    // 아바타 캐릭터 스타일 (실제 사람 사진 제거)
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=female1&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=female2&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=female3&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=female4&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=female5&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
     
     // 일러스트레이션 스타일
     'https://api.dicebear.com/7.x/avataaars/svg?seed=1&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
@@ -98,12 +98,12 @@ const PREDEFINED_AVATARS = {
   ],
   
   male: [
-    // 현실적 스타일
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face&auto=format',
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face&auto=format',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face&auto=format',
-    'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop&crop=face&auto=format',
-    'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=200&h=200&fit=crop&crop=face&auto=format',
+    // 아바타 캐릭터 스타일 (실제 사람 사진 제거)
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=male1&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=male2&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=male3&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=male4&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=male5&backgroundColor=baffc9,bae1ff,ffb3e6&backgroundType=gradientLinear',
     
     // 일러스트레이션 스타일
     'https://api.dicebear.com/7.x/avataaars/svg?seed=11&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',

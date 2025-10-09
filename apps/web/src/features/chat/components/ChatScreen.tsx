@@ -274,24 +274,37 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     } else { // It's a Persona
         if (isTutorial) {
             const currentStep = TUTORIAL_STEPS[0];
+            // 🚀 튜토리얼 지시사항 간소화 (중복 제거)
             initialMessages.push(
-                { sender: 'system', text: `🎯 튜토리얼 시작! ${currentStep.title}` },
-                { sender: 'system', text: currentStep.description },
-                { sender: 'system', text: 'COACH_HINT_INTRO' }
+                { sender: 'system', text: `🎯 ${currentStep.title}` }
             );
             
-            // 🚀 튜토리얼 시작 시 AI가 첫 메시지를 보내도록 함
+            // 🚀 튜토리얼 시작 시 AI가 첫 메시지를 보내도록 함 (중복 방지)
             setTimeout(() => {
                 const firstMessage = partner.conversation_preview?.[0]?.text || 
                     generateNaturalFirstMessage(partner, userProfile);
-                setMessages(prev => [...prev, { sender: 'ai', text: firstMessage }]);
+                setMessages(prev => {
+                    // 이미 같은 첫 메시지가 있는지 확인
+                    const hasFirstMessage = prev.some(msg => 
+                        msg.sender === 'ai' && msg.text === firstMessage
+                    );
+                    if (hasFirstMessage) return prev;
+                    return [...prev, { sender: 'ai', text: firstMessage }];
+                });
             }, 1000);
         } else {
-            // 일반 모드에서도 AI 첫 메시지 추가
+            // 일반 모드에서도 AI 첫 메시지 추가 (중복 방지)
             setTimeout(() => {
                 const firstMessage = partner.conversation_preview?.[0]?.text || 
                     generateNaturalFirstMessage(partner, userProfile);
-                setMessages(prev => [...prev, { sender: 'ai', text: firstMessage }]);
+                setMessages(prev => {
+                    // 이미 같은 첫 메시지가 있는지 확인
+                    const hasFirstMessage = prev.some(msg => 
+                        msg.sender === 'ai' && msg.text === firstMessage
+                    );
+                    if (hasFirstMessage) return prev;
+                    return [...prev, { sender: 'ai', text: firstMessage }];
+                });
             }, 500);
         }
     }
@@ -347,12 +360,11 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         setTutorialStepIndex(nextIndex);
         setTutorialStep(TUTORIAL_STEPS[nextIndex]);
         
-        // 다음 단계 안내 메시지 추가
+        // 다음 단계 안내 메시지 추가 (간소화)
         const nextStep = TUTORIAL_STEPS[nextIndex];
         setTimeout(() => {
           setMessages(prev => [...prev, 
-            { sender: 'system', text: `✅ ${currentStep.step}단계 완료! 이제 ${nextStep.title}` },
-            { sender: 'system', text: nextStep.description }
+            { sender: 'system', text: `✅ ${currentStep.step}단계 완료! 이제 ${nextStep.title}` }
           ]);
         }, 1000);
       } else {

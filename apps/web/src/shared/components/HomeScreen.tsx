@@ -160,8 +160,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
 
   // 🚀 초기 동적 페르소나 생성 (즉시 fallback 표시)
   useEffect(() => {
-    if (userProfile && dynamicPersonas.length === 0 && !isGeneratingPersonas) {
-      // 즉시 fallback 페르소나 표시
+    if (userProfile && !isGeneratingPersonas) {
+      // 즉시 fallback 페르소나 표시 (조건 완화)
       const immediateFallbackPersonas = [
         {
           id: 'immediate-persona-1',
@@ -190,11 +190,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
         }
       ];
       
-      setDynamicPersonas(immediateFallbackPersonas);
-      console.log('⚡ 홈탭 즉시 fallback 페르소나 표시 완료');
+      setDynamicPersonas(prev => {
+        if (prev.length === 0) {
+          console.log('⚡ 홈탭 즉시 fallback 페르소나 표시 완료');
+          return immediateFallbackPersonas;
+        }
+        return prev;
+      });
       
-      // 백그라운드에서 동적 페르소나 생성
-      generateNewPersonas();
+      // 백그라운드에서 동적 페르소나 생성 (중복 방지)
+      if (dynamicPersonas.length === 0) {
+        generateNewPersonas();
+      }
     }
   }, [userProfile]);
 
