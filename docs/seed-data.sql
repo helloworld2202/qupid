@@ -157,25 +157,25 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO public.coaches (id, name, specialty, tagline, bio, avatar, expertise_areas, coaching_style) VALUES
 ('coach-1', '이레나', '첫인상', '성공적인 첫 만남을 위한 대화 시작법',
  '안녕하세요, 첫인상 전문 코치 이레나입니다. 누구나 3분 안에 상대방에게 호감을 줄 수 있도록, 자연스럽고 매력적인 대화 시작법을 알려드릴게요.',
- 'https://avatar.iran.liara.run/public/girl?username=Irena',
+ 'https://api.dicebear.com/7.x/avataaars/svg?seed=Irena&backgroundColor=ff9bb3,ffb3ba,ffdfba&backgroundType=gradientLinear',
  ARRAY['대화 시작', '첫인사', '호감 형성'],
  '격려적이고 전문적인 코칭'),
 
 ('coach-2', '알렉스', '깊은 대화', '피상적인 대화를 넘어 진솔한 관계로',
  '저는 깊고 의미 있는 대화를 통해 관계를 발전시키는 방법을 코칭하는 알렉스입니다. 공통 관심사를 찾고, 생각과 감정을 공유하는 연습을 함께 해봐요.',
- 'https://avatar.iran.liara.run/public/boy?username=Alex',
+ 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=ffb3ba,ffdfba,ffffba&backgroundType=gradientLinear',
  ARRAY['깊은 대화', '감정 공유', '공통점 찾기'],
  '공감적이고 통찰력 있는 코칭'),
 
 ('coach-3', '클로이', '자신감', '어떤 상황에서도 당당하게 나를 표현하기',
  '자신감 코치 클로이입니다. 대화 중 불안감을 느끼거나 자기표현에 어려움을 겪는 분들을 도와드려요. 긍정적인 자기 대화와 당당한 표현법을 훈련합니다.',
- 'https://avatar.iran.liara.run/public/girl?username=Chloe',
+ 'https://api.dicebear.com/7.x/avataaars/svg?seed=Chloe&backgroundColor=ffdfba,ffffba,baffc9&backgroundType=gradientLinear',
  ARRAY['자신감 향상', '불안 극복', '자기표현'],
  '지지적이고 긍정적인 코칭'),
 
 ('coach-4', '데이빗', '유머/위트', '대화를 즐겁게 만드는 유머 감각 키우기',
  '안녕하세요, 유머 코치 데이빗입니다. 대화를 더 즐겁고 유쾌하게 만들고 싶으신가요? 재치 있는 농담과 긍정적인 유머를 사용하는 방법을 함께 연습해봐요.',
- 'https://avatar.iran.liara.run/public/boy?username=David',
+ 'https://api.dicebear.com/7.x/avataaars/svg?seed=David&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
  ARRAY['유머 사용', '위트', '재치있는 대화'],
  '유쾌하고 재치있는 코칭')
 ON CONFLICT (id) DO UPDATE SET

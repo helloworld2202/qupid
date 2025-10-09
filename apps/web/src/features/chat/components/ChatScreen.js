@@ -33,63 +33,63 @@ const generateNaturalFirstMessage = (partner, userProfile) => {
     const personaName = partner.name;
     const personaAge = 'age' in partner ? partner.age : 25;
     const personaJob = 'job' in partner ? partner.job : '일반인';
-    // 🚀 혁신적인 MBTI별 자연스러운 첫 메시지 패턴 (맥락 기반)
+    // 🚀 맥락 기반 자연스러운 첫 메시지 패턴 (사용자에게 질문하여 대화 시작)
     const messagePatterns = {
         'ENFP': [
-            `${timeGreeting}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
-            `안녕하세요! ${personaName}이에요! 오늘 날씨가 정말 좋네요 ☀️ ${personaJob}로 일하고 있는데, 새로운 사람을 만나는 게 항상 즐거워요!`,
+            `${timeGreeting}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 일을 하시나요?`,
+            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 취미가 있으세요?`,
             `반가워요! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 어떤 하루 보내고 계세요?`,
-            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 오늘 뭔가 특별한 일이 있을 것 같은 기분이에요 ✨`,
-            `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 어떤 이야기든 재밌게 해봐요!`,
-            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 오늘 정말 좋은 하루네요! 🎉`
+            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 걸 좋아하세요?`,
+            `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 어떤 음악을 즐겨 들어요?`,
+            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 최근에 재밌게 본 영화가 있나요?`
         ],
         'ISFJ': [
-            `안녕하세요 ${userName}. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}로 일하고 있어요. 편하게 대화해요.`,
-            `${timeGreeting}. ${personaName}입니다. ${personaJob}로 일하고 있는데, 새로운 분과 대화할 수 있어서 좋네요.`,
-            `안녕하세요. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 조용히 대화해봐요.`,
-            `반가워요. ${personaName}이에요. ${personaJob}로 일하고 있는데, 깊이 있는 이야기를 나누고 싶어요.`,
-            `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 좋아해요.`,
-            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 의미 있는 대화를 해봅시다.`
+            `안녕하세요 ${userName}. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}로 일하고 있어요. ${userName}님은 어떤 일을 하시나요?`,
+            `${timeGreeting}. ${personaName}입니다. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 책을 좋아하세요?`,
+            `안녕하세요. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 오늘 하루는 어떠셨나요?`,
+            `반가워요. ${personaName}이에요. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 음식을 좋아하세요?`,
+            `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}인데, 주말에는 보통 뭐 하세요?`,
+            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님은 어떤 장소를 좋아하세요?`
         ],
         'INTJ': [
-            `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 의미 있는 대화를 해봅시다.`,
-            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 깊이 있는 대화를 좋아해요.`,
-            `안녕하세요. ${personaName}입니다. 효율적이고 의미 있는 대화를 해봅시다.`,
-            `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 논리적인 대화를 선호해요.`,
-            `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, 전략적인 사고를 좋아해요.`,
-            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 창의적인 아이디어를 좋아해요.`
+            `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. ${userName}님의 목표는 무엇인가요?`,
+            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님은 어떤 분야에 관심이 있으세요?`,
+            `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 프로젝트를 하고 계세요?`,
+            `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 어떤 걸 배우고 싶으세요?`,
+            `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, ${userName}님의 계획은 무엇인가요?`,
+            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님은 어떤 문제를 해결하고 싶으세요?`
         ],
         'ESFP': [
-            `${timeGreeting}! ${personaName}이에요! 😆 ${personaAge}세 ${personaJob}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
-            `안녕하세요! ${personaName}이에요! 🎉 ${personaJob}로 일하고 있는데, 새로운 사람 만나는 게 너무 신나요!`,
-            `반가워요! 저는 ${personaName}이에요! 오늘 뭐 재밌는 일 있었어요? 😊`,
-            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하는데, 즐거운 대화를 해봐요! 🎊`,
-            `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 오늘 정말 기분이 좋아요!`,
-            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 활기찬 대화를 좋아해요!`
+            `${timeGreeting}! ${personaName}이에요! 😆 ${personaAge}세 ${personaJob}인데, ${userName}님은 오늘 뭐 재밌는 일 있었어요?`,
+            `안녕하세요! ${personaName}이에요! 🎉 ${personaJob}로 일하고 있는데, ${userName}님은 어떤 활동을 좋아하세요?`,
+            `반가워요! 저는 ${personaName}이에요! 오늘 기분은 어떠세요? 😊`,
+            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하는데, ${userName}님은 어떤 걸로 스트레스 푸세요?`,
+            `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 주말에는 보통 뭐 하세요?`,
+            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 장소를 좋아하세요?`
         ],
         'INFP': [
-            `안녕하세요 ${userName}... 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 조금 부끄럽지만... 편하게 대화해요.`,
-            `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 조용한 대화를 좋아해요.`,
-            `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 해봐요.`,
-            `반가워요... 저는 ${personaName}이에요. ${personaJob}로 일하는데, 진심 어린 대화를 좋아해요.`,
-            `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 감성적인 이야기를 좋아해요.`,
-            `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 깊이 있는 대화를 선호해요.`
+            `안녕하세요 ${userName}... 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 음악을 좋아하세요?`,
+            `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 책을 좋아하세요?`,
+            `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 영화를 좋아하세요?`,
+            `반가워요... 저는 ${personaName}이에요. ${personaJob}로 일하는데, 오늘 하루는 어떠셨나요?`,
+            `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 꿈이 있으세요?`,
+            `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 가치를 중요하게 생각하세요?`
         ],
         'ENTP': [
-            `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 오늘 뭔가 흥미로운 이야기를 해봐요!`,
-            `${timeGreeting}! 저는 ${personaName}이에요. ${personaJob}로 일하는데, 새로운 아이디어를 좋아해요!`,
-            `반가워요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 창의적인 대화를 해봅시다!`,
-            `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 도전적인 주제도 좋아해요!`,
-            `반가워요! 저는 ${personaName}이에요! ${personaJob}로 일하는데, 혁신적인 생각을 좋아해요!`,
-            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 논쟁적인 주제도 즐겨요!`
+            `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 주제에 관심이 있으세요?`,
+            `${timeGreeting}! 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님은 어떤 아이디어가 있으세요?`,
+            `반가워요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 걸 창조하는 걸 좋아하세요?`,
+            `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 도전을 하고 계세요?`,
+            `반가워요! 저는 ${personaName}이에요! ${personaJob}로 일하는데, ${userName}님은 어떤 혁신에 관심이 있으세요?`,
+            `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 문제를 해결하고 싶으세요?`
         ],
         'ESTJ': [
-            `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 체계적인 대화를 해봅시다.`,
-            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 목표 지향적인 대화를 좋아해요.`,
-            `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, 실용적인 이야기를 좋아해요.`,
-            `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 효율적인 대화를 선호해요.`,
-            `안녕하세요. ${personaName}입니다. ${personaJob}로 일하는데, 리더십에 관심이 많아요.`,
-            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 조직적인 사고를 좋아해요.`
+            `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. ${userName}님은 어떤 일을 하고 계세요?`,
+            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님의 목표는 무엇인가요?`,
+            `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 문제를 해결하고 계세요?`,
+            `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 방법으로 효율성을 높이세요?`,
+            `안녕하세요. ${personaName}입니다. ${personaJob}로 일하는데, ${userName}님은 어떤 리더십 스타일을 가지고 계세요?`,
+            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 계획을 세우고 계세요?`
         ]
     };
     const patterns = messagePatterns[mbti] || [
@@ -371,11 +371,11 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                 console.error('API call failed, using mock response:', error);
                 // 🚀 실제 사람 같은 Mock 응답 생성 (대화 기술 향상)
                 const mockResponses = isCoaching ? [
-                    "좋은 질문이네요! 이런 접근을 해보세요 👍",
-                    "정확하게 파악하셨네요! 다음 단계로 나아가볼까요?",
-                    "훌륭한 진전이에요! 계속 이렇게 연습해보세요 💪",
-                    "이 부분을 더 자세히 연습해볼까요? 함께 해보죠!",
-                    "잘하고 계세요! 이런 팩을 기억하세요 💡"
+                    "좋아요! 먼저 상대방의 관심사를 파악하는 것이 중요해요. '최근에 어떤 일에 관심이 있으세요?'처럼 열린 질문을 해보세요 💡",
+                    "훌륭해요! 이제 공감을 표현해볼까요? 상대방의 말에 '정말 흥미롭네요!', '저도 그렇게 생각해요'처럼 반응해보세요 👍",
+                    "잘하고 계세요! 다음은 자신의 경험을 공유할 차례예요. '저는 비슷한 상황에서...'처럼 자연스럽게 연결해보세요 💪",
+                    "완벽해요! 이제 대화를 깊이 있게 만들어볼까요? 구체적인 질문을 추가하면 더 좋아요. '그때 어떤 기분이었나요?' 같은 질문을 해보세요 🎯",
+                    "대단해요! 마지막으로 긍정적인 피드백을 주는 연습을 해봐요. '정말 멋진 생각이네요!', '당신의 열정이 느껴져요' 같은 표현을 사용해보세요 ✨"
                 ] : [
                     // 🎯 실제 사람처럼 자연스러운 응답 (질문에 맞는 구체적 답변)
                     "저는 로맨스 영화를 좋아해요! 특히 해리포터 시리즈가 기억에 남네요 😊",
@@ -428,13 +428,13 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
     };
     return (_jsxs("div", { className: "flex flex-col h-full w-full bg-white relative", children: [_jsxs("header", { className: "flex-shrink-0 flex flex-col p-3 border-b border-[#F2F4F6] z-10 bg-white", children: [_jsxs("div", { className: "flex items-center", children: [_jsx("button", { onClick: handleComplete, className: "p-2 rounded-full hover:bg-gray-100", children: _jsx(ArrowLeftIcon, { className: "w-6 h-6 text-[#8B95A1]" }) }), _jsx("img", { src: partner.avatar, alt: partner.name, className: "w-10 h-10 rounded-full object-cover ml-2" }), _jsxs("div", { className: "ml-3 flex-1", children: [_jsx("h2", { className: "font-bold text-lg text-[#191F28]", children: partner.name }), _jsxs("div", { className: "flex items-center gap-2", children: [_jsx("p", { className: "text-sm text-[#0AC5A8] font-semibold", children: "\uD83D\uDFE2 \uC628\uB77C\uC778" }), !isTutorialMode && (_jsx("span", { className: `text-xs px-2 py-0.5 rounded-full font-medium ${currentMode === 'normal'
                                                     ? 'bg-[#E6F7F5] text-[#0AC5A8]'
-                                                    : 'bg-[#FDF2F8] text-[#F093B0]'}`, children: currentMode === 'normal' ? '👋 친구모드' : '💕 연인모드' }))] })] }), _jsxs("div", { className: "flex items-center gap-2", children: [!isTutorialMode && (_jsx("button", { onClick: () => setCurrentMode(currentMode === 'normal' ? 'romantic' : 'normal'), className: `px-3 py-1.5 text-sm font-medium rounded-lg transition-all hover:scale-105 ${currentMode === 'normal'
+                                                    : 'bg-[#FDF2F8] text-[#F093B0]'}`, children: currentMode === 'normal' ? '👋 친구모드' : '💕 연인모드' }))] })] }), _jsxs("div", { className: "flex items-center gap-2", children: [!isTutorialMode && !isCoaching && (_jsx("button", { onClick: () => setCurrentMode(currentMode === 'normal' ? 'romantic' : 'normal'), className: `px-3 py-1.5 text-sm font-medium rounded-lg transition-all hover:scale-105 ${currentMode === 'normal'
                                             ? 'bg-[#FDF2F8] text-[#F093B0] border border-[#F093B0]'
-                                            : 'bg-[#E6F7F5] text-[#0AC5A8] border border-[#0AC5A8]'}`, title: "\uB300\uD654 \uBAA8\uB4DC \uC804\uD658", children: currentMode === 'normal' ? '💕 연인 모드로' : '👋 일반 모드로' })), !isTutorialMode && messages.length > 3 && (_jsx("button", { onClick: async () => {
+                                            : 'bg-[#E6F7F5] text-[#0AC5A8] border border-[#0AC5A8]'}`, title: "\uB300\uD654 \uBAA8\uB4DC \uC804\uD658", children: currentMode === 'normal' ? '💕 연인 모드로' : '👋 일반 모드로' })), !isTutorialMode && !isCoaching && messages.length > 3 && (_jsx("button", { onClick: async () => {
                                             const result = await styleAnalysisMutation.mutateAsync(messages);
                                             setStyleAnalysis(result);
                                             setShowStyleModal(true);
-                                        }, className: "px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity", children: "\uD83D\uDCA1 \uC2A4\uD0C0\uC77C \uBD84\uC11D" })), isTutorialMode && tutorialStep.step < 5 && _jsxs("span", { className: "font-bold text-[#F093B0]", children: [tutorialStep.step, "/", TUTORIAL_STEPS.length - 1, " \uB2E8\uACC4"] })] })] }), isTutorialMode && tutorialStep.step < 5 && (_jsx("div", { className: "w-full bg-[#F2F4F6] h-1 rounded-full mt-2", children: _jsx("div", { className: "bg-[#F093B0] h-1 rounded-full transition-all duration-500", style: { width: `${((tutorialStep.step) / (TUTORIAL_STEPS.length - 1)) * 100}%` } }) }))] }), isTutorialMode && tutorialStep.step < 5 && (_jsxs("div", { className: "p-4 bg-gradient-to-r from-[#FDF2F8] to-[#EBF2FF] animate-fade-in z-10", children: [_jsxs("p", { className: "font-bold text-base flex items-center text-[#191F28]", children: [_jsx(CoachKeyIcon, { className: "w-5 h-5 mr-2 text-[#F093B0]" }), tutorialStep.title] }), _jsx("p", { className: "text-sm text-[#8B95A1] mt-1", children: tutorialStep.description })] })), _jsxs("div", { className: "flex-1 overflow-y-auto p-4 space-y-4", children: [messages.map((msg, index) => (_jsxs("div", { className: `flex items-end gap-2 animate-fade-in-up ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`, children: [msg.sender === 'ai' && _jsx("img", { src: partner.avatar, alt: "ai", className: "w-8 h-8 rounded-full self-start" }), msg.sender === 'system' ? (_jsx("div", { className: "w-full text-center text-sm text-[#4F7ABA] p-3 bg-[#F9FAFB] rounded-xl my-2", children: msg.text === 'COACH_HINT_INTRO' ? (_jsxs("span", { className: "flex items-center justify-center", children: ["\uB300\uD654\uAC00 \uB9C9\uD790 \uB550 \uC5B8\uC81C\uB4E0 ", _jsx(CoachKeyIcon, { className: "w-4 h-4 mx-1 inline-block text-yellow-500" }), " \uD78C\uD2B8 \uBC84\uD2BC\uC744 \uB20C\uB7EC AI \uCF54\uCE58\uC758 \uB3C4\uC6C0\uC744 \uBC1B\uC544\uBCF4\uC138\uC694!"] })) : msg.text })) : (_jsx("div", { className: `max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 shadow-sm ${msg.sender === 'user' ? 'text-white rounded-t-[18px] rounded-l-[18px] rounded-br-[6px] bg-[#F093B0]' : 'rounded-t-[18px] rounded-r-[18px] rounded-bl-[6px] bg-[#F9FAFB] text-[#191F28]'}`, children: _jsx("p", { className: "whitespace-pre-wrap leading-relaxed", children: msg.text }) }))] }, index))), isLoading && (_jsxs("div", { className: "flex items-end gap-2 justify-start", children: [_jsx("img", { src: partner.avatar, alt: "ai", className: "w-8 h-8 rounded-full self-start" }), _jsx("div", { className: "max-w-xs px-4 py-3 rounded-2xl rounded-bl-none bg-[#F9FAFB]", children: _jsx(TypingIndicator, {}) })] })), _jsx("div", { ref: messagesEndRef })] }), realtimeFeedback && _jsx(RealtimeFeedbackToast, { feedback: realtimeFeedback }), showCoachHint && (_jsx(CoachHint, { isLoading: isFetchingSuggestion, suggestion: coachSuggestion, onApply: (text) => {
+                                        }, className: "px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity", children: "\uD83D\uDCA1 \uC2A4\uD0C0\uC77C \uBD84\uC11D" })), !isTutorialMode && isCoaching && 'specialty' in partner && (_jsxs("span", { className: "px-3 py-1.5 bg-[#E6F7F5] text-[#0AC5A8] border border-[#0AC5A8] text-sm font-medium rounded-lg", children: ["\uD83D\uDCDA ", partner.specialty, " \uCF54\uCE6D"] })), isTutorialMode && tutorialStep.step < 5 && _jsxs("span", { className: "font-bold text-[#F093B0]", children: [tutorialStep.step, "/", TUTORIAL_STEPS.length - 1, " \uB2E8\uACC4"] })] })] }), isTutorialMode && tutorialStep.step < 5 && (_jsx("div", { className: "w-full bg-[#F2F4F6] h-1 rounded-full mt-2", children: _jsx("div", { className: "bg-[#F093B0] h-1 rounded-full transition-all duration-500", style: { width: `${((tutorialStep.step) / (TUTORIAL_STEPS.length - 1)) * 100}%` } }) }))] }), isTutorialMode && tutorialStep.step < 5 && (_jsxs("div", { className: "p-4 bg-gradient-to-r from-[#FDF2F8] to-[#EBF2FF] animate-fade-in z-10", children: [_jsxs("p", { className: "font-bold text-base flex items-center text-[#191F28]", children: [_jsx(CoachKeyIcon, { className: "w-5 h-5 mr-2 text-[#F093B0]" }), tutorialStep.title] }), _jsx("p", { className: "text-sm text-[#8B95A1] mt-1", children: tutorialStep.description })] })), _jsxs("div", { className: "flex-1 overflow-y-auto p-4 space-y-4", children: [messages.map((msg, index) => (_jsxs("div", { className: `flex items-end gap-2 animate-fade-in-up ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`, children: [msg.sender === 'ai' && _jsx("img", { src: partner.avatar, alt: "ai", className: "w-8 h-8 rounded-full self-start" }), msg.sender === 'system' ? (_jsx("div", { className: "w-full text-center text-sm text-[#4F7ABA] p-3 bg-[#F9FAFB] rounded-xl my-2", children: msg.text === 'COACH_HINT_INTRO' ? (_jsxs("span", { className: "flex items-center justify-center", children: ["\uB300\uD654\uAC00 \uB9C9\uD790 \uB550 \uC5B8\uC81C\uB4E0 ", _jsx(CoachKeyIcon, { className: "w-4 h-4 mx-1 inline-block text-yellow-500" }), " \uD78C\uD2B8 \uBC84\uD2BC\uC744 \uB20C\uB7EC AI \uCF54\uCE58\uC758 \uB3C4\uC6C0\uC744 \uBC1B\uC544\uBCF4\uC138\uC694!"] })) : msg.text })) : (_jsx("div", { className: `max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 shadow-sm ${msg.sender === 'user' ? 'text-white rounded-t-[18px] rounded-l-[18px] rounded-br-[6px] bg-[#F093B0]' : 'rounded-t-[18px] rounded-r-[18px] rounded-bl-[6px] bg-[#F9FAFB] text-[#191F28]'}`, children: _jsx("p", { className: "whitespace-pre-wrap leading-relaxed", children: msg.text }) }))] }, index))), isLoading && (_jsxs("div", { className: "flex items-end gap-2 justify-start", children: [_jsx("img", { src: partner.avatar, alt: "ai", className: "w-8 h-8 rounded-full self-start" }), _jsx("div", { className: "max-w-xs px-4 py-3 rounded-2xl rounded-bl-none bg-[#F9FAFB]", children: _jsx(TypingIndicator, {}) })] })), _jsx("div", { ref: messagesEndRef })] }), realtimeFeedback && _jsx(RealtimeFeedbackToast, { feedback: realtimeFeedback }), showCoachHint && (_jsx(CoachHint, { isLoading: isFetchingSuggestion, suggestion: coachSuggestion, onApply: (text) => {
                     setInput(text);
                     handleCloseHint();
                 }, onClose: handleCloseHint })), isAnalyzing && (_jsxs("div", { className: "absolute inset-0 bg-white bg-opacity-70 flex flex-col items-center justify-center z-20", children: [_jsx("div", { className: "w-8 h-8 border-4 border-t-transparent border-[#F093B0] rounded-full animate-spin" }), _jsx("p", { className: "mt-4 text-base font-semibold text-[#191F28]", children: "\uB300\uD654 \uBD84\uC11D \uC911..." })] })), isTutorialComplete && (_jsx("div", { className: "absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-20 animate-fade-in", children: _jsxs("div", { className: "bg-white p-8 rounded-2xl text-center shadow-xl animate-scale-in", children: [_jsx("div", { className: "text-6xl mb-4", children: "\uD83C\uDF89" }), _jsx("h2", { className: "text-2xl font-bold text-[#191F28] mb-2", children: "\uD29C\uD1A0\uB9AC\uC5BC \uC644\uB8CC!" }), _jsx("p", { className: "text-[#8B95A1] text-base", children: "\uB300\uD654\uC758 \uAE30\uBCF8\uC744 \uB9C8\uC2A4\uD130\uD558\uC168\uC5B4\uC694!" }), _jsx("p", { className: "text-[#4F7ABA] text-sm mt-2", children: "\uACE7 \uD648 \uD654\uBA74\uC73C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4..." })] }) })), _jsxs("div", { className: "flex-shrink-0 p-2 border-t border-[#F2F4F6] bg-white z-10", children: [isTutorialMode && tutorialStep.step < 5 && (_jsx("div", { className: "flex space-x-2 overflow-x-auto pb-2 px-2", children: tutorialStep.quickReplies.map(reply => (_jsx("button", { onClick: () => handleSend(reply), className: "flex-shrink-0 h-10 px-4 bg-[#FDF2F8] border border-[#F093B0] text-[#DB7093] rounded-full text-sm font-medium transition-colors hover:bg-opacity-80", children: reply }, reply))) })), _jsx("div", { className: "p-2", children: _jsxs("div", { className: "flex items-center space-x-2", children: [_jsx("button", { onClick: fetchAndShowSuggestion, disabled: isLoading || isAnalyzing || showCoachHint, className: "w-12 h-12 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-full disabled:opacity-50 transition-colors hover:bg-yellow-100", children: _jsx(CoachKeyIcon, { className: "w-6 h-6 text-yellow-500" }) }), _jsx("input", { type: "text", value: input, onChange: e => setInput(e.target.value), onKeyPress: e => e.key === 'Enter' && handleSend(input), placeholder: "\uBA54\uC2DC\uC9C0\uB97C \uC785\uB825\uD558\uC138\uC694...", className: "flex-1 w-full h-12 px-5 bg-[#F9FAFB] rounded-full focus:outline-none focus:ring-2 ring-[#F093B0]", disabled: isLoading || isAnalyzing }), _jsx("button", { onClick: () => handleSend(input), disabled: isLoading || isAnalyzing || input.trim() === '', className: "w-12 h-12 flex-shrink-0 flex items-center justify-center bg-[#F093B0] text-white rounded-full disabled:opacity-50 transition-opacity", children: _jsx(PaperAirplaneIcon, { className: "w-6 h-6" }) })] }) })] }), _jsx(StyleRecommendationModal, { isOpen: showStyleModal, onClose: () => setShowStyleModal(false), analysis: styleAnalysis, isLoading: styleAnalysisMutation.isPending })] }));

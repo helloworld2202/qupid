@@ -84,63 +84,63 @@ const generateNaturalFirstMessage = (partner: Persona | AICoach, userProfile?: a
   const personaAge = 'age' in partner ? partner.age : 25;
   const personaJob = 'job' in partner ? partner.job : '일반인';
   
-  // 🚀 혁신적인 MBTI별 자연스러운 첫 메시지 패턴 (맥락 기반)
+  // 🚀 맥락 기반 자연스러운 첫 메시지 패턴 (사용자에게 질문하여 대화 시작)
   const messagePatterns: Record<string, string[]> = {
     'ENFP': [
-      `${timeGreeting}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
-      `안녕하세요! ${personaName}이에요! 오늘 날씨가 정말 좋네요 ☀️ ${personaJob}로 일하고 있는데, 새로운 사람을 만나는 게 항상 즐거워요!`,
+      `${timeGreeting}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 일을 하시나요?`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 취미가 있으세요?`,
       `반가워요! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 어떤 하루 보내고 계세요?`,
-      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 오늘 뭔가 특별한 일이 있을 것 같은 기분이에요 ✨`,
-      `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 어떤 이야기든 재밌게 해봐요!`,
-      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 오늘 정말 좋은 하루네요! 🎉`
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 걸 좋아하세요?`,
+      `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 어떤 음악을 즐겨 들어요?`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 최근에 재밌게 본 영화가 있나요?`
     ],
     'ISFJ': [
-      `안녕하세요 ${userName}. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}로 일하고 있어요. 편하게 대화해요.`,
-      `${timeGreeting}. ${personaName}입니다. ${personaJob}로 일하고 있는데, 새로운 분과 대화할 수 있어서 좋네요.`,
-      `안녕하세요. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 조용히 대화해봐요.`,
-      `반가워요. ${personaName}이에요. ${personaJob}로 일하고 있는데, 깊이 있는 이야기를 나누고 싶어요.`,
-      `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 좋아해요.`,
-      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 의미 있는 대화를 해봅시다.`
+      `안녕하세요 ${userName}. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}로 일하고 있어요. ${userName}님은 어떤 일을 하시나요?`,
+      `${timeGreeting}. ${personaName}입니다. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 책을 좋아하세요?`,
+      `안녕하세요. 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 오늘 하루는 어떠셨나요?`,
+      `반가워요. ${personaName}이에요. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 음식을 좋아하세요?`,
+      `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}인데, 주말에는 보통 뭐 하세요?`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님은 어떤 장소를 좋아하세요?`
     ],
     'INTJ': [
-      `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 의미 있는 대화를 해봅시다.`,
-      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 깊이 있는 대화를 좋아해요.`,
-      `안녕하세요. ${personaName}입니다. 효율적이고 의미 있는 대화를 해봅시다.`,
-      `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 논리적인 대화를 선호해요.`,
-      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, 전략적인 사고를 좋아해요.`,
-      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 창의적인 아이디어를 좋아해요.`
+      `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. ${userName}님의 목표는 무엇인가요?`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님은 어떤 분야에 관심이 있으세요?`,
+      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 프로젝트를 하고 계세요?`,
+      `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 어떤 걸 배우고 싶으세요?`,
+      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, ${userName}님의 계획은 무엇인가요?`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님은 어떤 문제를 해결하고 싶으세요?`
     ],
     'ESFP': [
-      `${timeGreeting}! ${personaName}이에요! 😆 ${personaAge}세 ${personaJob}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
-      `안녕하세요! ${personaName}이에요! 🎉 ${personaJob}로 일하고 있는데, 새로운 사람 만나는 게 너무 신나요!`,
-      `반가워요! 저는 ${personaName}이에요! 오늘 뭐 재밌는 일 있었어요? 😊`,
-      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하는데, 즐거운 대화를 해봐요! 🎊`,
-      `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 오늘 정말 기분이 좋아요!`,
-      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 활기찬 대화를 좋아해요!`
+      `${timeGreeting}! ${personaName}이에요! 😆 ${personaAge}세 ${personaJob}인데, ${userName}님은 오늘 뭐 재밌는 일 있었어요?`,
+      `안녕하세요! ${personaName}이에요! 🎉 ${personaJob}로 일하고 있는데, ${userName}님은 어떤 활동을 좋아하세요?`,
+      `반가워요! 저는 ${personaName}이에요! 오늘 기분은 어떠세요? 😊`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하는데, ${userName}님은 어떤 걸로 스트레스 푸세요?`,
+      `반가워요! 저는 ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 주말에는 보통 뭐 하세요?`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 장소를 좋아하세요?`
     ],
     'INFP': [
-      `안녕하세요 ${userName}... 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 조금 부끄럽지만... 편하게 대화해요.`,
-      `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 조용한 대화를 좋아해요.`,
-      `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 해봐요.`,
-      `반가워요... 저는 ${personaName}이에요. ${personaJob}로 일하는데, 진심 어린 대화를 좋아해요.`,
-      `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 감성적인 이야기를 좋아해요.`,
-      `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 깊이 있는 대화를 선호해요.`
+      `안녕하세요 ${userName}... 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 음악을 좋아하세요?`,
+      `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 책을 좋아하세요?`,
+      `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 영화를 좋아하세요?`,
+      `반가워요... 저는 ${personaName}이에요. ${personaJob}로 일하는데, 오늘 하루는 어떠셨나요?`,
+      `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 꿈이 있으세요?`,
+      `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 가치를 중요하게 생각하세요?`
     ],
     'ENTP': [
-      `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 오늘 뭔가 흥미로운 이야기를 해봐요!`,
-      `${timeGreeting}! 저는 ${personaName}이에요. ${personaJob}로 일하는데, 새로운 아이디어를 좋아해요!`,
-      `반가워요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 창의적인 대화를 해봅시다!`,
-      `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, 도전적인 주제도 좋아해요!`,
-      `반가워요! 저는 ${personaName}이에요! ${personaJob}로 일하는데, 혁신적인 생각을 좋아해요!`,
-      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, 논쟁적인 주제도 즐겨요!`
+      `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 주제에 관심이 있으세요?`,
+      `${timeGreeting}! 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님은 어떤 아이디어가 있으세요?`,
+      `반가워요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 걸 창조하는 걸 좋아하세요?`,
+      `안녕하세요! ${personaName}이에요! ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 도전을 하고 계세요?`,
+      `반가워요! 저는 ${personaName}이에요! ${personaJob}로 일하는데, ${userName}님은 어떤 혁신에 관심이 있으세요?`,
+      `안녕하세요! ${personaName}이에요! ${personaJob}로 일하고 있는데, ${userName}님은 어떤 문제를 해결하고 싶으세요?`
     ],
     'ESTJ': [
-      `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 체계적인 대화를 해봅시다.`,
-      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 목표 지향적인 대화를 좋아해요.`,
-      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, 실용적인 이야기를 좋아해요.`,
-      `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 효율적인 대화를 선호해요.`,
-      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하는데, 리더십에 관심이 많아요.`,
-      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 조직적인 사고를 좋아해요.`
+      `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. ${userName}님은 어떤 일을 하고 계세요?`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, ${userName}님의 목표는 무엇인가요?`,
+      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 문제를 해결하고 계세요?`,
+      `반가워요. ${personaName}이에요. ${personaAge}세 ${personaJob}인데, ${userName}님은 어떤 방법으로 효율성을 높이세요?`,
+      `안녕하세요. ${personaName}입니다. ${personaJob}로 일하는데, ${userName}님은 어떤 리더십 스타일을 가지고 계세요?`,
+      `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, ${userName}님은 어떤 계획을 세우고 계세요?`
     ]
   };
 
@@ -459,11 +459,11 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         console.error('API call failed, using mock response:', error);
         // 🚀 실제 사람 같은 Mock 응답 생성 (대화 기술 향상)
         const mockResponses = isCoaching ? [
-          "좋은 질문이네요! 이런 접근을 해보세요 👍",
-          "정확하게 파악하셨네요! 다음 단계로 나아가볼까요?",
-          "훌륭한 진전이에요! 계속 이렇게 연습해보세요 💪",
-          "이 부분을 더 자세히 연습해볼까요? 함께 해보죠!",
-          "잘하고 계세요! 이런 팩을 기억하세요 💡"
+          "좋아요! 먼저 상대방의 관심사를 파악하는 것이 중요해요. '최근에 어떤 일에 관심이 있으세요?'처럼 열린 질문을 해보세요 💡",
+          "훌륭해요! 이제 공감을 표현해볼까요? 상대방의 말에 '정말 흥미롭네요!', '저도 그렇게 생각해요'처럼 반응해보세요 👍",
+          "잘하고 계세요! 다음은 자신의 경험을 공유할 차례예요. '저는 비슷한 상황에서...'처럼 자연스럽게 연결해보세요 💪",
+          "완벽해요! 이제 대화를 깊이 있게 만들어볼까요? 구체적인 질문을 추가하면 더 좋아요. '그때 어떤 기분이었나요?' 같은 질문을 해보세요 🎯",
+          "대단해요! 마지막으로 긍정적인 피드백을 주는 연습을 해봐요. '정말 멋진 생각이네요!', '당신의 열정이 느껴져요' 같은 표현을 사용해보세요 ✨"
         ] : [
           // 🎯 실제 사람처럼 자연스러운 응답 (질문에 맞는 구체적 답변)
           "저는 로맨스 영화를 좋아해요! 특히 해리포터 시리즈가 기억에 남네요 😊",
@@ -541,7 +541,8 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                 </div>
             </div>
             <div className="flex items-center gap-2">
-                {!isTutorialMode && (
+                {/* 🚀 코칭 모드가 아닐 때만 연인모드와 스타일분석 버튼 표시 */}
+                {!isTutorialMode && !isCoaching && (
                     <button
                         onClick={() => setCurrentMode(currentMode === 'normal' ? 'romantic' : 'normal')}
                         className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all hover:scale-105 ${
@@ -554,7 +555,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                         {currentMode === 'normal' ? '💕 연인 모드로' : '👋 일반 모드로'}
                     </button>
                 )}
-                {!isTutorialMode && messages.length > 3 && (
+                {!isTutorialMode && !isCoaching && messages.length > 3 && (
                     <button
                         onClick={async () => {
                             const result = await styleAnalysisMutation.mutateAsync(messages);
@@ -565,6 +566,12 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
                     >
                         💡 스타일 분석
                     </button>
+                )}
+                {/* 🚀 코칭 모드일 때는 코칭 관련 정보 표시 */}
+                {!isTutorialMode && isCoaching && 'specialty' in partner && (
+                    <span className="px-3 py-1.5 bg-[#E6F7F5] text-[#0AC5A8] border border-[#0AC5A8] text-sm font-medium rounded-lg">
+                        📚 {partner.specialty} 코칭
+                    </span>
                 )}
                 {isTutorialMode && tutorialStep.step < 5 && <span className="font-bold text-[#F093B0]">{tutorialStep.step}/{TUTORIAL_STEPS.length - 1} 단계</span>}
             </div>

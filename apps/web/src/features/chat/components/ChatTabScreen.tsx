@@ -311,7 +311,11 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                 <div className="flex justify-between items-center mb-3">
                     <h2 className="text-lg font-bold text-[#191F28]">💕 연애 연습용</h2>
                     <button 
-                      onClick={generateNewPersonas}
+                      onClick={() => {
+                        console.log('💕 연애 연습용 페르소나 생성 요청');
+                        // TODO: 연애 연습용 페르소나 생성 API 호출
+                        onNavigate(Screen.CustomPersona);
+                      }}
                       disabled={isGeneratingPersonas}
                       className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
                       style={{backgroundColor: '#F093B0'}}
@@ -329,7 +333,11 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                 <div className="flex justify-between items-center mb-3">
                     <h2 className="text-lg font-bold text-[#191F28]">🎯 직장 대화용</h2>
                     <button 
-                      onClick={generateNewPersonas}
+                      onClick={() => {
+                        console.log('🎯 직장 대화용 페르소나 생성 요청');
+                        // TODO: 직장 대화용 페르소나 생성 API 호출
+                        onNavigate(Screen.CustomPersona);
+                      }}
                       disabled={isGeneratingPersonas}
                       className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
                       style={{backgroundColor: '#0AC5A8'}}
@@ -347,7 +355,11 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                 <div className="flex justify-between items-center mb-3">
                     <h2 className="text-lg font-bold text-[#191F28]">🎨 취미 공유용</h2>
                     <button 
-                      onClick={generateNewPersonas}
+                      onClick={() => {
+                        console.log('🎨 취미 공유용 페르소나 생성 요청');
+                        // TODO: 취미 공유용 페르소나 생성 API 호출
+                        onNavigate(Screen.CustomPersona);
+                      }}
                       disabled={isGeneratingPersonas}
                       className="px-3 py-1 text-xs font-bold text-white rounded-full transition-all hover:scale-105 disabled:opacity-50"
                       style={{backgroundColor: '#22C55E'}}
@@ -383,19 +395,58 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                         </p>
                     </div>
                 ) : (
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
                         {searchedPersonas.slice(0, 6).map((persona, i) => (
-                            <div key={persona.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 50}ms` }}>
-                                <PersonaCard persona={persona} onSelect={() => onSelectPersona(persona)} />
+                            <div 
+                                key={persona.id} 
+                                className="animate-fade-in-up p-4 bg-white rounded-xl border border-[#F2F4F6] hover:border-[#F093B0] hover:shadow-lg transition-all cursor-pointer group"
+                                style={{ animationDelay: `${i * 100}ms` }}
+                                onClick={() => onSelectPersona(persona)}
+                            >
+                                {/* 🚀 카드 형태 AI 친구 */}
+                                <div className="text-center">
+                                    <div className="relative w-16 h-16 mx-auto mb-3">
+                                        <img 
+                                            src={persona.avatar} 
+                                            alt={persona.name} 
+                                            className="w-full h-full rounded-full object-cover border-2 border-white group-hover:border-[#F093B0] transition-colors" 
+                                        />
+                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#0AC5A8] rounded-full border-2 border-white flex items-center justify-center">
+                                            <span className="text-xs font-bold text-white">{persona.match_rate}%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 className="font-bold text-base mb-1 text-[#191F28]">{persona.name}</h3>
+                                    <p className="text-xs text-gray-600 mb-2">{persona.age}세 • {persona.job}</p>
+                                    
+                                    <div className="flex flex-wrap justify-center gap-1 mb-3">
+                                        {persona.tags?.slice(0, 2).map((tag: string, tagIndex: number) => (
+                                            <span key={tagIndex} className="px-2 py-1 text-xs bg-[#F093B0] text-white rounded-full">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    
+                                    <div className="text-xs text-gray-500 mb-3 line-clamp-2">
+                                        {persona.intro?.length > 40 ? `${persona.intro.substring(0, 40)}...` : persona.intro}
+                                    </div>
+                                    
+                                    <button className="w-full py-2 px-3 text-sm font-bold text-white rounded-lg transition-all hover:scale-105 bg-[#F093B0]">
+                                        대화하기
+                                    </button>
+                                </div>
                             </div>
                         ))}
+                        
                         {searchedPersonas.length > 6 && (
-                            <button 
-                                onClick={() => {/* 전체 보기 로직 */}}
-                                className="w-full py-2 text-sm font-bold text-[#F093B0] hover:underline"
-                            >
-                                + {searchedPersonas.length - 6}명 더 보기
-                            </button>
+                            <div className="col-span-2">
+                                <button 
+                                    onClick={() => {/* 전체 보기 로직 */}}
+                                    className="w-full py-3 text-sm font-bold text-[#F093B0] hover:underline border-2 border-dashed border-[#F093B0] rounded-xl hover:bg-[#FDF2F8] transition-all"
+                                >
+                                    + {searchedPersonas.length - 6}명 더 보기
+                                </button>
+                            </div>
                         )}
                     </div>
                 )}

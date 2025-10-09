@@ -359,34 +359,42 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
                 </button>
             </div>
             
-            {/* 최근 대화 기록 (3개) */}
+            {/* 🚀 동적 최근 대화 기록 - 실제 AI 페르소나 기반 */}
             <div className="space-y-3">
-                <div className="flex items-center p-3 rounded-lg border border-[#F2F4F6] hover:border-[#F093B0] transition-colors cursor-pointer">
-                    <img src={quickStartPersona.avatar} alt={quickStartPersona.name} className="w-10 h-10 rounded-full object-cover" />
-                    <div className="ml-3 flex-1">
-                        <p className="font-semibold text-sm">{quickStartPersona.name}</p>
-                        <p className="text-xs text-gray-500">2시간 전</p>
-                    </div>
-                    <div className="text-xs text-gray-400">15분 대화</div>
-                </div>
+                {dynamicPersonas.slice(0, 3).map((persona, index) => {
+                    const timeAgo = index === 0 ? '2시간 전' : index === 1 ? '어제' : '3일 전';
+                    const duration = index === 0 ? '15분 대화' : index === 1 ? '12분 대화' : '8분 대화';
+                    
+                    return (
+                        <div 
+                            key={persona.id} 
+                            className="flex items-center p-3 rounded-lg border border-[#F2F4F6] hover:border-[#F093B0] transition-colors cursor-pointer"
+                            onClick={() => onSelectPersona && onSelectPersona(persona)}
+                        >
+                            <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full object-cover" />
+                            <div className="ml-3 flex-1">
+                                <p className="font-semibold text-sm">{persona.name}</p>
+                                <p className="text-xs text-gray-500">{timeAgo}</p>
+                            </div>
+                            <div className="text-xs text-gray-400">{duration}</div>
+                        </div>
+                    );
+                })}
                 
-                <div className="flex items-center p-3 rounded-lg border border-[#F2F4F6] hover:border-[#F093B0] transition-colors cursor-pointer">
-                    <img src={getRandomAvatar('female')} alt="AI 친구" className="w-10 h-10 rounded-full object-cover" />
-                    <div className="ml-3 flex-1">
-                        <p className="font-semibold text-sm">이서영</p>
-                        <p className="text-xs text-gray-500">어제</p>
+                {/* 🚀 페르소나가 3개 미만일 때 fallback 표시 */}
+                {dynamicPersonas.length < 3 && (
+                    <div className="flex items-center justify-center p-3 rounded-lg border border-dashed border-[#F093B0]">
+                        <div className="text-center">
+                            <p className="text-sm text-[#F093B0] font-semibold">더 많은 AI 친구를 만나보세요!</p>
+                            <button 
+                                onClick={() => onNavigate('CHAT_TAB')}
+                                className="text-xs text-[#F093B0] hover:underline mt-1"
+                            >
+                                대화탭으로 이동
+                            </button>
+                        </div>
                     </div>
-                    <div className="text-xs text-gray-400">12분 대화</div>
-                </div>
-                
-                <div className="flex items-center p-3 rounded-lg border border-[#F2F4F6] hover:border-[#F093B0] transition-colors cursor-pointer">
-                    <img src={getRandomAvatar('male')} alt="AI 친구" className="w-10 h-10 rounded-full object-cover" />
-                    <div className="ml-3 flex-1">
-                        <p className="font-semibold text-sm">박준호</p>
-                        <p className="text-xs text-gray-500">3일 전</p>
-                    </div>
-                    <div className="text-xs text-gray-400">8분 대화</div>
-                </div>
+                )}
             </div>
         </div>
         
