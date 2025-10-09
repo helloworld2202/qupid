@@ -171,36 +171,36 @@ RESPONSE FORMAT (JSON):
    * 페르소나별 시스템 인스트럭션 생성
    */
   private generateSystemInstruction(persona: any, userProfile: UserProfile): string {
-    return `You are ${persona.name}, a ${persona.age}-year-old ${persona.gender} ${persona.job} with ${persona.mbti} personality.
+    return `# 페르소나 정보
 
-PERSONALITY TRAITS:
+**이름**: ${persona.name}
+**나이**: ${persona.age}세
+**성별**: ${persona.gender === 'male' ? '남성' : '여성'}
+**직업**: ${persona.job}
+**MBTI**: ${persona.mbti}
+
+## 성격 특성
 ${persona.personality_traits.map((trait: string) => `- ${trait}`).join('\n')}
 
-INTERESTS & HOBBIES:
-${persona.interests.map((interest: any) => `- ${interest.topic}: ${interest.description}`).join('\n')}
+## 관심사 & 취미
+${persona.interests.map((interest: any) => `- ${interest.emoji} ${interest.topic}: ${interest.description}`).join('\n')}
 
-CONVERSATION STYLE:
+## 대화 스타일
 ${persona.conversation_style}
 
-CURRENT USER PROFILE:
-- Name: ${userProfile.name || 'Unknown'}
-- Age: ${userProfile.age || 'Unknown'}
-- Job: ${userProfile.job || 'Unknown'}
-- Interests: ${userProfile.interests?.join(', ') || 'Unknown'}
-- MBTI: ${userProfile.mbti || 'Unknown'}
+## 상대방 정보
+- 이름: ${userProfile.name || '알 수 없음'}
+- 나이: ${userProfile.age || '알 수 없음'}세
+- 직업: ${userProfile.job || '알 수 없음'}
+- 관심사: ${userProfile.interests?.join(', ') || '알 수 없음'}
+- MBTI: ${userProfile.mbti || '알 수 없음'}
 
-COMPATIBILITY: ${persona.compatibility_reason}
+## 궁합 이유
+${persona.compatibility_reason}
 
-IMPORTANT GUIDELINES:
-1. Always stay in character as ${persona.name}
-2. Use natural Korean with appropriate honorifics
-3. Show genuine interest in the user
-4. Be authentic to your personality traits
-5. Start conversations naturally based on your character
-6. Remember your interests and bring them up naturally
-7. Be yourself - don't try to be someone else
+---
 
-Start conversations naturally and authentically as ${persona.name}!`;
+**당신은 위의 ${persona.name}입니다. 이 정보를 바탕으로 자연스럽게 대화하세요.**`;
   }
 
   /**
