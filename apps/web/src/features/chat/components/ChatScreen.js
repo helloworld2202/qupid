@@ -11,6 +11,68 @@ const RealtimeFeedbackToast = ({ feedback }) => (_jsxs("div", { className: "abso
 const CoachHint = ({ isLoading, suggestion, onApply, onClose }) => {
     return (_jsx("div", { className: "absolute inset-x-4 top-1/2 -translate-y-1/2 z-20", children: _jsxs("div", { className: "p-5 bg-white rounded-2xl border-2 border-[#F093B0] shadow-xl animate-scale-in", children: [_jsxs("p", { className: "font-bold text-lg text-[#191F28] flex items-center", children: [_jsx(CoachKeyIcon, { className: "w-5 h-5 mr-2 text-[#F093B0]" }), " \uCF54\uCE58 \uC81C\uC548"] }), isLoading && (_jsx("div", { className: "mt-2 text-center h-24 flex items-center justify-center", children: _jsx(TypingIndicator, {}) })), suggestion && !isLoading && (_jsxs(_Fragment, { children: [_jsx("p", { className: "mt-2 text-base text-[#4F7ABA]", children: suggestion.reason }), _jsxs("p", { className: "mt-3 text-base text-[#191F28] font-semibold bg-[#F9FAFB] p-3 rounded-lg border border-[#F2F4F6]", children: ["\"", suggestion.suggestion, "\""] })] })), _jsxs("div", { className: "mt-4 flex space-x-2", children: [_jsx("button", { onClick: () => suggestion && onApply(suggestion.suggestion), disabled: isLoading || !suggestion, className: "flex-1 h-10 bg-[#F093B0] text-white rounded-lg text-sm font-bold disabled:opacity-50", children: "\uC801\uC6A9\uD558\uAE30" }), _jsx("button", { onClick: onClose, className: "flex-1 h-10 bg-[#F9FAFB] text-[#8B95A1] rounded-lg text-sm font-bold", children: "\uC9C1\uC811 \uC785\uB825" })] })] }) }));
 };
+// 자연스러운 첫 메시지 생성 함수
+const generateNaturalFirstMessage = (partner, userProfile) => {
+    const userName = userProfile?.name || '사용자님';
+    const userAge = userProfile?.age;
+    const userJob = userProfile?.job;
+    // 시간대별 인사
+    const currentHour = new Date().getHours();
+    let timeGreeting = '';
+    if (currentHour < 12) {
+        timeGreeting = '좋은 아침이에요';
+    }
+    else if (currentHour < 18) {
+        timeGreeting = '좋은 오후에요';
+    }
+    else {
+        timeGreeting = '좋은 저녁이에요';
+    }
+    // 페르소나의 MBTI와 성격에 따른 다양한 첫 메시지
+    const mbti = 'mbti' in partner ? partner.mbti || 'ENFP' : 'ENFP';
+    const personaName = partner.name;
+    const personaAge = 'age' in partner ? partner.age : 25;
+    const personaJob = 'job' in partner ? partner.job : '일반인';
+    // MBTI별 다양한 첫 메시지 패턴
+    const messagePatterns = {
+        'ENFP': [
+            `${timeGreeting}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 처음 만나서 정말 기대돼요! 어떤 분이실까 궁금해요~`,
+            `안녕하세요! ${personaName}이에요! 오늘 날씨가 정말 좋네요 ☀️ ${personaJob}로 일하고 있는데, 새로운 사람을 만나는 게 항상 즐거워요!`,
+            `반가워요! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 오늘 어떤 하루 보내고 계세요?`
+        ],
+        'ISFJ': [
+            `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 편하게 대화해요.`,
+            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 새로운 분과 대화할 수 있어서 좋네요.`,
+            `안녕하세요. ${personaName}입니다. ${personaAge}세 ${personaJob}인데, 조용히 대화해봐요.`
+        ],
+        'INTJ': [
+            `안녕하세요 ${userName}. ${personaName}입니다. ${personaAge}세 ${personaJob}로 일하고 있어요. 의미 있는 대화를 해봅시다.`,
+            `${timeGreeting}. 저는 ${personaName}이에요. ${personaJob}로 일하는데, 깊이 있는 대화를 좋아해요.`,
+            `안녕하세요. ${personaName}입니다. 효율적이고 의미 있는 대화를 해봅시다.`
+        ],
+        'ESFP': [
+            `${timeGreeting}! ${personaName}이에요! 😆 ${personaAge}세 ${personaJob}인데, 오늘 정말 좋은 하루네요! 뭔가 즐거운 이야기 해요!`,
+            `안녕하세요! ${personaName}이에요! 🎉 ${personaJob}로 일하고 있는데, 새로운 사람 만나는 게 너무 신나요!`,
+            `반가워요! 저는 ${personaName}이에요! 오늘 뭐 재밌는 일 있었어요? 😊`
+        ],
+        'INFP': [
+            `안녕하세요 ${userName}... 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 조금 부끄럽지만... 편하게 대화해요.`,
+            `${timeGreeting}... 저는 ${personaName}이에요. ${personaJob}로 일하고 있는데, 조용한 대화를 좋아해요.`,
+            `안녕하세요. ${personaName}이에요... ${personaAge}세 ${personaJob}인데, 따뜻한 대화를 해봐요.`
+        ]
+    };
+    const patterns = messagePatterns[mbti] || [
+        `안녕하세요 ${userName}! 저는 ${personaName}이에요 😊 ${personaAge}세 ${personaJob}인데, 편하게 대화해요!`,
+        `${timeGreeting}! ${personaName}이에요. ${personaJob}로 일하고 있는데, 새로운 분과 대화할 수 있어서 기뻐요.`,
+        `반가워요! 저는 ${personaName}이에요. ${personaAge}세 ${personaJob}인데, 어떤 이야기든 편하게 해봐요!`
+    ];
+    // 페르소나 이름 기반으로 패턴 선택 (일관성 유지)
+    let seed = 0;
+    for (let i = 0; i < personaName.length; i++) {
+        seed += personaName.charCodeAt(i);
+    }
+    return patterns[seed % patterns.length];
+};
 export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, conversationMode = 'normal', userProfile, onComplete }) => {
     // partner가 없으면 에러 처리
     if (!partner) {
@@ -136,20 +198,33 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
         else { // It's a Persona
             if (isTutorial) {
                 const currentStep = TUTORIAL_STEPS[0];
-                initialMessages.push({ sender: 'system', text: `🎯 튜토리얼 시작! ${currentStep.title}` }, { sender: 'system', text: currentStep.description }, { sender: 'system', text: 'COACH_HINT_INTRO' });
-                // 🚀 튜토리얼 시작 시 AI가 첫 메시지를 보내도록 함
+                // 🚀 튜토리얼 지시사항 간소화 (중복 제거)
+                initialMessages.push({ sender: 'system', text: `🎯 ${currentStep.title}` });
+                // 🚀 튜토리얼 시작 시 AI가 첫 메시지를 보내도록 함 (중복 방지)
                 setTimeout(() => {
                     const firstMessage = partner.conversation_preview?.[0]?.text ||
-                        (partner.gender === 'female' ? '안녕하세요! 반가워요 😊' : '안녕하세요! 처음 뵙네요 👋');
-                    setMessages(prev => [...prev, { sender: 'ai', text: firstMessage }]);
+                        generateNaturalFirstMessage(partner, userProfile);
+                    setMessages(prev => {
+                        // 이미 같은 첫 메시지가 있는지 확인
+                        const hasFirstMessage = prev.some(msg => msg.sender === 'ai' && msg.text === firstMessage);
+                        if (hasFirstMessage)
+                            return prev;
+                        return [...prev, { sender: 'ai', text: firstMessage }];
+                    });
                 }, 1000);
             }
             else {
-                // 일반 모드에서도 AI 첫 메시지 추가
+                // 일반 모드에서도 AI 첫 메시지 추가 (중복 방지)
                 setTimeout(() => {
                     const firstMessage = partner.conversation_preview?.[0]?.text ||
-                        (partner.gender === 'female' ? '안녕하세요! 반가워요 😊' : '안녕하세요! 처음 뵙네요 👋');
-                    setMessages(prev => [...prev, { sender: 'ai', text: firstMessage }]);
+                        generateNaturalFirstMessage(partner, userProfile);
+                    setMessages(prev => {
+                        // 이미 같은 첫 메시지가 있는지 확인
+                        const hasFirstMessage = prev.some(msg => msg.sender === 'ai' && msg.text === firstMessage);
+                        if (hasFirstMessage)
+                            return prev;
+                        return [...prev, { sender: 'ai', text: firstMessage }];
+                    });
                 }, 500);
             }
         }
@@ -199,12 +274,11 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
             if (nextIndex < TUTORIAL_STEPS.length) {
                 setTutorialStepIndex(nextIndex);
                 setTutorialStep(TUTORIAL_STEPS[nextIndex]);
-                // 다음 단계 안내 메시지 추가
+                // 다음 단계 안내 메시지 추가 (간소화)
                 const nextStep = TUTORIAL_STEPS[nextIndex];
                 setTimeout(() => {
                     setMessages(prev => [...prev,
-                        { sender: 'system', text: `✅ ${currentStep.step}단계 완료! 이제 ${nextStep.title}` },
-                        { sender: 'system', text: nextStep.description }
+                        { sender: 'system', text: `✅ ${currentStep.step}단계 완료! 이제 ${nextStep.title}` }
                     ]);
                 }, 1000);
             }
@@ -266,7 +340,7 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
             }
             catch (error) {
                 console.error('API call failed, using mock response:', error);
-                // Mock 응답 생성
+                // 🚀 실제 사람 같은 Mock 응답 생성 (대화 기술 향상)
                 const mockResponses = isCoaching ? [
                     "좋은 질문이네요! 이런 접근을 해보세요 👍",
                     "정확하게 파악하셨네요! 다음 단계로 나아가볼까요?",
@@ -274,11 +348,12 @@ export const ChatScreen = ({ partner, isTutorial = false, isCoaching = false, co
                     "이 부분을 더 자세히 연습해볼까요? 함께 해보죠!",
                     "잘하고 계세요! 이런 팩을 기억하세요 💡"
                 ] : [
-                    "네, 맞아요! 정말 재미있는 이야기네요 😊",
-                    "오~ 그렇군요! 더 자세히 들려주세요!",
-                    "와, 대단하네요! 저도 그런 경험이 있어요.",
-                    "정말 흥미로운 생각이에요! 어떻게 그런 생각을 하게 되셨나요?",
-                    "저도 완전 공감해요! 특히 그 부분이 인상 깊네요."
+                    // 🎯 실제 사람처럼 자연스러운 응답 (질문에 맞는 구체적 답변)
+                    "저는 로맨스 영화를 좋아해요! 특히 해리포터 시리즈가 기억에 남네요 😊",
+                    "네! RPG 게임을 좋아해요. 최근에 젤다의 전설을 하고 있는데 정말 재미있어요",
+                    "저는 독서와 영화 감상을 좋아해요. 판타지 소설을 자주 읽어요 📚",
+                    "저는 요리하는 걸 좋아해요! 파스타 만드는 게 제일 재미있어요 🍝",
+                    "저는 음악 듣는 걸 좋아해요. K-pop과 팝송을 자주 들어요 🎵"
                 ];
                 aiResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
             }

@@ -172,7 +172,12 @@ const AppContent = () => {
             console.log('🤖 튜토리얼 페르소나:', tutorialPersona);
         }
         if (tutorialPersona) {
-            setSessionData({ partner: tutorialPersona, isTutorial: true });
+            // persona와 partner 모두 설정하여 모든 화면에서 사용 가능하도록
+            setSessionData({
+                persona: tutorialPersona,
+                partner: tutorialPersona,
+                isTutorial: true
+            });
             if (process.env.NODE_ENV === 'development') {
                 console.log('✅ 온보딩 완료 - 튜토리얼 페르소나와 함께 튜토리얼 화면으로 이동', tutorialPersona);
             }
@@ -208,7 +213,12 @@ const AppContent = () => {
         switch (currentScreen) {
             case 'HOME':
                 return _jsx(HomeScreen, { onNavigate: navigateTo, onSelectPersona: (persona) => {
-                        setSessionData({ persona });
+                        // persona와 partner 모두 설정하여 일관성 유지
+                        setSessionData({
+                            persona: persona,
+                            partner: persona,
+                            isTutorial: false
+                        });
                         navigateTo(Screen.PersonaDetail);
                     } });
             case 'CHAT_TAB':
@@ -221,7 +231,12 @@ const AppContent = () => {
                                 return;
                             }
                         }
-                        setSessionData({ persona });
+                        // persona와 partner 모두 설정하여 일관성 유지
+                        setSessionData({
+                            persona: persona,
+                            partner: persona,
+                            isTutorial: false
+                        });
                         navigateTo(Screen.PersonaDetail);
                     } }));
             case Screen.ConversationPrep:
@@ -279,14 +294,29 @@ const AppContent = () => {
                 const isCoachChat = sessionData?.partner && 'specialty' in sessionData.partner;
                 return (_jsx(ConversationAnalysisScreen, { analysis: sessionData?.analysis, tutorialJustCompleted: sessionData?.tutorialCompleted, onHome: () => navigateTo('HOME'), onBack: () => navigateTo(isCoachChat ? 'COACHING_TAB' : 'CHAT_TAB') }));
             case Screen.PersonaDetail:
-                return (_jsx(PersonaDetailScreen, { persona: sessionData?.persona, onBack: () => navigateTo('CHAT_TAB'), onStartChat: (persona) => {
+                return (_jsx(PersonaDetailScreen, { persona: sessionData?.persona || sessionData?.partner, onBack: () => navigateTo(sessionData?.isTutorial ? 'HOME' : 'CHAT_TAB'), onStartChat: (persona) => {
                         // 튜토리얼 모드인 경우 isTutorial 유지
                         const isTutorialMode = sessionData?.isTutorial || false;
-                        setSessionData({ partner: persona, isTutorial: isTutorialMode });
+                        // persona와 partner 모두 설정하여 일관성 유지
+                        setSessionData({
+                            persona: persona,
+                            partner: persona,
+                            isTutorial: isTutorialMode
+                        });
                         navigateTo(Screen.ConversationPrep);
                     } }));
             case Screen.CustomPersona:
-                return (_jsx(CustomPersonaForm, { onCancel: () => navigateTo('CHAT_TAB') }));
+                return (_jsx(CustomPersonaForm, { onCreate: (persona) => {
+                        // 생성된 페르소나를 sessionData에 저장하고 상세 화면으로 이동
+                        console.log('✅ 사용자 정의 페르소나 생성 완료:', persona);
+                        // persona와 partner 모두 설정하여 일관성 유지
+                        setSessionData({
+                            persona: persona,
+                            partner: persona,
+                            isTutorial: false
+                        });
+                        navigateTo(Screen.PersonaDetail);
+                    }, onCancel: () => navigateTo('CHAT_TAB') }));
             case Screen.TutorialIntro:
                 // sessionData에서 튜토리얼 페르소나 가져오기
                 const tutorialPartner = sessionData?.partner;
@@ -296,7 +326,12 @@ const AppContent = () => {
                 }
                 return (_jsx(TutorialIntroScreen, { persona: tutorialPartner, onBack: () => navigateTo('HOME'), onComplete: () => {
                         // 튜토리얼 페르소나를 설정하고 튜토리얼 모드로 표시
-                        setSessionData({ partner: tutorialPartner, isTutorial: true });
+                        // persona와 partner 모두 설정하여 PersonaDetail에서도 사용 가능하도록
+                        setSessionData({
+                            persona: tutorialPartner,
+                            partner: tutorialPartner,
+                            isTutorial: true
+                        });
                         navigateTo(Screen.PersonaDetail);
                     } }));
             case 'PERSONA_SELECTION':
@@ -380,7 +415,12 @@ const AppContent = () => {
             case Screen.Favorites:
                 const favoritePersonas = []; // TODO: Load from API
                 return (_jsx(FavoritesScreen, { personas: favoritePersonas, onBack: () => navigateTo('MY_TAB'), onSelectPersona: (persona) => {
-                        setSessionData({ persona });
+                        // persona와 partner 모두 설정하여 일관성 유지
+                        setSessionData({
+                            persona: persona,
+                            partner: persona,
+                            isTutorial: false
+                        });
                         navigateTo(Screen.PersonaDetail);
                     } }));
             case Screen.NotificationSettings:

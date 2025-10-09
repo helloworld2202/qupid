@@ -4,6 +4,7 @@ import { ArrowLeftIcon, CheckIcon } from '@qupid/ui';
 import { useCreateUserProfile } from '../../../shared/hooks/api/useUser';
 import { useAppStore } from '../../../shared/stores/useAppStore';
 import { useGeneratePersona } from '../../../shared/hooks/usePersonaGeneration';
+import { getConsistentAvatar } from '../../../shared/utils/avatarGenerator';
 // import SocialLoginScreen from './SocialLoginScreen'; // 소셜 로그인 기능 임시 비활성화
 const TOTAL_ONBOARDING_STEPS = 4;
 // --- Reusable Components ---
@@ -135,12 +136,13 @@ export const OnboardingFlow = ({ onComplete }) => {
             // 🚀 완전 실패 시에도 동적 생성된 페르소나로 진행 (하드코딩 제거)
             console.log('🆘 완전 실패, 동적 생성된 기본 페르소나로 진행');
             const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
+            const personaName = partnerGender === 'female' ? '김서현' : '박지훈';
             const fallbackPersona = {
                 id: 'tutorial-persona-fallback',
-                name: partnerGender === 'female' ? '김서현' : '박지훈',
+                name: personaName,
                 age: 25,
                 gender: partnerGender,
-                avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+                avatar: getConsistentAvatar(personaName, partnerGender),
                 personality: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
                 occupation: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
                 mbti: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
@@ -187,19 +189,43 @@ export const OnboardingFlow = ({ onComplete }) => {
             // API 실패 시 기본 페르소나 반환
             const partnerGender = profile.user_gender === 'male' ? 'female' : 'male';
             const interests = profile.interests.map((i) => i.split(' ')[1] || i);
+            const personaName = partnerGender === 'female' ? '김서현' : '박지훈';
             const fallbackPersona = {
                 id: 'tutorial-persona-fallback',
-                name: partnerGender === 'female' ? '김서현' : '박지훈',
+                name: personaName,
                 age: 25,
                 gender: partnerGender,
-                avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+                avatar: getConsistentAvatar(personaName, partnerGender),
                 personality: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
                 occupation: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
+                job: partnerGender === 'female' ? '초등학교 교사' : '소프트웨어 개발자',
+                mbti: partnerGender === 'female' ? 'ENFP' : 'ISFJ',
+                intro: partnerGender === 'female' ? '아이들과 함께하는 일을 좋아해요 ✨' : '코딩과 기술에 관심이 많아요 💻',
+                system_instruction: `당신은 ${partnerGender === 'female' ? '25세 초등학교 교사 김서현' : '25세 소프트웨어 개발자 박지훈'}입니다. ${partnerGender === 'female' ? 'ENFP' : 'ISFJ'} 성격을 가지고 있으며, 자연스럽고 친근한 대화를 나누세요.`,
+                tags: partnerGender === 'female' ? ['교육', '아이들', '활발함'] : ['코딩', '기술', '차분함'],
+                match_rate: 85,
+                personality_traits: partnerGender === 'female' ? ['외향적', '친근함', '활발함'] : ['내향적', '차분함', '신중함'],
+                interests: partnerGender === 'female' ? [
+                    { emoji: '👶', topic: '아이들', description: '아이들과 함께하는 시간을 좋아해요' },
+                    { emoji: '📚', topic: '교육', description: '교육에 대한 열정이 있어요' },
+                    ...(interests.slice(0, 2).map((interest) => ({
+                        emoji: '✨',
+                        topic: interest,
+                        description: `${interest}에 관심이 있어요`
+                    })))
+                ] : [
+                    { emoji: '💻', topic: '코딩', description: '새로운 기술을 배우는 걸 좋아해요' },
+                    { emoji: '🎮', topic: '게임', description: '게임 개발에 관심이 있어요' },
+                    ...(interests.slice(0, 2).map((interest) => ({
+                        emoji: '✨',
+                        topic: interest,
+                        description: `${interest}에 관심이 있어요`
+                    })))
+                ],
                 education: '대학 졸업',
                 location: '서울 강남구',
                 height: partnerGender === 'female' ? '160-165cm' : '175-180cm',
                 bodyType: '보통',
-                interests: interests.slice(0, 3),
                 values: ['가정 지향', '성장 지향'],
                 communicationStyle: partnerGender === 'female' ? '감성적, 공감적' : '논리적, 신중함',
                 datingStyle: partnerGender === 'female' ? '로맨틱' : '현실적',
@@ -217,8 +243,13 @@ export const OnboardingFlow = ({ onComplete }) => {
                 conversationStyle: partnerGender === 'female'
                     ? '따뜻하고 격려하는 말투로 대화하는 교사입니다. 공감 능력이 높고 자연스러운 대화를 좋아해요.'
                     : '신중하고 배려심 깊은 개발자입니다. 진지한 대화를 선호하며 상대방을 잘 들어주는 편이에요.',
+                conversation_preview: [
+                    { sender: 'ai', text: '안녕하세요! 반가워요 😊' }
+                ],
                 isTutorial: true
             };
+            console.log('🔄 생성된 fallback 페르소나:', fallbackPersona);
+            return fallbackPersona;
         }
     };
     const handleGenderSelect = (gender) => {
