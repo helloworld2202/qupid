@@ -411,16 +411,16 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                    </div>
                ) : (
                    <div className="relative">
-                       {/* 🚀 1명씩 오른쪽 슬라이드 형태 */}
-                       <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide">
-                           {searchedPersonas.slice(0, 1).map((persona, i) => (
+                       {/* 🚀 슬라이드 형태 - 이미지와 동일하게 */}
+                       <div className="space-y-3">
+                           {searchedPersonas.slice(0, 3).map((persona, i) => (
                                <div 
                                    key={persona.id} 
-                                   className="flex-shrink-0 w-full animate-fade-in-up p-4 bg-white rounded-xl border border-[#F2F4F6] hover:border-[#F093B0] hover:shadow-lg transition-all cursor-pointer group"
+                                   className="animate-fade-in-up p-4 bg-white rounded-xl border border-[#F2F4F6] hover:border-[#F093B0] hover:shadow-lg transition-all cursor-pointer group"
                                    style={{ animationDelay: `${i * 100}ms` }}
                                    onClick={() => onSelectPersona(persona)}
                                >
-                                   {/* 🚀 카드 형태 AI 친구 - 가로형 */}
+                                   {/* 🚀 카드 형태 AI 친구 - 이미지와 동일한 레이아웃 */}
                                    <div className="flex items-center">
                                        <div className="relative w-16 h-16 mr-4">
                                            <img 
@@ -457,22 +457,22 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                                </div>
                            ))}
                            
-                           {/* 🚀 더 많은 AI 친구가 있을 때 슬라이드 표시 */}
-                           {searchedPersonas.length > 1 && (
-                               <div className="flex-shrink-0 w-full flex items-center justify-center">
-                                   <div className="text-center p-4">
+                           {/* 🚀 더 많은 AI 친구가 있을 때 표시 */}
+                           {searchedPersonas.length > 3 && (
+                               <div className="p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                                   <div className="text-center">
                                        <div className="text-2xl mb-2">👥</div>
                                        <p className="text-sm text-gray-500 mb-2">
-                                           {searchedPersonas.length - 1}명의<br/>더 많은 AI 친구들
+                                           {searchedPersonas.length - 3}명의<br/>더 많은 AI 친구들
                                        </p>
                                        <button 
                                            onClick={() => {
-                                               console.log('🔄 다음 AI 친구 보기');
-                                               // TODO: 다음 AI 친구로 슬라이드
+                                               console.log('🔄 전체 AI 친구 보기');
+                                               // TODO: 전체 AI 친구 목록으로 이동
                                            }}
                                            className="px-3 py-1 text-xs font-bold text-[#F093B0] border border-[#F093B0] rounded-full hover:bg-[#FDF2F8] transition-all"
                                        >
-                                           다음 보기
+                                           전체 보기
                                        </button>
                                    </div>
                                </div>

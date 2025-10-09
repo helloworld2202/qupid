@@ -256,7 +256,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
     setCoachSuggestion(null);
 
     try {
-      // 🚀 맥락 기반 AI 코치 제안 시스템
+      // 🚀 맥락 기반 AI 코치 제안 시스템 (API 우선 시도)
       const suggestion = await coachMutation.mutateAsync({ 
         messages, 
         persona: partner 
@@ -265,39 +265,61 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
       setCoachSuggestion(suggestion);
     } catch (error) {
       console.error('Failed to fetch contextual suggestion:', error);
-      // 🚀 맥락 기반 대체 제안 생성
+      // 🚀 강화된 맥락 기반 대체 제안 생성 (API 실패 시)
       const contextualSuggestion = generateContextualSuggestion(messages, partner);
-      setCoachSuggestion({ reason: "맥락 기반 제안", suggestion: contextualSuggestion });
+      setCoachSuggestion({ reason: "AI 맥락 분석 제안", suggestion: contextualSuggestion });
     } finally {
       setIsFetchingSuggestion(false);
     }
   }, [messages, isFetchingSuggestion, showCoachHint, coachMutation, partner]);
 
-  // 🚀 맥락 기반 제안 생성 함수
+  // 🚀 강화된 맥락 기반 제안 생성 함수
   const generateContextualSuggestion = useCallback((messages: Message[], partner: Persona | AICoach) => {
-    const lastUserMessage = messages.filter(m => m.sender === 'user').pop()?.text || '';
-    const lastAiMessage = messages.filter(m => m.sender === 'ai').pop()?.text || '';
-    const conversationLength = messages.filter(m => m.sender === 'user').length;
+    const userMessages = messages.filter(m => m.sender === 'user');
+    const aiMessages = messages.filter(m => m.sender === 'ai');
+    const lastUserMessage = userMessages.pop()?.text || '';
+    const lastAiMessage = aiMessages.pop()?.text || '';
+    const conversationLength = userMessages.length;
     
-    // 대화 맥락 분석
+    // 🧠 고급 맥락 분석
     const isFirstMessage = conversationLength === 1;
-    const isShortResponse = lastUserMessage.length < 10;
-    const isQuestion = lastUserMessage.includes('?') || lastUserMessage.includes('어떤') || lastUserMessage.includes('무엇');
-    const isEmotional = lastUserMessage.includes('힘들') || lastUserMessage.includes('좋아') || lastUserMessage.includes('재미');
+    const isShortResponse = lastUserMessage.length < 15;
+    const isLongResponse = lastUserMessage.length > 50;
+    const isQuestion = lastUserMessage.includes('?') || lastUserMessage.includes('어떤') || lastUserMessage.includes('무엇') || lastUserMessage.includes('어디') || lastUserMessage.includes('언제');
+    const isEmotional = lastUserMessage.includes('힘들') || lastUserMessage.includes('좋아') || lastUserMessage.includes('재미') || lastUserMessage.includes('기쁘') || lastUserMessage.includes('슬프') || lastUserMessage.includes('화나');
+    const isPersonal = lastUserMessage.includes('저') || lastUserMessage.includes('나') || lastUserMessage.includes('제가') || lastUserMessage.includes('내가');
+    const isAboutWork = lastUserMessage.includes('일') || lastUserMessage.includes('직장') || lastUserMessage.includes('회사') || lastUserMessage.includes('업무');
+    const isAboutHobby = lastUserMessage.includes('취미') || lastUserMessage.includes('관심') || lastUserMessage.includes('좋아하는') || lastUserMessage.includes('즐겨');
+    const isAboutFuture = lastUserMessage.includes('미래') || lastUserMessage.includes('계획') || lastUserMessage.includes('꿈') || lastUserMessage.includes('목표');
     
-    // 맥락별 제안 생성
+    // 🎯 AI 응답 분석
+    const aiIsAsking = lastAiMessage.includes('?');
+    const aiIsSharing = lastAiMessage.includes('저는') || lastAiMessage.includes('제가');
+    const aiIsEmotional = lastAiMessage.includes('😊') || lastAiMessage.includes('😢') || lastAiMessage.includes('😍') || lastAiMessage.includes('🤔');
+    
+    // 🚀 상황별 맞춤 제안 생성
     if (isFirstMessage) {
-      return "좋은 시작이에요! 이제 상대방의 관심사를 파악해보세요. '어떤 일을 하시나요?' 같은 질문으로 대화를 이어가보세요 💡";
-    } else if (isShortResponse) {
-      return "대화를 더 풍성하게 만들어보세요! '그렇군요! 저도 비슷한 경험이 있어요. 그때는...'처럼 자신의 경험을 공유해보세요 💭";
-    } else if (isQuestion) {
-      return "좋은 질문이에요! 이제 상대방의 답변에 '정말 흥미롭네요! 어떻게 그런 생각을 하게 되었나요?'처럼 호기심을 보이는 후속 질문을 해보세요 🤔";
-    } else if (isEmotional) {
-      return "감정을 잘 표현하고 있네요! 이제 '그때 어떤 기분이었나요?'처럼 상대방의 감정을 더 깊이 파악하는 질문을 해보세요 😊";
-    } else if (conversationLength >= 5) {
-      return "대화가 잘 이어지고 있어요! 이제 '오늘 정말 좋은 시간이었어요. 다음에 또 이런 이야기 해요'처럼 긍정적인 마무리를 준비해보세요 ✨";
+      return "좋은 시작이에요! 이제 상대방의 관심사를 파악해보세요. '어떤 일을 하시나요?' 또는 '주말에는 보통 뭐 하면서 시간을 보내세요?' 같은 질문으로 대화를 이어가보세요 💡";
+    } else if (isShortResponse && !isQuestion) {
+      return "대화를 더 풍성하게 만들어보세요! '그렇군요! 저도 비슷한 경험이 있어요. 그때는 정말...'처럼 자신의 경험을 구체적으로 공유해보세요 💭";
+    } else if (isQuestion && aiIsAsking) {
+      return "훌륭해요! 서로 질문을 주고받고 있네요. 이제 '정말 흥미롭네요! 그때 어떤 기분이었나요?'처럼 감정이나 경험에 대해 더 깊이 파고드는 질문을 해보세요 🤔";
+    } else if (isEmotional && !aiIsEmotional) {
+      return "감정을 잘 표현하고 있네요! 이제 상대방도 감정을 나눌 수 있도록 '그때 어떤 기분이었나요?' 또는 '비슷한 경험이 있으신가요?' 같은 질문을 해보세요 😊";
+    } else if (isPersonal && !isAboutWork && !isAboutHobby) {
+      return "개인적인 이야기를 잘 나누고 있네요! 이제 '그 경험에서 무엇을 배웠나요?' 또는 '그 일이 당신에게 어떤 의미가 있나요?' 같은 성찰적인 질문을 해보세요 🎯";
+    } else if (isAboutWork) {
+      return "직장 이야기를 나누고 있네요! 이제 '그 일이 재미있으신가요?' 또는 '어떤 부분이 가장 보람을 느끼시나요?' 같은 감정과 가치관을 파악하는 질문을 해보세요 💼";
+    } else if (isAboutHobby) {
+      return "취미 이야기가 좋네요! 이제 '그걸 어떻게 시작하게 되셨나요?' 또는 '그 취미의 어떤 점이 가장 좋으신가요?' 같은 깊이 있는 질문을 해보세요 🎨";
+    } else if (isAboutFuture) {
+      return "미래에 대한 이야기를 나누고 있네요! 이제 '그 목표를 위해 어떤 계획을 세우고 계신가요?' 또는 '그 꿈이 언제부터 생겼나요?' 같은 구체적인 질문을 해보세요 🌟";
+    } else if (conversationLength >= 6) {
+      return "대화가 정말 잘 이어지고 있어요! 이제 '오늘 정말 좋은 시간이었어요. 다음에 또 이런 이야기 해요' 또는 '다음에 만날 때 더 자세히 들려주세요' 같은 긍정적인 마무리를 준비해보세요 ✨";
+    } else if (isLongResponse && !isQuestion) {
+      return "상세한 이야기를 잘 해주고 있네요! 이제 상대방의 반응을 확인하고 '어떻게 생각하세요?' 또는 '비슷한 경험이 있으신가요?' 같은 질문을 해보세요 💬";
     } else {
-      return "대화를 더 깊이 있게 만들어보세요! '그 경험에서 무엇을 배웠나요?' 같은 성찰적인 질문을 해보세요 🎯";
+      return "대화를 더 깊이 있게 만들어보세요! '그 경험에서 무엇을 배웠나요?' 또는 '그 일이 당신에게 어떤 의미가 있나요?' 같은 성찰적이고 의미 있는 질문을 해보세요 🎯";
     }
   }, []);
 
@@ -657,15 +679,15 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
       const updatedMessages = [...messages, userMessage, aiMessage];
       setMessages(updatedMessages);
       
-      // 🚀 실시간 대화 분석 실행
-      const analysis = analyzeConversationRealTime(updatedMessages);
-      if (analysis) {
-        setConversationAnalysis(analysis);
-        // 3초 후 분석 결과 표시
-        setTimeout(() => {
-          setShowAnalysisModal(true);
-        }, 3000);
-      }
+      // 🚀 실시간 대화 분석 제거 (사용자 요청에 따라)
+      // const analysis = analyzeConversationRealTime(updatedMessages);
+      // if (analysis) {
+      //   setConversationAnalysis(analysis);
+      //   // 3초 후 분석 결과 표시
+      //   setTimeout(() => {
+      //     setShowAnalysisModal(true);
+      //   }, 3000);
+      // }
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {
@@ -936,92 +958,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         isLoading={styleAnalysisMutation.isPending}
       />
       
-      {/* 🚀 실시간 대화 분석 모달 */}
-      {showAnalysisModal && conversationAnalysis && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-30">
-          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-[#191F28]">📊 실시간 대화 분석</h3>
-              <button 
-                onClick={() => setShowAnalysisModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              {/* 대화 품질 점수 */}
-              <div className="p-4 bg-[#F0F9FF] rounded-xl">
-                <h4 className="font-semibold text-[#191F28] mb-2">💬 대화 품질</h4>
-                <div className="flex items-center gap-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-[#0AC5A8] h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(conversationAnalysis.messageQuality.score, 100)}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-bold text-[#0AC5A8]">
-                    {Math.round(conversationAnalysis.messageQuality.score)}점
-                  </span>
-                </div>
-              </div>
-              
-              {/* 강점 */}
-              <div className="p-4 bg-[#F0FDF4] rounded-xl">
-                <h4 className="font-semibold text-[#191F28] mb-2">✨ 강점</h4>
-                <div className="flex flex-wrap gap-2">
-                  {conversationAnalysis.strengths.map((strength: string, index: number) => (
-                    <span key={index} className="px-3 py-1 bg-[#22C55E] text-white text-sm rounded-full">
-                      {strength}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              {/* 개선 제안 */}
-              {conversationAnalysis.improvementSuggestions.length > 0 && (
-                <div className="p-4 bg-[#FEF3C7] rounded-xl">
-                  <h4 className="font-semibold text-[#191F28] mb-2">💡 개선 제안</h4>
-                  <ul className="space-y-1">
-                    {conversationAnalysis.improvementSuggestions.map((suggestion: string, index: number) => (
-                      <li key={index} className="text-sm text-[#92400E]">• {suggestion}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {/* 다음 단계 */}
-              <div className="p-4 bg-[#FDF2F8] rounded-xl">
-                <h4 className="font-semibold text-[#191F28] mb-2">🚀 다음 단계</h4>
-                <ul className="space-y-1">
-                  {conversationAnalysis.nextSteps.map((step: string, index: number) => (
-                    <li key={index} className="text-sm text-[#BE185D]">• {step}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            
-            <div className="mt-4 flex gap-2">
-              <button
-                onClick={() => setShowAnalysisModal(false)}
-                className="flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-              >
-                확인
-              </button>
-              <button
-                onClick={() => {
-                  setShowAnalysisModal(false);
-                  fetchAndShowSuggestion();
-                }}
-                className="flex-1 py-2 px-4 bg-[#F093B0] text-white rounded-lg font-medium hover:bg-[#E085A3] transition-colors"
-              >
-                코치 제안 받기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 🚀 실시간 대화 분석 모달 제거 (사용자 요청에 따라) */}
     </div>
   );
 };
