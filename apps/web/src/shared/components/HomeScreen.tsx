@@ -26,6 +26,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
   // 🚀 동적 페르소나 상태 관리
   const [dynamicPersonas, setDynamicPersonas] = useState<any[]>([]);
   const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
+  const [hasGeneratedPersonas, setHasGeneratedPersonas] = useState(false);
   
   // API 데이터 페칭 (실패 시 constants 사용)
   const { data: apiPersonas = [], isLoading: isLoadingPersonas } = usePersonas();
@@ -97,6 +98,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
         console.log('✅ 동적 페르소나 생성 성공:', newPersonas);
       }
       setDynamicPersonas(newPersonas);
+      setHasGeneratedPersonas(true);
       setCurrentSlideIndex(0);
       setHasViewedAllSlides(false);
     } catch (error) {
@@ -147,6 +149,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
       ];
       
       setDynamicPersonas(fallbackPersonas);
+      setHasGeneratedPersonas(true);
       setCurrentSlideIndex(0);
       setHasViewedAllSlides(false);
       
@@ -158,52 +161,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
     }
   };
 
-  // 🚀 초기 동적 페르소나 생성 (즉시 fallback 표시)
-  useEffect(() => {
-    if (userProfile && !isGeneratingPersonas && dynamicPersonas.length === 0) {
-      // 즉시 fallback 페르소나 표시 (조건 완화)
-      const immediateFallbackPersonas = [
-        {
-          id: 'immediate-persona-1',
-          name: userProfile.user_gender === 'male' ? '김민지' : '박준호',
-          age: userProfile.user_gender === 'male' ? 24 : 26,
-          gender: userProfile.user_gender === 'male' ? 'female' : 'male',
-          job: userProfile.user_gender === 'male' ? '디자이너' : '개발자',
-          avatar: getRandomAvatar(userProfile.user_gender === 'male' ? 'female' : 'male'),
-          intro: userProfile.user_gender === 'male' ? '안녕하세요! 디자인을 좋아하는 민지예요 😊' : '안녕하세요! 개발자 준호입니다 👨‍💻',
-          tags: userProfile.user_gender === 'male' ? ['디자인', '예술', '창의적'] : ['개발', '기술', '논리적'],
-          match_rate: 85,
-          systemInstruction: userProfile.user_gender === 'male' ? '당신은 24세 디자이너 김민지입니다. 창의적이고 예술적인 대화를 좋아해요.' : '당신은 26세 개발자 박준호입니다. 기술과 논리적인 대화를 선호해요.',
-          personality_traits: userProfile.user_gender === 'male' ? ['창의적', '감성적', '친근함'] : ['논리적', '차분함', '친절함'],
-          interests: userProfile.user_gender === 'male' ? [
-            { emoji: '🎨', topic: '디자인', description: 'UI/UX 디자인에 관심이 있어요' },
-            { emoji: '📱', topic: '모바일', description: '모바일 앱 디자인을 좋아해요' },
-            { emoji: '☕', topic: '카페', description: '예쁜 카페에서 작업하는 걸 좋아해요' }
-          ] : [
-            { emoji: '💻', topic: '개발', description: '새로운 기술을 배우는 걸 좋아해요' },
-            { emoji: '🎮', topic: '게임', description: '게임 개발에 관심이 있어요' },
-            { emoji: '🏃', topic: '운동', description: '러닝과 헬스장을 자주 가요' }
-          ],
-          conversation_preview: [
-            { sender: 'ai', text: userProfile.user_gender === 'male' ? '안녕하세요! 오늘 하루는 어땠나요? 😊' : '안녕하세요! 오늘 날씨가 정말 좋네요 😊' }
-          ]
-        }
-      ];
-      
-      setDynamicPersonas(prev => {
-        if (prev.length === 0) {
-          console.log('⚡ 홈탭 즉시 fallback 페르소나 표시 완료');
-          return immediateFallbackPersonas;
-        }
-        return prev;
-      });
-      
-      // 백그라운드에서 동적 페르소나 생성 (중복 방지)
-      if (dynamicPersonas.length === 0) {
-        generateNewPersonas();
-      }
-    }
-  }, [userProfile, isGeneratingPersonas, dynamicPersonas.length]);
+  // 🚀 수동 생성 방식으로 변경 - 자동 생성 로직 제거
 
   // 🚀 동적 페르소나 우선 사용, 없으면 API 데이터 사용
   const allPersonas = dynamicPersonas.length > 0 ? dynamicPersonas : apiPersonas;
@@ -403,9 +361,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
         <div className="p-5 bg-white rounded-2xl border" style={{borderColor: '#F2F4F6'}}>
             <div className="flex justify-between items-center mb-4">
                 <div>
-                    <h2 className="font-bold text-lg">💕 오늘의 추천 AI</h2>
+                    <h2 className="font-bold text-lg">💕 새로운 AI 친구 만나보기</h2>
                     <p className="text-sm text-gray-500">
-                      {isGeneratingPersonas ? 'AI가 당신을 위한 맞춤 친구들을 생성 중이에요...' : '지금 대화하기 좋은 친구들이에요'}
+                      {isGeneratingPersonas ? 'AI가 당신을 위한 맞춤 친구들을 생성 중이에요...' : '당신에게 맞는 특별한 친구들을 만나보세요'}
                     </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -433,8 +391,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
               </div>
             ) : recommendedPersonas.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
-                <div className="text-4xl mb-3">🤖</div>
-                <p className="text-sm text-gray-500 text-center">아직 추천할 AI가 없어요.<br/>잠시만 기다려주세요!</p>
+                <div className="text-6xl mb-4">🤖✨</div>
+                <h3 className="font-bold text-lg mb-2">새로운 AI 친구를 만나보세요!</h3>
+                <p className="text-sm text-gray-500 text-center mb-6">
+                  당신의 성격과 관심사에 맞는<br/>
+                  특별한 AI 친구들을 생성해드려요
+                </p>
+                <button 
+                  onClick={handleRefreshRecommendations}
+                  disabled={isGeneratingPersonas}
+                  className="px-8 py-4 text-lg font-bold text-white rounded-2xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  style={{backgroundColor: '#F093B0'}}
+                >
+                  {isGeneratingPersonas ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white inline-block mr-2"></div>
+                      AI 친구 생성 중...
+                    </>
+                  ) : (
+                    '💕 AI 친구 만나보기'
+                  )}
+                </button>
               </div>
             ) : (
               <>

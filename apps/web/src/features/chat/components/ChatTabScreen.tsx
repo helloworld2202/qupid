@@ -47,6 +47,7 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
   const [searchQuery] = useState('');
   const [dynamicPersonas, setDynamicPersonas] = useState<any[]>([]);
   const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
+  const [hasGeneratedPersonas, setHasGeneratedPersonas] = useState(false);
   const { currentUserId } = useAppStore();
   
   // API 호출
@@ -134,6 +135,7 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
       });
       
       setDynamicPersonas(newPersonas);
+      setHasGeneratedPersonas(true);
       console.log('🎉 동적 페르소나로 업데이트 완료:', newPersonas.length, '개');
     } catch (error) {
       console.error('❌ 동적 페르소나 생성 실패:', error);
@@ -331,13 +333,26 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
             </div>
           ) : searchedPersonas.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-4xl mb-3">🤖</div>
-              <p className="text-sm text-gray-500 text-center">아직 추천할 AI가 없어요.<br/>잠시만 기다려주세요!</p>
+              <div className="text-6xl mb-4">🤖✨</div>
+              <h3 className="font-bold text-lg mb-2">새로운 AI 친구를 만나보세요!</h3>
+              <p className="text-sm text-gray-500 text-center mb-6">
+                당신의 성격과 관심사에 맞는<br/>
+                특별한 AI 친구들을 생성해드려요
+              </p>
               <button 
                 onClick={generateNewPersonas}
-                className="mt-4 px-6 py-3 bg-[#0AC5A8] text-white rounded-full font-bold transition-all hover:scale-105"
+                disabled={isGeneratingPersonas}
+                className="px-8 py-4 text-lg font-bold text-white rounded-2xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                style={{backgroundColor: '#0AC5A8'}}
               >
-                AI 친구 생성하기
+                {isGeneratingPersonas ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white inline-block mr-2"></div>
+                    AI 친구 생성 중...
+                  </>
+                ) : (
+                  '💕 AI 친구 만나보기'
+                )}
               </button>
             </div>
           ) : (
