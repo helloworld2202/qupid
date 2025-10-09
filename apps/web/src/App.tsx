@@ -346,6 +346,12 @@ const AppContent: React.FC = () => {
       case Screen.CustomPersona:
         return (
           <CustomPersonaForm
+            onCreate={(persona) => {
+              // 생성된 페르소나를 sessionData에 저장하고 상세 화면으로 이동
+              console.log('✅ 사용자 정의 페르소나 생성 완료:', persona);
+              setSessionData({ persona });
+              navigateTo(Screen.PersonaDetail);
+            }}
             onCancel={() => navigateTo('CHAT_TAB')}
           />
         );

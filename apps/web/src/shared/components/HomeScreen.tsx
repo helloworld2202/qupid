@@ -329,10 +329,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
             <div className="flex justify-between items-center mb-4">
                 <div>
                     <h2 className="font-bold text-lg">💕 오늘의 추천 AI</h2>
-                    <p className="text-sm text-gray-500">지금 대화하기 좋은 친구들이에요</p>
+                    <p className="text-sm text-gray-500">
+                      {isGeneratingPersonas ? 'AI가 당신을 위한 맞춤 친구들을 생성 중이에요...' : '지금 대화하기 좋은 친구들이에요'}
+                    </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-400">{currentSlideIndex + 1}/{recommendedPersonas.length}</span>
+                    {recommendedPersonas.length > 0 && (
+                      <span className="text-xs text-gray-400">{currentSlideIndex + 1}/{recommendedPersonas.length}</span>
+                    )}
                     {hasViewedAllSlides && (
                         <button 
                           onClick={handleRefreshRecommendations}
@@ -346,13 +350,26 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
                 </div>
             </div>
             
-            {/* 슬라이드 컨테이너 */}
-            <div className="relative overflow-hidden rounded-xl">
-                <div 
-                  className="flex transition-transform duration-300 ease-in-out"
-                  style={{ transform: `translateX(-${currentSlideIndex * 100}%)` }}
-                >
-                    {recommendedPersonas.map((p, index) => (
+            {/* 🚀 로딩 상태 표시 */}
+            {isGeneratingPersonas && recommendedPersonas.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F093B0] mb-4"></div>
+                <p className="text-sm text-gray-500">AI가 당신에게 맞는 친구들을 찾고 있어요...</p>
+              </div>
+            ) : recommendedPersonas.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="text-4xl mb-3">🤖</div>
+                <p className="text-sm text-gray-500 text-center">아직 추천할 AI가 없어요.<br/>잠시만 기다려주세요!</p>
+              </div>
+            ) : (
+              <>
+                {/* 슬라이드 컨테이너 */}
+                <div className="relative overflow-hidden rounded-xl">
+                    <div 
+                      className="flex transition-transform duration-300 ease-in-out"
+                      style={{ transform: `translateX(-${currentSlideIndex * 100}%)` }}
+                    >
+                        {recommendedPersonas.map((p, index) => (
                         <div 
                           key={p.id} 
                           className="w-full flex-shrink-0 p-6 rounded-xl bg-gradient-to-br from-[#F9FAFB] to-[#F0F4F8] border border-[#E5E8EB] text-center cursor-pointer transition-all hover:shadow-lg hover:border-[#F093B0] hover:-translate-y-1"
@@ -421,7 +438,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onSelectPersona }) 
                         </button>
                     </div>
                 )}
-            </div>
+                </div>
+              </>
+            )}
         </div>
         
         {/* Achievement Banner */}

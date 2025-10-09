@@ -184,14 +184,34 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
         <section className="space-y-3">
             <div className="p-4 bg-gradient-to-r from-[#FDF2F8] to-[#EBF2FF] rounded-xl">
                  <h2 className="text-lg font-bold text-[#191F28]">💬 당신을 위한 추천</h2>
-                 <p className="text-sm text-[#4F7ABA] mt-1">설문 결과를 바탕으로, 아래 친구들을 추천해드려요!</p>
-                 <ul className="mt-2 space-y-1 text-xs list-disc list-inside text-[#DB7093] font-medium">
-                    {considerations.map(c => <li key={c}>{c}</li>)}
-                 </ul>
+                 <p className="text-sm text-[#4F7ABA] mt-1">
+                   {isGeneratingPersonas 
+                     ? 'AI가 당신에게 맞는 친구들을 생성하고 있어요...' 
+                     : '설문 결과를 바탕으로, 아래 친구들을 추천해드려요!'}
+                 </p>
+                 {considerations.length > 0 && !isGeneratingPersonas && (
+                   <ul className="mt-2 space-y-1 text-xs list-disc list-inside text-[#DB7093] font-medium">
+                      {considerations.map(c => <li key={c}>{c}</li>)}
+                   </ul>
+                 )}
             </div>
-          {isLoadingPersonas ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8]"></div>
+          {isLoadingPersonas || isGeneratingPersonas ? (
+            <div className="flex flex-col justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0AC5A8] mb-4"></div>
+              <p className="text-sm text-gray-500">
+                {isGeneratingPersonas ? 'AI가 맞춤 친구들을 만들고 있어요...' : '페르소나를 불러오는 중...'}
+              </p>
+            </div>
+          ) : searchedPersonas.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-4xl mb-3">🤖</div>
+              <p className="text-sm text-gray-500 text-center">아직 추천할 AI가 없어요.<br/>잠시만 기다려주세요!</p>
+              <button 
+                onClick={generateNewPersonas}
+                className="mt-4 px-6 py-3 bg-[#0AC5A8] text-white rounded-full font-bold transition-all hover:scale-105"
+              >
+                AI 친구 생성하기
+              </button>
             </div>
           ) : (
             searchedPersonas.map((persona, i) => (
