@@ -459,11 +459,14 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         console.error('API call failed, using mock response:', error);
         // 🚀 실제 사람 같은 Mock 응답 생성 (대화 기술 향상)
         const mockResponses = isCoaching ? [
-          "좋아요! 먼저 상대방의 관심사를 파악하는 것이 중요해요. '최근에 어떤 일에 관심이 있으세요?'처럼 열린 질문을 해보세요 💡",
-          "훌륭해요! 이제 공감을 표현해볼까요? 상대방의 말에 '정말 흥미롭네요!', '저도 그렇게 생각해요'처럼 반응해보세요 👍",
-          "잘하고 계세요! 다음은 자신의 경험을 공유할 차례예요. '저는 비슷한 상황에서...'처럼 자연스럽게 연결해보세요 💪",
-          "완벽해요! 이제 대화를 깊이 있게 만들어볼까요? 구체적인 질문을 추가하면 더 좋아요. '그때 어떤 기분이었나요?' 같은 질문을 해보세요 🎯",
-          "대단해요! 마지막으로 긍정적인 피드백을 주는 연습을 해봐요. '정말 멋진 생각이네요!', '당신의 열정이 느껴져요' 같은 표현을 사용해보세요 ✨"
+          "좋은 시작이에요! 이제 상대방의 관심사를 더 깊이 파악해보세요. '그 일에 대해 더 자세히 들려주세요' 같은 후속 질문을 해보세요 💡",
+          "훌륭해요! 공감 표현이 자연스러워졌네요. 이제 상대방의 감정을 읽고 '그때 많이 힘들었겠어요' 같은 감정 공감도 시도해보세요 😊",
+          "잘하고 계세요! 이제 자신의 경험을 공유할 때 '저도 비슷한 경험이 있어요. 그때는...'처럼 구체적인 이야기를 해보세요 💪",
+          "완벽해요! 대화가 점점 깊어지고 있네요. 이제 '그 경험에서 무엇을 배웠나요?' 같은 성찰적인 질문도 해보세요 🎯",
+          "대단해요! 이제 대화를 마무리할 때 '오늘 정말 좋은 시간이었어요. 다음에 또 이런 이야기 해요' 같은 긍정적인 마무리도 연습해보세요 ✨",
+          "좋은 질문이에요! 이제 상대방의 답변에 '정말 흥미롭네요! 어떻게 그런 생각을 하게 되었나요?'처럼 호기심을 보이는 질문을 해보세요 🤔",
+          "훌륭한 공감이에요! 이제 '저도 그런 적이 있어요. 그때는 정말...'처럼 자신의 경험을 자연스럽게 연결해보세요 💭",
+          "잘하고 계세요! 이제 '그 일이 당신에게 어떤 의미가 있나요?'처럼 상대방의 가치관을 파악하는 질문도 시도해보세요 🌟"
         ] : [
           // 🎯 실제 사람처럼 자연스러운 응답 (질문에 맞는 구체적 답변)
           "저는 로맨스 영화를 좋아해요! 특히 해리포터 시리즈가 기억에 남네요 😊",
@@ -625,15 +628,62 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
       
       {/* Coach Hint Modal */}
       {showCoachHint && (
-        <CoachHint
-          isLoading={isFetchingSuggestion}
-          suggestion={coachSuggestion}
-          onApply={(text) => {
-            setInput(text);
-            handleCloseHint();
-          }}
-          onClose={handleCloseHint}
-        />
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-[#191F28]">💡 코치 제안</h3>
+              <button 
+                onClick={handleCloseHint}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            {isFetchingSuggestion ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F093B0]"></div>
+                <p className="ml-3 text-sm text-gray-500">코치가 제안을 준비하고 있어요...</p>
+              </div>
+            ) : coachSuggestion ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-[#FDF2F8] rounded-xl border border-[#F093B0]">
+                  <p className="text-sm text-[#191F28] leading-relaxed">
+                    {coachSuggestion.suggestion}
+                  </p>
+                </div>
+                
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setInput(coachSuggestion.suggestion);
+                      handleCloseHint();
+                    }}
+                    className="flex-1 py-2 px-4 bg-[#F093B0] text-white rounded-lg font-medium hover:bg-[#E085A3] transition-colors"
+                  >
+                    적용하기
+                  </button>
+                  <button
+                    onClick={handleCloseHint}
+                    className="flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    직접 입력
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-500">제안을 불러올 수 없습니다.</p>
+                <button
+                  onClick={handleCloseHint}
+                  className="mt-4 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                >
+                  닫기
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
       
        {isAnalyzing && (
@@ -666,13 +716,16 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ partner, isTutorial = fa
         )}
         <div className="p-2">
           <div className="flex items-center space-x-2">
-            <button 
-                onClick={fetchAndShowSuggestion} 
-                disabled={isLoading || isAnalyzing || showCoachHint}
-                className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-full disabled:opacity-50 transition-colors hover:bg-yellow-100"
-            >
-                <CoachKeyIcon className="w-6 h-6 text-yellow-500" />
-            </button>
+            {/* 🚀 코칭 모드가 아닐 때만 키 모양 코칭 버튼 표시 */}
+            {!isCoaching && (
+              <button 
+                  onClick={fetchAndShowSuggestion} 
+                  disabled={isLoading || isAnalyzing || showCoachHint}
+                  className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-full disabled:opacity-50 transition-colors hover:bg-yellow-100"
+              >
+                  <CoachKeyIcon className="w-6 h-6 text-yellow-500" />
+              </button>
+            )}
             <input
               type="text"
               value={input}

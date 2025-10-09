@@ -371,86 +371,116 @@ const ChatTabScreen: React.FC<ChatTabScreenProps> = ({ onNavigate, onSelectPerso
                   공통 관심사를 나누며 자연스러운 대화를 연습해보세요
                 </p>
             </div>
-            {/* 🚀 전체 AI 친구 목록 */}
-            <div className="p-4 bg-white rounded-xl border border-[#F2F4F6]">
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-bold text-base">👥 전체 AI 친구들</h3>
-                    <span className="text-xs text-gray-500">{searchedPersonas.length}명</span>
-                </div>
-                
-                {isLoadingPersonas || isGeneratingPersonas ? (
-                    <div className="flex flex-col justify-center items-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0AC5A8] mb-3"></div>
-                        <p className="text-sm text-gray-500">
-                            {isGeneratingPersonas ? 'AI가 맞춤 친구들을 만들고 있어요...' : '페르소나를 불러오는 중...'}
-                        </p>
-                    </div>
-                ) : searchedPersonas.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8">
-                        <div className="text-4xl mb-3">🤖✨</div>
-                        <h4 className="font-bold text-base mb-2">아직 AI 친구가 없어요!</h4>
-                        <p className="text-sm text-gray-500 text-center mb-4">
-                            위의 카테고리에서<br/>
-                            새로운 AI 친구를 만들어보세요
-                        </p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                        {searchedPersonas.slice(0, 6).map((persona, i) => (
-                            <div 
-                                key={persona.id} 
-                                className="animate-fade-in-up p-4 bg-white rounded-xl border border-[#F2F4F6] hover:border-[#F093B0] hover:shadow-lg transition-all cursor-pointer group"
-                                style={{ animationDelay: `${i * 100}ms` }}
-                                onClick={() => onSelectPersona(persona)}
-                            >
-                                {/* 🚀 카드 형태 AI 친구 */}
-                                <div className="text-center">
-                                    <div className="relative w-16 h-16 mx-auto mb-3">
-                                        <img 
-                                            src={persona.avatar} 
-                                            alt={persona.name} 
-                                            className="w-full h-full rounded-full object-cover border-2 border-white group-hover:border-[#F093B0] transition-colors" 
-                                        />
-                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#0AC5A8] rounded-full border-2 border-white flex items-center justify-center">
-                                            <span className="text-xs font-bold text-white">{persona.match_rate}%</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <h3 className="font-bold text-base mb-1 text-[#191F28]">{persona.name}</h3>
-                                    <p className="text-xs text-gray-600 mb-2">{persona.age}세 • {persona.job}</p>
-                                    
-                                    <div className="flex flex-wrap justify-center gap-1 mb-3">
-                                        {persona.tags?.slice(0, 2).map((tag: string, tagIndex: number) => (
-                                            <span key={tagIndex} className="px-2 py-1 text-xs bg-[#F093B0] text-white rounded-full">
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    
-                                    <div className="text-xs text-gray-500 mb-3 line-clamp-2">
-                                        {persona.intro?.length > 40 ? `${persona.intro.substring(0, 40)}...` : persona.intro}
-                                    </div>
-                                    
-                                    <button className="w-full py-2 px-3 text-sm font-bold text-white rounded-lg transition-all hover:scale-105 bg-[#F093B0]">
-                                        대화하기
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        
-                        {searchedPersonas.length > 6 && (
-                            <div className="col-span-2">
-                                <button 
-                                    onClick={() => {/* 전체 보기 로직 */}}
-                                    className="w-full py-3 text-sm font-bold text-[#F093B0] hover:underline border-2 border-dashed border-[#F093B0] rounded-xl hover:bg-[#FDF2F8] transition-all"
-                                >
-                                    + {searchedPersonas.length - 6}명 더 보기
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
+           {/* 🚀 전체 AI 친구 목록 - 1명씩 오른쪽 슬라이드 형태 */}
+           <div className="p-4 bg-white rounded-xl border border-[#F2F4F6]">
+               <div className="flex justify-between items-center mb-3">
+                   <h3 className="font-bold text-base">👥 전체 AI 친구들</h3>
+                   <div className="flex items-center gap-2">
+                       <span className="text-xs text-gray-500">{searchedPersonas.length}명</span>
+                       <button 
+                           onClick={() => {
+                               console.log('🔄 AI 친구 새로고침 요청');
+                               generateNewPersonas();
+                           }}
+                           disabled={isGeneratingPersonas}
+                           className="p-1 text-[#F093B0] hover:bg-[#FDF2F8] rounded-full transition-all disabled:opacity-50"
+                           title="새로운 AI 친구 생성"
+                       >
+                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                           </svg>
+                       </button>
+                   </div>
+               </div>
+               
+               {isLoadingPersonas || isGeneratingPersonas ? (
+                   <div className="flex flex-col justify-center items-center py-8">
+                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0AC5A8] mb-3"></div>
+                       <p className="text-sm text-gray-500">
+                           {isGeneratingPersonas ? 'AI가 맞춤 친구들을 만들고 있어요...' : '페르소나를 불러오는 중...'}
+                       </p>
+                   </div>
+               ) : searchedPersonas.length === 0 ? (
+                   <div className="flex flex-col items-center justify-center py-8">
+                       <div className="text-4xl mb-3">🤖✨</div>
+                       <h4 className="font-bold text-base mb-2">아직 AI 친구가 없어요!</h4>
+                       <p className="text-sm text-gray-500 text-center mb-4">
+                           위의 카테고리에서<br/>
+                           새로운 AI 친구를 만들어보세요
+                       </p>
+                   </div>
+               ) : (
+                   <div className="relative">
+                       {/* 🚀 1명씩 오른쪽 슬라이드 형태 */}
+                       <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide">
+                           {searchedPersonas.slice(0, 1).map((persona, i) => (
+                               <div 
+                                   key={persona.id} 
+                                   className="flex-shrink-0 w-full animate-fade-in-up p-4 bg-white rounded-xl border border-[#F2F4F6] hover:border-[#F093B0] hover:shadow-lg transition-all cursor-pointer group"
+                                   style={{ animationDelay: `${i * 100}ms` }}
+                                   onClick={() => onSelectPersona(persona)}
+                               >
+                                   {/* 🚀 카드 형태 AI 친구 - 가로형 */}
+                                   <div className="flex items-center">
+                                       <div className="relative w-16 h-16 mr-4">
+                                           <img 
+                                               src={persona.avatar} 
+                                               alt={persona.name} 
+                                               className="w-full h-full rounded-full object-cover border-2 border-white group-hover:border-[#F093B0] transition-colors" 
+                                           />
+                                           <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#0AC5A8] rounded-full border-2 border-white flex items-center justify-center">
+                                               <span className="text-xs font-bold text-white">{persona.match_rate}%</span>
+                                           </div>
+                                       </div>
+                                       
+                                       <div className="flex-1">
+                                           <h3 className="font-bold text-base mb-1 text-[#191F28]">{persona.name}</h3>
+                                           <p className="text-xs text-gray-600 mb-2">{persona.age}세 • {persona.job}</p>
+                                           
+                                           <div className="flex flex-wrap gap-1 mb-2">
+                                               {persona.tags?.slice(0, 2).map((tag: string, tagIndex: number) => (
+                                                   <span key={tagIndex} className="px-2 py-1 text-xs bg-[#F093B0] text-white rounded-full">
+                                                       {tag}
+                                                   </span>
+                                               ))}
+                                           </div>
+                                           
+                                           <div className="text-xs text-gray-500 mb-3 line-clamp-2">
+                                               {persona.intro?.length > 60 ? `${persona.intro.substring(0, 60)}...` : persona.intro}
+                                           </div>
+                                       </div>
+                                       
+                                       <button className="ml-4 py-2 px-4 text-sm font-bold text-white rounded-lg transition-all hover:scale-105 bg-[#F093B0]">
+                                           대화하기
+                                       </button>
+                                   </div>
+                               </div>
+                           ))}
+                           
+                           {/* 🚀 더 많은 AI 친구가 있을 때 슬라이드 표시 */}
+                           {searchedPersonas.length > 1 && (
+                               <div className="flex-shrink-0 w-full flex items-center justify-center">
+                                   <div className="text-center p-4">
+                                       <div className="text-2xl mb-2">👥</div>
+                                       <p className="text-sm text-gray-500 mb-2">
+                                           {searchedPersonas.length - 1}명의<br/>더 많은 AI 친구들
+                                       </p>
+                                       <button 
+                                           onClick={() => {
+                                               console.log('🔄 다음 AI 친구 보기');
+                                               // TODO: 다음 AI 친구로 슬라이드
+                                           }}
+                                           className="px-3 py-1 text-xs font-bold text-[#F093B0] border border-[#F093B0] rounded-full hover:bg-[#FDF2F8] transition-all"
+                                       >
+                                           다음 보기
+                                       </button>
+                                   </div>
+                               </div>
+                           )}
+                       </div>
+                   </div>
+               )}
+           </div>
         </section>
 
         <section>

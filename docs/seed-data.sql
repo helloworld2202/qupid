@@ -175,7 +175,7 @@ INSERT INTO public.coaches (id, name, specialty, tagline, bio, avatar, expertise
 
 ('coach-4', '데이빗', '유머/위트', '대화를 즐겁게 만드는 유머 감각 키우기',
  '안녕하세요, 유머 코치 데이빗입니다. 대화를 더 즐겁고 유쾌하게 만들고 싶으신가요? 재치 있는 농담과 긍정적인 유머를 사용하는 방법을 함께 연습해봐요.',
- 'https://api.dicebear.com/7.x/avataaars/svg?seed=David&backgroundColor=ffffba,baffc9,bae1ff&backgroundType=gradientLinear',
+ 'https://avatar.iran.liara.run/public/boy?username=David',
  ARRAY['유머 사용', '위트', '재치있는 대화'],
  '유쾌하고 재치있는 코칭')
 ON CONFLICT (id) DO UPDATE SET
