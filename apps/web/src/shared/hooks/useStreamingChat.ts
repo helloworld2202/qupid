@@ -29,7 +29,8 @@ export const useStreamingChat = (options: UseStreamingChatOptions = {}) => {
     abortControllerRef.current = new AbortController();
 
     try {
-      const response = await fetch('/api/chat/stream', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const response = await fetch(`${apiUrl}/api/v1/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

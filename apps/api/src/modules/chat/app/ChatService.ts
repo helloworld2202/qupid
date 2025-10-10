@@ -319,7 +319,7 @@ ${modeGuidelines}
         max_tokens: 200, // 충분한 길이로 자연스러운 대화
         frequency_penalty: 0.3, // 적당한 반복 방지
         presence_penalty: 0.1, // 자연스러운 다양성
-        top_p: 0.95 // 더 다양한 표현
+        top_p: 0.95, // 더 다양한 표현
         stream: true
       });
 

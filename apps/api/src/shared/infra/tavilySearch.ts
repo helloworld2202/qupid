@@ -63,7 +63,7 @@ export class TavilySearchService {
         throw new Error(`Tavily API error: ${response.status}`);
       }
 
-      const data: TavilySearchResponse = await response.json();
+      const data = await response.json() as TavilySearchResponse;
       
       return this.formatSearchResults(data, specialty);
     } catch (error) {

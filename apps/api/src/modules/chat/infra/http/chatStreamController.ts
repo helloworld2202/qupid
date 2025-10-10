@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ChatService } from '../app/ChatService.js';
+import { ChatService } from '../../app/ChatService.js';
 
 export class ChatStreamController {
   constructor(private chatService: ChatService) {}
