@@ -20,9 +20,8 @@ const isCapacitorApp = () => {
 export const getApiUrl = (): string => {
   // Capacitor 네이티브 앱에서 실행 중
   if (isCapacitorApp()) {
-    // TODO: 실제 배포된 API URL로 변경하세요
-    // Railway 또는 다른 호스팅 서비스 URL
-    return 'https://qupid-api.railway.app/api/v1';
+    // Railway 프로덕션 URL
+    return 'https://qupid-production.up.railway.app/api/v1';
   }
 
   // 웹 브라우저에서 실행 중
