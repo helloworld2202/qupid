@@ -28,3 +28,13 @@ dist-ssr
 .env
 .env.production
 .vercel
+
+# Capacitor
+apps/web/ios/App/Pods/
+apps/web/ios/App/App/public/
+apps/web/ios/App/build/
+apps/web/ios/App/*.xcworkspace/xcuserdata/
+apps/web/ios/App/*.xcodeproj/xcuserdata/
+apps/web/ios/App/*.xcodeproj/project.xcworkspace/xcuserdata/
+apps/web/android/app/build/
+apps/web/android/.gradle/

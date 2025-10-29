@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Providers } from './app/providers';
@@ -15,38 +15,49 @@ const queryClient = new QueryClient({
   },
 });
 
-// Shared Components
+// 로딩 컴포넌트
+const LoadingSpinner: React.FC = () => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
+      <p className="text-gray-600">로딩 중...</p>
+    </div>
+  </div>
+);
+
+// 필수 컴포넌트만 eager loading (초기 화면에 필요)
 import { BottomNavBar } from './shared/components/BottomNavBar';
 import { HomeScreen } from './shared/components/HomeScreen';
-
-// Feature Components
 import { OnboardingFlow } from './features/onboarding/components/OnboardingFlow';
-import { ChatTabScreen } from './features/chat/components/ChatTabScreen';
-import { ChatScreen } from './features/chat/components/ChatScreen';
-import { ConversationPrepScreen } from './features/chat/components/ConversationPrepScreen';
-import { ConversationAnalysisScreen } from './features/chat/components/ConversationAnalysisScreen';
-import { PersonaDetailScreen } from './features/chat/components/PersonaDetailScreen';
-import CustomPersonaForm from './features/chat/components/CustomPersonaForm';
-import { TutorialIntroScreen } from './features/onboarding/components/TutorialIntroScreen';
-import { PersonaSelection } from './features/onboarding/components/PersonaSelection';
-import { PersonaRecommendationIntro } from './features/onboarding/components/PersonaRecommendationIntro';
-import { CoachingTabScreen } from './features/coaching/components/CoachingTabScreen';
-import { StylingCoach } from './features/coaching/components/StylingCoach';
-import { LearningGoalsScreen } from './features/coaching/components/LearningGoalsScreen';
-import { MyTabScreen } from './features/profile/components/MyTabScreen';
-import { ProfileEditScreen } from './features/profile/components/ProfileEditScreen';
-import { SettingsScreen } from './features/profile/components/SettingsScreen';
-import { BadgesScreen } from './features/profile/components/BadgesScreen';
 import { useBadges } from './shared/hooks/useBadges';
-import { FavoritesScreen } from './features/profile/components/FavoritesScreen';
-import NotificationSettingsScreen from './features/profile/components/NotificationSettingsScreen';
-import { DeleteAccountScreen } from './features/profile/components/DeleteAccountScreen';
-import { DesignGuideScreen } from './features/profile/components/DesignGuideScreen';
-import { PerformanceDetailScreen } from './features/analytics/components/PerformanceDetailScreen';
-import { DataExportScreen } from './features/analytics/components/DataExportScreen';
-import { LoginScreen } from './features/auth/components/LoginScreen';
-import { SignupScreen } from './features/auth/components/SignupScreen';
-import AuthCallback from './features/auth/components/AuthCallback';
+import ErrorBoundary from './shared/components/ErrorBoundary';
+
+// 나머지는 lazy loading으로 변경 (코드 스플리팅)
+const ChatTabScreen = React.lazy(() => import('./features/chat/components/ChatTabScreen'));
+const ChatScreen = React.lazy(() => import('./features/chat/components/ChatScreen'));
+const ConversationPrepScreen = React.lazy(() => import('./features/chat/components/ConversationPrepScreen'));
+const ConversationAnalysisScreen = React.lazy(() => import('./features/chat/components/ConversationAnalysisScreen'));
+const PersonaDetailScreen = React.lazy(() => import('./features/chat/components/PersonaDetailScreen'));
+const CustomPersonaForm = React.lazy(() => import('./features/chat/components/CustomPersonaForm'));
+const TutorialIntroScreen = React.lazy(() => import('./features/onboarding/components/TutorialIntroScreen'));
+const PersonaSelection = React.lazy(() => import('./features/onboarding/components/PersonaSelection'));
+const PersonaRecommendationIntro = React.lazy(() => import('./features/onboarding/components/PersonaRecommendationIntro'));
+const CoachingTabScreen = React.lazy(() => import('./features/coaching/components/CoachingTabScreen'));
+const StylingCoach = React.lazy(() => import('./features/coaching/components/StylingCoach'));
+const LearningGoalsScreen = React.lazy(() => import('./features/coaching/components/LearningGoalsScreen'));
+const MyTabScreen = React.lazy(() => import('./features/profile/components/MyTabScreen'));
+const ProfileEditScreen = React.lazy(() => import('./features/profile/components/ProfileEditScreen'));
+const SettingsScreen = React.lazy(() => import('./features/profile/components/SettingsScreen'));
+const BadgesScreen = React.lazy(() => import('./features/profile/components/BadgesScreen'));
+const FavoritesScreen = React.lazy(() => import('./features/profile/components/FavoritesScreen'));
+const NotificationSettingsScreen = React.lazy(() => import('./features/profile/components/NotificationSettingsScreen'));
+const DeleteAccountScreen = React.lazy(() => import('./features/profile/components/DeleteAccountScreen'));
+const DesignGuideScreen = React.lazy(() => import('./features/profile/components/DesignGuideScreen'));
+const PerformanceDetailScreen = React.lazy(() => import('./features/analytics/components/PerformanceDetailScreen'));
+const DataExportScreen = React.lazy(() => import('./features/analytics/components/DataExportScreen'));
+const LoginScreen = React.lazy(() => import('./features/auth/components/LoginScreen'));
+const SignupScreen = React.lazy(() => import('./features/auth/components/SignupScreen'));
+const AuthCallback = React.lazy(() => import('./features/auth/components/AuthCallback'));
 
 // Badges Container with API integration
 const BadgesContainer: React.FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -228,6 +239,13 @@ const AppContent: React.FC = () => {
   };
 
   const renderScreen = () => {
+    // Suspense로 lazy 컴포넌트 래핑
+    const renderWithSuspense = (Component: React.ReactNode) => (
+      <Suspense fallback={<LoadingSpinner />}>
+        {Component}
+      </Suspense>
+    );
+
     switch (currentScreen) {
       case 'HOME':
         return <HomeScreen 
@@ -244,7 +262,7 @@ const AppContent: React.FC = () => {
         />;
       
       case 'CHAT_TAB':
-        return (
+        return renderWithSuspense(
           <ChatTabScreen 
             onNavigate={(screen, category) => {
               if (screen === Screen.CustomPersona) {
@@ -712,12 +730,16 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Providers>
-        <AppContent />
-      </Providers>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Providers>
+          <ErrorBoundary>
+            <AppContent />
+          </ErrorBoundary>
+        </Providers>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 

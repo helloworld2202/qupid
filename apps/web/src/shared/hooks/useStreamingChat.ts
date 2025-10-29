@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { Message } from '@qupid/core';
+import { getApiUrl } from '../../config/api';
 
 interface UseStreamingChatOptions {
   onMessageComplete?: (message: Message) => void;
@@ -29,8 +30,8 @@ export const useStreamingChat = (options: UseStreamingChatOptions = {}) => {
     abortControllerRef.current = new AbortController();
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const response = await fetch(`${apiUrl}/api/v1/chat/stream`, {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
